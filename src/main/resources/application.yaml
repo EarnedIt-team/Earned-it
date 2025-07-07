@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: timoney
+
+  datasource:
+    url: jdbc:mariadb://localhost:3306/${MARIA_DB}
+    username: ${LOCAL_DB_USER}
+    password: ${LOCAL_DB_PASSWORD}
+    driver-class-name: org.mariadb.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MariaDBDialect
