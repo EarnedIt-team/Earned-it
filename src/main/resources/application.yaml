@@ -1,16 +1,17 @@
 spring:
   application:
-    name: timoney
+    name: earnedit
 
   datasource:
-    url: jdbc:mariadb://localhost:3306/${MARIA_DB}
-    username: ${LOCAL_DB_USER}
-    password: ${LOCAL_DB_PASSWORD}
-    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:postgresql://${RDS_DB_URL}:5432/earnedit
+    username: ${RDS_DB_USER}
+    password: ${RDS_DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
+    show-sql: true
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MariaDBDialect
+        dialect: org.hibernate.dialect.PostgreSQLDialect
