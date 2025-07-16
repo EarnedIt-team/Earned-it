@@ -1,4 +1,4 @@
-package _team.timoney.global;
+package _team.earnedit.global;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
