@@ -1,10 +1,10 @@
-package _team.timoney;
+package _team.earnedit;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class TimoneyApplicationTests {
+class EarneditApplicationTests {
 
 	@Test
 	void contextLoads() {

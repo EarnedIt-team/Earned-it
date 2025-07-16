@@ -1,7 +1,7 @@
-package _team.timoney.global.exception;
+package _team.earnedit.global.exception;
 
-import _team.timoney.global.ErrorCode;
-import _team.timoney.global.ErrorResponse;
+import _team.earnedit.global.ErrorCode;
+import _team.earnedit.global.ErrorResponse;
 import jakarta.persistence.NoResultException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;

@@ -1,4 +1,4 @@
-package _team.timoney.controller;
+package _team.earnedit.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
