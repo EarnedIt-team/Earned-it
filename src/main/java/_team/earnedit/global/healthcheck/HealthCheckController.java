@@ -1,4 +1,4 @@
-package _team.earnedit.controller;
+package _team.earnedit.global.healthcheck;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
