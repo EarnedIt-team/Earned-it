@@ -14,8 +14,8 @@ public class SwaggerConfig {
     public OpenAPI openAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Timoney API 문서")
-                        .description("Timoney API 명세입니다.")
+                        .title("Earned-It API 문서")
+                        .description("Earned-It API 명세입니다.")
                         .version("v1.0.0"))
                 .components(new Components()
                         .addSecuritySchemes("bearer-key", new SecurityScheme()
