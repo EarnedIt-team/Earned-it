@@ -32,4 +32,11 @@ public class EmailToken {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
+    public boolean isExpired() {
+        return LocalDateTime.now().isAfter(expiredAt);
+    }
+
+    public void verify() {
+        this.isVerified = true;
+    }
 }
