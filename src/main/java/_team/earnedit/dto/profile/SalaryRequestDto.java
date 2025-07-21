@@ -7,6 +7,6 @@ import lombok.Getter;
 @Getter
 public class SalaryRequestDto {
 
-    private Long salary;
+    private Long amount;
 
 }

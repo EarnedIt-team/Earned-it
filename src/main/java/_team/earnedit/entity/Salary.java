@@ -26,7 +26,7 @@ public class Salary {
     private Boolean severance;
 
     @Column(nullable = false)
-    private Long salary;
+    private Long amount;
 
     private Integer dependentCount;
 
@@ -36,7 +36,7 @@ public class Salary {
     private Boolean tax = false;
 
     @Column(nullable = false)
-    private Double salaryPerSec;
+    private Double amountPerSec;
 
     public enum SalaryType {
         MONTH,
