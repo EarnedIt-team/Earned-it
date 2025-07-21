@@ -28,6 +28,8 @@ spring:
           auth: true
           starttls:
             enable: true
+
+# 이메일 인증
 email:
   verification:
-    url: http://localhost:8080/api/auth/email/verify
+    url: ${EMAIL_VERIFICATION_URL}
