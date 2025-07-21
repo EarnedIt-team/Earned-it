@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 @Table(name = "users")
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
@@ -40,7 +39,6 @@ public class User {
     @Column(length = 255)
     private String profileImage;
 
-    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status = Status.ACTIVE;
@@ -57,11 +55,9 @@ public class User {
     @Column(nullable = false)
     private Provider provider;
 
-    @Builder.Default
     @Column(nullable = false)
     private Boolean isDarkMode = false;
 
-    @Builder.Default
     @Column(nullable = false)
     private Boolean isPublic = false;
 }
