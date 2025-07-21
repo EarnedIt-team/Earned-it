@@ -1,0 +1,6 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${LOCAL_DB_URL}:5432/earnedit
+    username: ${LOCAL_DB_USER}
+    password: ${LOCAL_DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
