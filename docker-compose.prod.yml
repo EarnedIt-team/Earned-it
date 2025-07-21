@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  # 웹 서버
+  web:
+    container_name: earned-it
+    build:
+      context: . # build를 실행할 위치
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+
+    env_file:
+      - .env
+
+    environment:
+      # 스프링 프로필 설정
+      SPRING_PROFILES_ACTIVE: prod
+
+
+
+
