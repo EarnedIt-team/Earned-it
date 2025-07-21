@@ -33,8 +33,8 @@ public class AuthService {
                         .nickname(nickname)
                         .provider(User.Provider.LOCAL)
                         .status(User.Status.ACTIVE)
-                        .isDarkMode(requestDto.getIsDarkMode())
-                        .isPublic(requestDto.getIsPublic())
+                        .isDarkMode(false)
+                        .isPublic(false)
                         .build()
         );
 
