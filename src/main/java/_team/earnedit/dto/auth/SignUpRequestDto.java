@@ -11,8 +11,6 @@ public class SignUpRequestDto {
 
     private String password;
 
-    private String nickname;
-
     @Builder.Default
     private Boolean isDarkMode = false;
 
