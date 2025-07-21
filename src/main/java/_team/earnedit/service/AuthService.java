@@ -19,9 +19,14 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final TermRepository termRepository;
+    private final EmailVerificationService emailVerificationService;
 
     public SignUpResponseDto signUp(SignUpRequestDto requestDto) {
         String email = requestDto.getEmail();
+        if (!emailVerificationService.isEmailVerified(email)) {
+            throw new UserException(ErrorCode.EMAIL_NOT_VERIFIED);
+        }
+
         String password = requestDto.getPassword();
         String nickname = generateUniqueNickname();
 
