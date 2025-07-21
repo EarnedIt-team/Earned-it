@@ -25,10 +25,6 @@ public class AuthService {
         String password = requestDto.getPassword();
         String nickname = generateUniqueNickname();
 
-        if (userRepository.existsByEmail(email)) {
-            throw new UserException(ErrorCode.EMAIL_ALREADY_EXISTED);
-        }
-
         User user = userRepository.save(
                 User.builder()
                         .email(email)
