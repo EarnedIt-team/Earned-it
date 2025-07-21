@@ -13,7 +13,7 @@ public class ProfileService {
 
     private final SalaryRepository salaryRepository;
 
-    public SalaryResponseDto updateSalary(SalaryRequestDto requestDto) {
+    public SalaryResponseDto updateSalary(long userId, SalaryRequestDto requestDto) {
         Long amount = requestDto.getAmount();
         Salary salary = salaryRepository.save(
                 Salary.builder()
