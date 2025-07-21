@@ -19,12 +19,34 @@ public class EmailService {
 
     public void sendVerificationEmail(String email, String token) {
         String verifyLink = emailVerificationUrl + "?token=" + token;
-        String subject = "[서비스명] 이메일 인증 코드";
-        String html = "인증 코드 : " + token + "<br/>"
-                + "<a href='" + verifyLink + "'>여기를 클릭해서 인증하세요</a>";
+        String subject = "[earned It !] 이메일 인증 안내";
+
+        String html = """
+            <div style="font-family: Arial, sans-serif; font-size: 16px; color: #333;">
+                <h2>이메일 인증 코드</h2>
+                <p>아래 인증 코드를 입력하거나 버튼을 눌러 인증을 완료하세요.</p>
+
+                <div style="font-size: 24px; font-weight: bold; color: #4CAF50; margin: 20px 0;">
+                    %s
+                </div>
+
+                <a href='%s' 
+                   style="display: inline-block; padding: 10px 20px; font-size: 16px;
+                          color: white; background-color: #4CAF50; text-decoration: none;
+                          border-radius: 5px;">
+                    이메일 인증하기
+                </a>
+
+                <p style="margin-top: 30px; font-size: 12px; color: #999;">
+                    만약 버튼이 동작하지 않는다면 아래 링크를 복사해서 브라우저에 붙여넣어주세요.<br/>
+                    %s
+                </p>
+            </div>
+            """.formatted(token, verifyLink, verifyLink);
 
         sendHtml(email, subject, html);
     }
+
 
     private void sendHtml(String to, String subject, String html) {
         try {
