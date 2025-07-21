@@ -18,4 +18,11 @@ public class EmailVerificationController {
         emailVerificationService.sendEmailVerification(email);
         return ResponseEntity.ok("인증 이메일이 전송되었습니다.");
     }
+
+    // 이메일 인증 코드 입력 후 검증 (앱 UI에서 코드 입력 후 호출)
+    @PostMapping("/verify")
+    public ResponseEntity<String> verifyEmailToken(@RequestParam String token) {
+        emailVerificationService.verifyEmailToken(token);
+        return ResponseEntity.ok("이메일 인증이 완료되었습니다.");
+    }
 }
