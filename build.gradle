@@ -34,6 +34,9 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+	// 메일 전송
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
 	// PostgreSQL 드라이버
 	implementation 'org.postgresql:postgresql'
 
