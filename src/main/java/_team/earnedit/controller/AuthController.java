@@ -1,5 +1,7 @@
 package _team.earnedit.controller;
 
+import _team.earnedit.dto.auth.SignInRequestDto;
+import _team.earnedit.dto.auth.SignInResponseDto;
 import _team.earnedit.dto.auth.SignUpRequestDto;
 import _team.earnedit.dto.auth.SignUpResponseDto;
 import _team.earnedit.global.ApiResponse;
@@ -22,5 +24,11 @@ public class AuthController {
         SignUpResponseDto responseDto = authService.signUp(requestDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("회원가입이 완료되었습니다.", responseDto));
+    }
+
+    @PostMapping("/signin")
+    public ResponseEntity<SignInResponseDto> signIn(@RequestBody SignInRequestDto requestDto) {
+        SignInResponseDto responseDto = authService.signIn(requestDto);
+        return ResponseEntity.ok(responseDto);
     }
 }
