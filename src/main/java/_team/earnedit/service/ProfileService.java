@@ -18,7 +18,7 @@ public class ProfileService {
 
     public SalaryResponseDto updateSalary(long userId, SalaryRequestDto requestDto) {
         Long amount = requestDto.getAmount();
-        double salaryPerSec = salaryCalculator.calculateAmountPerSec(amount);
+        double amountPerSec = salaryCalculator.calculateAmountPerSec(amount);
 
         Salary salary = salaryRepository.save(
                 Salary.builder()
@@ -26,11 +26,11 @@ public class ProfileService {
                         .type(Salary.SalaryType.MONTH)
                         .amount(amount)
                         .tax(false)
-                        .amountPerSec(salaryPerSec)
+                        .amountPerSec(amountPerSec)
                         .build()
         );
 
-        return new SalaryResponseDto();
+        return SalaryResponseDto.from(salary);
     }
 
     // 수익 조회용 (예정)
