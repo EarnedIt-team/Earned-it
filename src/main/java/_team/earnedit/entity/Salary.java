@@ -38,6 +38,9 @@ public class Salary {
     @Column(nullable = false)
     private Double amountPerSec;
 
+    @Column(nullable = false)
+    private Integer payday;
+
     public enum SalaryType {
         MONTH,
         YEAR,
