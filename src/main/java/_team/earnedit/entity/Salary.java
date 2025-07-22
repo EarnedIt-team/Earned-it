@@ -43,4 +43,8 @@ public class Salary {
         YEAR,
         NONE
     }
+
+    public void updateAmountPerSec(double newAmountPerSec) {
+        this.amountPerSec = newAmountPerSec;
+    }
 }
