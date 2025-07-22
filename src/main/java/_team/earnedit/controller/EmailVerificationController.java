@@ -1,5 +1,6 @@
 package _team.earnedit.controller;
 
+import _team.earnedit.dto.auth.EmailTokenVerifyRequestDto;
 import _team.earnedit.global.ApiResponse;
 import _team.earnedit.service.EmailVerificationService;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +25,8 @@ public class EmailVerificationController {
 
     // 이메일 인증 코드 입력 후 검증 (앱 UI에서 코드 입력 후 호출)
     @PostMapping("/verify")
-    public ResponseEntity<ApiResponse<String>> verifyEmailToken(@RequestParam String token) {
-        emailVerificationService.verifyEmailToken(token);
+    public ResponseEntity<ApiResponse<String>> verifyEmailToken(@RequestBody EmailTokenVerifyRequestDto requestDto) {
+        emailVerificationService.verifyEmailToken(requestDto.getEmail(), requestDto.getToken());
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success("이메일 인증이 완료되었습니다."));
     }
