@@ -13,6 +13,20 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+  # Redis
+  data:
+    redis:
+      repositories:
+        enabled: false
+    elasticsearch:
+      repositories:
+        enabled: false
+
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+    password: ${REDIS_PASSWORD}
+
   #메일 의존성
   mail:
     host: smtp.gmail.com
@@ -30,3 +44,8 @@ spring:
 email:
   verification:
     url: ${EMAIL_VERIFICATION_URL}
+
+# JWT
+jwt:
+  secret: ${JWT_SECRET}
+  refresh_secret : ${JWT_REFRESH_SECRET}
