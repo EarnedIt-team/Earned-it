@@ -18,6 +18,7 @@ public class ProfileService {
 
     public SalaryResponseDto updateSalary(long userId, SalaryRequestDto requestDto) {
         Long amount = requestDto.getAmount();
+        Integer payday = requestDto.getPayday();
         double amountPerSec = salaryCalculator.calculateAmountPerSec(amount);
 
         Salary salary = salaryRepository.save(
@@ -27,6 +28,7 @@ public class ProfileService {
                         .amount(amount)
                         .tax(false)
                         .amountPerSec(amountPerSec)
+                        .payday(payday)
                         .build()
         );
 

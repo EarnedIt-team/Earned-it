@@ -10,11 +10,13 @@ public class SalaryResponseDto {
 
     private Long amount;
     private Double amountPerSec;
+    private Integer payday;
 
     public static SalaryResponseDto from(Salary salary) {
         return SalaryResponseDto.builder()
                 .amount(salary.getAmount())
                 .amountPerSec(salary.getAmountPerSec())
+                .payday(salary.getPayday())
                 .build();
     }
 }

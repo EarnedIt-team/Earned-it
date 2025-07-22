@@ -8,5 +8,6 @@ import lombok.Getter;
 public class SalaryRequestDto {
 
     private Long amount;
+    private Integer payday;
 
 }
