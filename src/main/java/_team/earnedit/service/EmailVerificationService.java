@@ -52,9 +52,13 @@ public class EmailVerificationService {
 
     // 인증 확인 (토큰 검증)
     @Transactional
-    public void verifyEmailToken(String token) {
+    public void verifyEmailToken(String email, String token) {
         EmailToken emailToken = emailTokenRepository.findByToken(token)
                 .orElseThrow(() -> new UserException(ErrorCode.EMAIL_TOKEN_NOT_FOUND));
+
+        if (!emailToken.getEmail().equals(email)) {
+            throw new UserException(ErrorCode.EMAIL_TOKEN_INVALID_EMAIL);
+        }
 
         if (emailToken.isVerified()) {
             throw new UserException(ErrorCode.EMAIL_TOKEN_ALREADY_VERIFIED);
