@@ -10,6 +10,7 @@ import _team.earnedit.entity.User;
 import _team.earnedit.global.ErrorCode;
 import _team.earnedit.global.exception.user.UserException;
 import _team.earnedit.global.jwt.JwtUtil;
+import _team.earnedit.repository.SalaryRepository;
 import _team.earnedit.repository.TermRepository;
 import _team.earnedit.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -28,6 +29,7 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final TermRepository termRepository;
+    private final SalaryRepository salaryRepository;
     private final EmailVerificationService emailVerificationService;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
@@ -94,10 +96,9 @@ public class AuthService {
         user.setLastLoginAt(LocalDateTime.now());
         userRepository.save(user);
 
-        redisTemplate.opsForValue()
-                .set("refresh:" + user.getId(), refreshToken, Duration.ofDays(7));
+        boolean hasSalary = salaryRepository.existsByUserId(user.getId());
 
-        return new SignInResponseDto(accessToken, refreshToken, user.getId());
+        return new SignInResponseDto(accessToken, refreshToken, user.getId(), hasSalary);
     }
 
     private String generateUniqueNickname() {
