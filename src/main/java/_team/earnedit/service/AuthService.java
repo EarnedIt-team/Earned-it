@@ -118,6 +118,9 @@ public class AuthService {
         user.setLastLoginAt(LocalDateTime.now());
         userRepository.save(user);
 
+        redisTemplate.opsForValue()
+                .set("refresh:" + user.getId(), refreshToken, Duration.ofMillis(jwtUtil.getRefreshTokenExpireTime()));
+
         boolean hasSalary = salaryRepository.existsByUserId(user.getId());
 
         return new SignInResponseDto(accessToken, refreshToken, user.getId(), hasSalary);

@@ -8,6 +8,7 @@ import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 //import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Component;
@@ -26,6 +27,7 @@ public class JwtUtil {
     private final Key accessKey;
     private final Key refreshKey;
     private final long accessTokenExpireTime;
+    @Getter
     private final long refreshTokenExpireTime;
 
     // 시크릿 키 만료 시간 설정
@@ -140,4 +142,5 @@ public class JwtUtil {
                 .getBody()
                 .getExpiration();
     }
+
 }
