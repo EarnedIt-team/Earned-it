@@ -56,6 +56,8 @@ email:
 jwt:
   secret: ${JWT_SECRET}
   refresh_secret : ${JWT_REFRESH_SECRET}
+  access_expire_time: ${JWT_ACCESS_EXPIRE_TIME}
+  refresh_expire_time: ${JWT_REFRESH_EXPIRE_TIME}
 
 # S3
 cloud:

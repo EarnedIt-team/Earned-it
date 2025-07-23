@@ -30,11 +30,13 @@ public class JwtUtil {
 
     // 시크릿 키 만료 시간 설정
     public JwtUtil(@Value("${jwt.secret}") String accessSecretKey,
-                   @Value("${jwt.refresh_secret}") String refreshSecretKey) {
+                   @Value("${jwt.refresh_secret}") String refreshSecretKey,
+                   @Value("${jwt.access_expire_time}") long accessTokenExpireTime,
+                   @Value("${jwt.refresh_expire_time}") long refreshTokenExpireTime) {
         this.accessKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(accessSecretKey));
         this.refreshKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(refreshSecretKey));
-        this.accessTokenExpireTime = 15 * MINUTE;
-        this.refreshTokenExpireTime = 7 * DAY;
+        this.accessTokenExpireTime = accessTokenExpireTime;
+        this.refreshTokenExpireTime = refreshTokenExpireTime;
     }
 
     //토큰 생성 - access, refresh 발급
