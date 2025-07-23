@@ -1,9 +1,6 @@
 package _team.earnedit.service;
 
-import _team.earnedit.dto.auth.SignInRequestDto;
-import _team.earnedit.dto.auth.SignInResponseDto;
-import _team.earnedit.dto.auth.SignUpRequestDto;
-import _team.earnedit.dto.auth.SignUpResponseDto;
+import _team.earnedit.dto.auth.*;
 import _team.earnedit.dto.jwt.JwtUserInfoDto;
 import _team.earnedit.entity.Term;
 import _team.earnedit.entity.User;
@@ -85,6 +82,31 @@ public class AuthService {
         }
 
         return generateLoginResponse(user);
+    }
+
+    // 로그인 연장 (refresh)
+    @Transactional
+    public RefreshResponseDto refreshAccessToken(String refreshToken) {
+        String token = jwtUtil.extractBearerPrefix(refreshToken);
+
+        if (!jwtUtil.validateRefreshToken(token)) {
+            throw new UserException(ErrorCode.INVALID_REFRESH_TOKEN);
+        }
+
+        String userId = jwtUtil.getUserIdFromRefreshToken(token);
+
+        User user = userRepository.findById(Long.valueOf(userId))
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        String savedToken = redisTemplate.opsForValue().get("refresh:" + userId);
+
+        if (savedToken == null || !savedToken.equals(token)) {
+            throw new UserException(ErrorCode.INVALID_REFRESH_TOKEN);
+        }
+
+        String newAccessToken = jwtUtil.generateAccessToken(new JwtUserInfoDto(user.getId()));
+
+        return new RefreshResponseDto(newAccessToken);
     }
 
     // JWT 발급 및 로그인 응답 생성
