@@ -50,3 +50,14 @@ cloud:
       static: ap-northeast-2
     stack:
       auto: false
+
+  # SwaggerUI 설정
+  springdoc:
+    api-docs:
+      path: /api-docs # OPEN API Json 출력 경로 설정
+    swagger-ui:
+      path: /swagger-ui # 접속 URL 변경
+
+# 스웨거 https 인식
+server:
+  forward-headers-strategy: framework
