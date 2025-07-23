@@ -2,6 +2,13 @@ spring:
   application:
     name: earnedit
 
+#  s3 multpartFile 용량 설정
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+
   config:
     import: optional:file:.env[.properties]
 
@@ -49,3 +56,27 @@ email:
 jwt:
   secret: ${JWT_SECRET}
   refresh_secret : ${JWT_REFRESH_SECRET}
+
+# S3
+cloud:
+  aws:
+    credentials:
+      access-key: ${S3_ACCESS_KEY}
+      secret-key: ${S3_SECRET_ACCESS_KEY}
+    s3: #버킷이름
+      bucket: ${S3_BUCKET_NAME}
+    region: #S3 지역
+      static: ap-northeast-2
+    stack:
+      auto: false
+
+# Swagger 설정
+springdoc:
+  api-docs:
+    path: /api-docs  # OpenAPI JSON 경로 설정 (/v3/api-docs → /api-docs)
+  swagger-ui:
+    path: /swagger-ui.html  # Swagger UI 접속 경로
+
+# 스웨거 https 인식
+server:
+  forward-headers-strategy: framework
