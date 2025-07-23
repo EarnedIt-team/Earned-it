@@ -41,13 +41,13 @@ public class AuthService {
             throw new UserException(ErrorCode.EMAIL_NOT_VERIFIED);
         }
 
-        String password = requestDto.getPassword();
+        String encodedPassword = passwordEncoder.encode(requestDto.getPassword());
         String nickname = generateUniqueNickname();
 
         User user = userRepository.save(
                 User.builder()
                         .email(email)
-                        .password(password)
+                        .password(encodedPassword)
                         .nickname(nickname)
                         .provider(User.Provider.LOCAL)
                         .status(User.Status.ACTIVE)
