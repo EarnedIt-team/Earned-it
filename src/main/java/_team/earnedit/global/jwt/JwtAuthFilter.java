@@ -37,11 +37,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         // 헤더에서 토큰 추출
         String token = jwtUtil.resolveToken(request);
 
-//        // Authorization 헤더 없을 경우 쿠키에서 추출 (SSE)
-//        if (token == null) {
-//            token = jwtUtil.extractTokenFromCookies(request);
-//        }
-
         // 토큰 유효성 검사
         try {
             if (token != null && jwtUtil.validateAccessToken(token)) {
