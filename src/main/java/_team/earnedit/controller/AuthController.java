@@ -36,6 +36,6 @@ public class AuthController {
             @RequestHeader("Authorization") String refreshToken
     ) {
         RefreshResponseDto response = authService.refreshAccessToken(refreshToken);
-        return ResponseEntity.ok(ApiResponse.success("액세스 토큰 재생성이 완료되었습니다.", response));
+        return ResponseEntity.ok(ApiResponse.success("액세스 토큰 재생성과 리프레시 토큰 갱신이 완료되었습니다.", response));
     }
 }

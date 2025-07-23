@@ -105,8 +105,15 @@ public class AuthService {
         }
 
         String newAccessToken = jwtUtil.generateAccessToken(new JwtUserInfoDto(user.getId()));
+        String newRefreshToken = jwtUtil.generateRefreshToken(new JwtUserInfoDto(user.getId()));
 
-        return new RefreshResponseDto(newAccessToken);
+        redisTemplate.opsForValue().set(
+                "refresh:" + userId,
+                newRefreshToken,
+                Duration.ofMillis(jwtUtil.getRefreshTokenExpireTime())
+        );
+
+        return new RefreshResponseDto(newAccessToken, newRefreshToken);
     }
 
     // JWT 발급 및 로그인 응답 생성
