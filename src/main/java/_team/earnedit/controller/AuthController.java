@@ -3,6 +3,7 @@ package _team.earnedit.controller;
 import _team.earnedit.dto.auth.*;
 import _team.earnedit.global.ApiResponse;
 import _team.earnedit.service.AuthService;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
