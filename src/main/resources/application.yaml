@@ -51,15 +51,12 @@ cloud:
     stack:
       auto: false
 
-  # Swagger 설정
-  springdoc:
-    api-docs:
-      path: /api-docs  # OpenAPI JSON 경로 설정 (/v3/api-docs → /api-docs)
-    swagger-ui:
-      path: /swagger-ui.html  # Swagger UI 접속 경로
-      config-url: /v3/api-docs/swagger-config  # Swagger UI 구성 정보
-      validator-url: none  # 외부 validator 호출 차단 (Mixed Content 방지)
-
+# Swagger 설정
+springdoc:
+  api-docs:
+    path: /api-docs  # OpenAPI JSON 경로 설정 (/v3/api-docs → /api-docs)
+  swagger-ui:
+    path: /swagger-ui.html  # Swagger UI 접속 경로
 
 # 스웨거 https 인식
 server:
