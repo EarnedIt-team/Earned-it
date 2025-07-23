@@ -63,6 +63,11 @@ public class JwtUtil {
         return generateToken(user, accessKey, accessTokenExpireTime);
     }
 
+    // refresh 재발급
+    public String generateRefreshToken(JwtUserInfoDto user) {
+        return generateToken(user, refreshKey, refreshTokenExpireTime);
+    }
+
     // AccessToken 검증
     public boolean validateAccessToken(String token) {
         return validateToken(token, accessKey);
