@@ -1,9 +1,6 @@
 package _team.earnedit.controller;
 
-import _team.earnedit.dto.auth.SignInRequestDto;
-import _team.earnedit.dto.auth.SignInResponseDto;
-import _team.earnedit.dto.auth.SignUpRequestDto;
-import _team.earnedit.dto.auth.SignUpResponseDto;
+import _team.earnedit.dto.auth.*;
 import _team.earnedit.global.ApiResponse;
 import _team.earnedit.service.AuthService;
 import jakarta.validation.Valid;
@@ -27,8 +24,17 @@ public class AuthController {
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<SignInResponseDto> signIn(@RequestBody SignInRequestDto requestDto) {
+    public ResponseEntity<ApiResponse<SignInResponseDto>> signIn(@RequestBody SignInRequestDto requestDto) {
         SignInResponseDto responseDto = authService.signIn(requestDto);
-        return ResponseEntity.ok(responseDto);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("로그인이 완료되었습니다.", responseDto));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<ApiResponse<RefreshResponseDto>> refreshToken(
+            @RequestHeader("Authorization") String refreshToken
+    ) {
+        RefreshResponseDto response = authService.refreshAccessToken(refreshToken);
+        return ResponseEntity.ok(ApiResponse.success("액세스 토큰 재생성이 완료되었습니다.", response));
     }
 }
