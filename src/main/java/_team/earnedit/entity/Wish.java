@@ -39,7 +39,6 @@ public class Wish {
     @Builder.Default
     private boolean isBought = false;
 
-    @Column(nullable = false)
     private String vendor;
 
     @CreationTimestamp
