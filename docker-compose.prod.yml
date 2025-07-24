@@ -14,8 +14,13 @@ services:
       - .env
 
     environment:
-      # 스프링 프로필 설정
       SPRING_PROFILES_ACTIVE: prod
+
+    depends_on:
+      - redis
+
+    networks:
+      - backend
 
   # Redis 서버
   redis:
@@ -25,7 +30,11 @@ services:
     ports:
       - "6379:6379"
     command: [ "redis-server", "--requirepass", "12341234" ]
+    networks:
+      - backend
 
+networks:
+  backend:
 
 
 
