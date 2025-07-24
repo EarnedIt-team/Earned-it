@@ -1,7 +1,7 @@
 # 실행법 !!
 # 1. 루트 디렉토리에서 docker compose up -d 실행
 # 2. Docker 앱 구동 또는 터미널에 docker images 입력
-# 3. postgres, earnedit-web 초록불 들어온 것 확인
+# 3. postgres, earnedit-web, redis 초록불 들어온 것 확인
 # 4. localhost:8080/health 접속 테스트
 # 5. Mysql workbench 또는 Dbeaver 이용하여 DB 연결 (밑에 주석 확인)
 
@@ -26,6 +26,14 @@ services:
 #    volumes:
 #      - ./resources/init.sql # DB 초기화 시 사용
 
+  # Redis 서버
+  redis:
+    image: redis:7.2
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--requirepass", "12341234"]
 
   # 웹 서버
   web:
