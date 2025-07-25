@@ -94,23 +94,33 @@ public class AuthService {
     public SignInResponseDto signInWithKakao(KakaoSignInRequestDto requestDto) {
         KakaoUserInfoDto kakaoUserInfo = kakaoOAuthService.getUserInfo(requestDto.getAccessToken());
 
+        String kakaoId = kakaoUserInfo.getId();
+        String email = kakaoUserInfo.getEmail();
+        String nickname = kakaoUserInfo.getNickname();
+        String profileImage = kakaoUserInfo.getProfileImage();
+
+        // 이메일이 없는 경우
+        String safeEmail = (email != null) ? email : "kakao_" + kakaoId + "@kakao-user.com";
+
         Optional<User> optionalUser = userRepository.findByProviderAndProviderId(
-                User.Provider.KAKAO, kakaoUserInfo.getId()
+                User.Provider.KAKAO, kakaoId
         );
 
+        optionalUser.ifPresent(user -> {
+            if (user.getStatus() == User.Status.DELETED) {
+                throw new UserException(ErrorCode.USER_ALREADY_DELETED);
+            }
+        });
+
+        // 기존 유저가 없으면 유저 저장
         User user = optionalUser.orElseGet(() -> userRepository.save(User.builder()
                 .provider(User.Provider.KAKAO)
-                .providerId(kakaoUserInfo.getId())
-                .email(kakaoUserInfo.getEmail())
-                .nickname(kakaoUserInfo.getNickname())
-                .profileImage(kakaoUserInfo.getProfileImage())
+                .providerId(kakaoId)
+                .email(safeEmail)
+                .nickname(nickname)
+                .profileImage(profileImage)
                 .status(User.Status.ACTIVE)
-                .build())
-        );
-
-        if (user.getStatus() == User.Status.DELETED) {
-            throw new UserException(ErrorCode.USER_ALREADY_DELETED);
-        }
+                .build()));
 
         return generateLoginResponse(user);
     }
