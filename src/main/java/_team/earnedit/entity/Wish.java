@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 
 @Builder
 @Getter
-@Table(name = "wish")
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
