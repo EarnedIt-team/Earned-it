@@ -5,6 +5,8 @@ import _team.earnedit.dto.wish.WishAddRequest;
 import _team.earnedit.dto.wish.WishAddResponse;
 import _team.earnedit.global.ApiResponse;
 import _team.earnedit.service.WishService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +23,9 @@ public class WishController {
     private final WishService wishService;
 
     @PostMapping
+    @Operation(
+            security = {@SecurityRequirement(name = "bearer-key")}
+    )
     public ResponseEntity<ApiResponse<WishAddResponse>> addWish(
             @RequestBody @Valid WishAddRequest wishAddRequest,
             @AuthenticationPrincipal JwtUserInfoDto userInfo) {
