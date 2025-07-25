@@ -6,7 +6,10 @@ import jakarta.persistence.NoResultException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -114,5 +117,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(ErrorCode.EMPTY_RESULT.getHttpStatus())
                 .body(ErrorResponse.fail(ErrorCode.EMPTY_RESULT, message));
+    }
+
+    @ExceptionHandler({MethodArgumentNotValidException.class})
+    protected ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        ErrorCode errorCode = e.getBindingResult().getFieldErrors().stream()
+                .map(error -> ErrorCode.valueOf(error.getDefaultMessage()))
+                .findFirst().orElseThrow();
+
+        return ResponseEntity.badRequest()
+                .body(ErrorResponse.fail(errorCode, errorCode.getDefaultMessage()));
     }
 }
