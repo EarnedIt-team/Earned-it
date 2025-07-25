@@ -67,9 +67,7 @@ public class WishService {
                         .isBought(wish.isBought())
                         .vendor(wish.getVendor())
                         .createdAt(wish.getCreatedAt())
-                        .updatedAt(wish.getUpdatedAt())
                         .isStarred(wish.isStarred())
-                        .url(wish.getUrl())
                         .build())
                 .toList();
 

@@ -16,7 +16,5 @@ public class WishResponse {
     private boolean isBought;
     private String vendor;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
     private boolean isStarred;
-    private String url;
 }
