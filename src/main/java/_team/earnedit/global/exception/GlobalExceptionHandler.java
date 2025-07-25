@@ -32,6 +32,13 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse.fail(ex.getCode(), ex.getMessage()));
     }
 
+    @ExceptionHandler({MethodArgumentNotValidException.class})
+    protected ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        String errorMessage = e.getBindingResult().getFieldErrors().get(0).getDefaultMessage();
+        return ResponseEntity.badRequest()
+                .body(ErrorResponse.fail(ErrorCode.VALIDATION_ERROR, errorMessage));
+    }
+
     // 기타 예외 처리
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneralException(Exception ex) {
@@ -119,13 +126,5 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse.fail(ErrorCode.EMPTY_RESULT, message));
     }
 
-    @ExceptionHandler({MethodArgumentNotValidException.class})
-    protected ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        ErrorCode errorCode = e.getBindingResult().getFieldErrors().stream()
-                .map(error -> ErrorCode.valueOf(error.getDefaultMessage()))
-                .findFirst().orElseThrow();
 
-        return ResponseEntity.badRequest()
-                .body(ErrorResponse.fail(errorCode, errorCode.getDefaultMessage()));
-    }
 }
