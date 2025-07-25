@@ -5,6 +5,7 @@ import _team.earnedit.dto.wish.WishAddRequest;
 import _team.earnedit.dto.wish.WishAddResponse;
 import _team.earnedit.global.ApiResponse;
 import _team.earnedit.service.WishService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,7 +22,7 @@ public class WishController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<WishAddResponse>> addWish(
-            @RequestBody WishAddRequest wishAddRequest,
+            @RequestBody @Valid WishAddRequest wishAddRequest,
             @AuthenticationPrincipal JwtUserInfoDto userInfo) {
 
         WishAddResponse response = wishService.addWish(wishAddRequest, userInfo.getUserId());
