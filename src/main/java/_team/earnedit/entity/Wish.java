@@ -53,4 +53,13 @@ public class Wish {
     private boolean isStarred = false;
 
     private String url;
+
+
+    public void update(String name, int price, String itemImage, String vendor, String url) {
+        this.name = name;
+        this.price = price;
+        this.itemImage = itemImage;
+        this.vendor = vendor;
+        this.url = url;
+    }
 }
