@@ -41,7 +41,7 @@ public class AuthController {
             @RequestBody KakaoSignInRequestDto requestDto
     ) {
         SignInResponseDto responseDto = authService.signInWithKakao(requestDto);
-        return ResponseEntity.status(HttpStatus.CREATED)
+        return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success("카카오 로그인이 완료되었습니다.", responseDto));
     }
 
@@ -50,7 +50,7 @@ public class AuthController {
             @RequestHeader("Authorization") String refreshToken
     ) {
         RefreshResponseDto responseDto = authService.refreshAccessToken(refreshToken);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("카카오 로그인이 완료되었습니다.", responseDto));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("액세스 토큰 재생성과 리프레시 토큰 갱신이 완료되었습니다.", responseDto));
     }
 }
