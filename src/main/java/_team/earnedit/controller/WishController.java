@@ -43,7 +43,7 @@ public class WishController {
 
         List<WishResponse> wishList = wishService.getWishList(userInfo.getUserId());
 
-        return  ResponseEntity.ok(ApiResponse.success("위시 목록을 조회하였습니다.", wishList));
+        return ResponseEntity.ok(ApiResponse.success("위시 목록을 조회하였습니다.", wishList));
 
     }
 
@@ -59,6 +59,19 @@ public class WishController {
         WishUpdateResponse response = wishService.updateWish(wishUpdateRequest, userInfo.getUserId(), wishId);
 
         return ResponseEntity.ok(ApiResponse.success("위시가 수정되었습니다.", response));
-
     }
+
+    @DeleteMapping("/{wishId}")
+    @Operation(
+            security = {@SecurityRequirement(name = "bearer-key")}
+    )
+    public ResponseEntity<ApiResponse<Long>> deleteWish(
+            @PathVariable Long wishId,
+            @AuthenticationPrincipal JwtUserInfoDto userInfo
+    ) {
+        wishService.deleteWish(wishId, userInfo.getUserId());
+
+        return ResponseEntity.ok(ApiResponse.success("위시가 삭제되었습니다."));
+    }
+
 }
