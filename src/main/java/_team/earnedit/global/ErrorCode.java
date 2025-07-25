@@ -27,6 +27,9 @@ public enum ErrorCode {
 
     WISHLIST_EMPTY(HttpStatus.NO_CONTENT, "등록된 위시가 없습니다."),
     WISH_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 위시입니다."),
+    WISH_UPDATE_FORBIDDEN(HttpStatus.FORBIDDEN, "다른 사용자의 위시 수정 시도입니다."),
+    WISH_DELETE_FORBIDDEN(HttpStatus.FORBIDDEN, "다른 사용자의 위시 삭제 시도입니다."),
+
 
 
     // 인증 Authentication
