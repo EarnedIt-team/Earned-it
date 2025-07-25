@@ -20,7 +20,7 @@ public class WishAddRequest {
     @Positive(message = "가격은 0보다 커야 합니다.")
     private int price;
 
-    @NotNull(message = "상품 이미지는 반드시 있어야합니다." )
+    @NotBlank(message = "상품 이미지는 반드시 있어야합니다." )
     private String itemImage;
 
     private String url;
