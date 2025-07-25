@@ -1,6 +1,7 @@
 package _team.earnedit.controller;
 
 import _team.earnedit.dto.auth.*;
+import _team.earnedit.dto.socialLogin.KakaoSignInRequestDto;
 import _team.earnedit.global.ApiResponse;
 import _team.earnedit.service.AuthService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,17 +19,29 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<SignUpResponseDto>> signup(@RequestBody @Valid SignUpRequestDto requestDto) {
+    public ResponseEntity<ApiResponse<SignUpResponseDto>> signup(
+            @RequestBody @Valid SignUpRequestDto requestDto
+    ) {
         SignUpResponseDto responseDto = authService.signUp(requestDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("회원가입이 완료되었습니다.", responseDto));
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<ApiResponse<SignInResponseDto>> signIn(@RequestBody SignInRequestDto requestDto) {
+    public ResponseEntity<ApiResponse<SignInResponseDto>> signIn(
+            @RequestBody SignInRequestDto requestDto
+    ) {
         SignInResponseDto responseDto = authService.signIn(requestDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("로그인이 완료되었습니다.", responseDto));
+    }
+
+    @PostMapping("/signin/kakao")
+    public ResponseEntity<SignInResponseDto> signInWithKakao(
+            @RequestBody KakaoSignInRequestDto requestDto
+    ) {
+        SignInResponseDto response = authService.signInWithKakao(requestDto);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/refresh")
