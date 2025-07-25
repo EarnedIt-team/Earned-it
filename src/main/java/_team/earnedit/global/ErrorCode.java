@@ -52,7 +52,8 @@ public enum ErrorCode {
     NUMBER_FORMAT_ERROR(HttpStatus.BAD_REQUEST, "숫자 형식 오류입니다."),
     DB_ACCESS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "데이터베이스 접근 오류입니다."),
     NO_RESULT(HttpStatus.NOT_FOUND, "데이터를 찾을 수 없습니다."),
-    EMPTY_RESULT(HttpStatus.NOT_FOUND, "결과가 존재하지 않습니다.");
+    EMPTY_RESULT(HttpStatus.NOT_FOUND, "결과가 존재하지 않습니다."),
+    VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "유효성 검증 실패");
 
     private final HttpStatus httpStatus;
     private final String defaultMessage;
