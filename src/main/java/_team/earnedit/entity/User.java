@@ -62,9 +62,11 @@ public class User {
     @Column
     private String providerId;
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean isDarkMode = false;
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean isPublic = false;
 }
