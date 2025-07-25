@@ -22,8 +22,8 @@ services:
       POSTGRES_DB: earnedit
       POSTGRES_USER: root
       POSTGRES_PASSWORD: earnedit99
-#    volumes:
-#      - ./resources/init.sql # DB 초기화 시 사용
+  #    volumes:
+  #      - ./resources/init.sql # DB 초기화 시 사용
 
 
   # 웹 서버
@@ -42,6 +42,11 @@ services:
       # 스프링 프로필 설정
       SPRING_PROFILES_ACTIVE: dev
 
-
-
-
+  # Redis 서버
+  redis:
+    image: redis:7.2
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    command: [ "redis-server", "--requirepass", "12341234" ]
