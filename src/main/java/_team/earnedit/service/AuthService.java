@@ -102,6 +102,9 @@ public class AuthService {
         // 이메일이 없는 경우
         String safeEmail = (email != null) ? email : "kakao_" + kakaoId + "@kakao-user.com";
 
+        // 닉네임이 없는 경우
+        String safeNickname = (nickname != null) ? nickname : generateUniqueNickname();;
+
         Optional<User> optionalUser = userRepository.findByProviderAndProviderId(
                 User.Provider.KAKAO, kakaoId
         );
@@ -117,7 +120,7 @@ public class AuthService {
                 .provider(User.Provider.KAKAO)
                 .providerId(kakaoId)
                 .email(safeEmail)
-                .nickname(nickname)
+                .nickname(safeNickname)
                 .profileImage(profileImage)
                 .status(User.Status.ACTIVE)
                 .build()));
