@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -27,6 +28,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(ex.getStatus())
                 .body(ErrorResponse.fail(ex.getCode(), ex.getMessage()));
+    }
+
+    @ExceptionHandler({MethodArgumentNotValidException.class})
+    protected ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        String errorMessage = e.getBindingResult().getFieldErrors().get(0).getDefaultMessage();
+        return ResponseEntity.badRequest()
+                .body(ErrorResponse.fail(ErrorCode.VALIDATION_ERROR, errorMessage));
     }
 
     // 기타 예외 처리
@@ -115,4 +123,6 @@ public class GlobalExceptionHandler {
                 .status(ErrorCode.EMPTY_RESULT.getHttpStatus())
                 .body(ErrorResponse.fail(ErrorCode.EMPTY_RESULT, message));
     }
+
+
 }
