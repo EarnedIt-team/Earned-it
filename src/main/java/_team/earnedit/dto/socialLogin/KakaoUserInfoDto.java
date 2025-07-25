@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class KakaoUserInfoDto {
-    private Long id;
+    private String id;
     @JsonProperty("kakao_account")
     private KakaoAccount kakaoAccount;
 
@@ -25,5 +25,19 @@ public class KakaoUserInfoDto {
         private String nickname;
         @JsonProperty("profile_image_url")
         private String profileImageUrl;
+    }
+
+    public String getEmail() {
+        return kakaoAccount != null ? kakaoAccount.getEmail() : null;
+    }
+
+    public String getNickname() {
+        return kakaoAccount != null && kakaoAccount.getProfile() != null
+                ? kakaoAccount.getProfile().getNickname() : null;
+    }
+
+    public String getProfileImage() {
+        return kakaoAccount != null && kakaoAccount.getProfile() != null
+                ? kakaoAccount.getProfile().getProfileImageUrl() : null;
     }
 }
