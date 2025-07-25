@@ -25,6 +25,8 @@ public enum ErrorCode {
     WISH_PRICE_INVALID(HttpStatus.BAD_REQUEST, "상품의 가격은 0 이상이어야 합니다."),
     WISH_IMAGE_REQUIRED(HttpStatus.BAD_REQUEST, "상품 이미지는 반드시 있어야합니다."),
 
+    WISH_NOT_FOUND(HttpStatus.NO_CONTENT, "등록된 위시가 없습니다."),
+
 
     // 인증 Authentication
     AUTH_REQUIRED(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."),
