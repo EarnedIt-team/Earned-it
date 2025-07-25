@@ -21,7 +21,7 @@ public class User {
     }
 
     public enum Provider {
-        LOCAL, SOCIAL
+        LOCAL, KAKAO, APPLE
     }
 
     @Id
