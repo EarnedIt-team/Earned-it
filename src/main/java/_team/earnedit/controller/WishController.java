@@ -1,9 +1,7 @@
 package _team.earnedit.controller;
 
 import _team.earnedit.dto.jwt.JwtUserInfoDto;
-import _team.earnedit.dto.wish.WishAddRequest;
-import _team.earnedit.dto.wish.WishAddResponse;
-import _team.earnedit.dto.wish.WishResponse;
+import _team.earnedit.dto.wish.*;
 import _team.earnedit.global.ApiResponse;
 import _team.earnedit.service.WishService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -45,6 +43,21 @@ public class WishController {
         List<WishResponse> wishList = wishService.getWishList(userInfo.getUserId());
 
         return  ResponseEntity.ok(ApiResponse.success("위시 목록을 조회하였습니다.", wishList));
+
+    }
+
+
+    @PatchMapping("/{wishId}")
+    @Operation(
+            security = {@SecurityRequirement(name = "bearer-key")}
+    )
+    public ResponseEntity<ApiResponse<WishUpdateResponse>> updateWish(
+            @RequestBody @Valid WishUpdateRequest wishUpdateRequest,
+            @PathVariable Long wishId,
+            @AuthenticationPrincipal JwtUserInfoDto userInfo) {
+        WishUpdateResponse response = wishService.updateWish(wishUpdateRequest, userInfo.getUserId(), wishId);
+
+        return ResponseEntity.ok(ApiResponse.success("위시가 수정되었습니다.", response));
 
     }
 }
