@@ -117,4 +117,27 @@ public class WishService {
 
         wishRepository.delete(wish);
     }
+
+    @Transactional(readOnly = true)
+    public WishResponse getWish(Long wishId, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        Wish wish = wishRepository.findById(wishId)
+                .orElseThrow(() -> new WishException(ErrorCode.WISH_NOT_FOUND));
+
+        return WishResponse.builder()
+                .id(wish.getId())
+                .name(wish.getName())
+                .price(wish.getPrice())
+                .itemImage(wish.getItemImage())
+                .isBought(wish.isBought())
+                .vendor(wish.getVendor())
+                .createdAt(wish.getCreatedAt())
+                .updatedAt(wish.getUpdatedAt())
+                .isStarred(wish.isStarred())
+                .url(wish.getUrl())
+                .build();
+
+    }
 }
