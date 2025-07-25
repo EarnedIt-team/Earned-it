@@ -52,7 +52,7 @@ public class WishService {
         List<Wish> wishList = wishRepository.findByUserId(userId);
 
         if (wishList.isEmpty()) {
-            throw new WishException(ErrorCode.WISH_NOT_FOUND);
+            throw new WishException(ErrorCode.WISHLIST_EMPTY);
         }
 
         return wishList.stream()
