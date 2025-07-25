@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class WishAdRequest {
+public class WishAddRequest {
 
     private String name;
 
