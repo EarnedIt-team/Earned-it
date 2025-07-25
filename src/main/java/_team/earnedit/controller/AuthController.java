@@ -42,14 +42,15 @@ public class AuthController {
     ) {
         SignInResponseDto responseDto = authService.signInWithKakao(requestDto);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("로그인이 완료되었습니다.", responseDto));
+                .body(ApiResponse.success("카카오 로그인이 완료되었습니다.", responseDto));
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse<RefreshResponseDto>> refreshToken(
             @RequestHeader("Authorization") String refreshToken
     ) {
-        RefreshResponseDto response = authService.refreshAccessToken(refreshToken);
-        return ResponseEntity.ok(ApiResponse.success("액세스 토큰 재생성과 리프레시 토큰 갱신이 완료되었습니다.", response));
+        RefreshResponseDto responseDto = authService.refreshAccessToken(refreshToken);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("카카오 로그인이 완료되었습니다.", responseDto));
     }
 }
