@@ -1,8 +1,6 @@
 package _team.earnedit.service;
 
-import _team.earnedit.dto.wish.WishAddRequest;
-import _team.earnedit.dto.wish.WishAddResponse;
-import _team.earnedit.dto.wish.WishResponse;
+import _team.earnedit.dto.wish.*;
 import _team.earnedit.entity.User;
 import _team.earnedit.entity.Wish;
 import _team.earnedit.global.ErrorCode;
@@ -71,5 +69,31 @@ public class WishService {
                         .build())
                 .toList();
 
+    }
+
+    @Transactional
+    public WishUpdateResponse updateWish(WishUpdateRequest wishUpdateRequest, Long userId, Long wishId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        Wish wish = wishRepository.findById(wishId).orElseThrow(() -> new WishException(ErrorCode.WISH_NOT_FOUND));
+
+        wish.update(
+                wishUpdateRequest.getName(),
+                wishUpdateRequest.getPrice(),
+                wishUpdateRequest.getItemImage(),
+                wishUpdateRequest.getVendor(),
+                wishUpdateRequest.getUrl()
+        );
+
+        return WishUpdateResponse.builder()
+                .wishId(wish.getId())
+                .name(wish.getName())
+                .ItemImage(wish.getItemImage())
+                .vendor(wish.getVendor())
+                .price(wish.getPrice())
+                .url(wish.getUrl())
+                .updatedAt(wish.getUpdatedAt())
+                .build();
     }
 }
