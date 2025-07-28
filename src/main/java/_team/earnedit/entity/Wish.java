@@ -62,4 +62,9 @@ public class Wish {
         this.vendor = vendor;
         this.url = url;
     }
+
+    // Star 상태 토글
+    public void setStarred(boolean starred) {
+        this.isStarred =  starred;
+    }
 }
