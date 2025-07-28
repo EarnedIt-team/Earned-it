@@ -63,8 +63,14 @@ public class Wish {
         this.url = url;
     }
 
-    // Star 상태 토글
+    // Star 상태
     public void setStarred(boolean starred) {
         this.isStarred =  starred;
     }
+
+    // Bought 상태
+    public void setBought(boolean bought) {
+        this.isBought =  bought;
+    }
+
 }
