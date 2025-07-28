@@ -2,6 +2,7 @@ package _team.earnedit.controller;
 
 import _team.earnedit.dto.auth.*;
 import _team.earnedit.dto.socialLogin.KakaoSignInRequestDto;
+import _team.earnedit.dto.socialLogin.AppleSignInRequestDto;
 import _team.earnedit.global.ApiResponse;
 import _team.earnedit.service.AuthService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -43,6 +44,15 @@ public class AuthController {
         SignInResponseDto responseDto = authService.signInWithKakao(requestDto);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success("카카오 로그인이 완료되었습니다.", responseDto));
+    }
+
+    @PostMapping("/signin/apple")
+    public ResponseEntity<ApiResponse<SignInResponseDto>> signInWithApple(
+            @RequestBody AppleSignInRequestDto requestDto
+    ) {
+        SignInResponseDto response = authService.signInWithApple(requestDto);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("애플 로그인이 완료되었습니다.", response));
     }
 
     @PostMapping("/refresh")
