@@ -14,9 +14,5 @@ public class SignUpRequestDto {
 
     private String password;
 
-    private Boolean isDarkMode;
-
-    private Boolean isPublic;
-
     private List<TermRequestDto> terms;
 }
