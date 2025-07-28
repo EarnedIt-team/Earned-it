@@ -85,7 +85,7 @@ public class WishController {
     ) {
         wishService.deleteWish(wishId, userInfo.getUserId());
 
-        return ResponseEntity.ok(ApiResponse.success("위시가 삭제되었습니다."));
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success("위시가 삭제되었습니다."));
     }
 
 }
