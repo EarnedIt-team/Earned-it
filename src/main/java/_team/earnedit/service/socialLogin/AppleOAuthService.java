@@ -3,6 +3,7 @@ package _team.earnedit.service.socialLogin;
 import _team.earnedit.dto.socialLogin.AppleUserInfoDto;
 import _team.earnedit.global.ErrorCode;
 import _team.earnedit.global.exception.OAuth.OAuthException;
+import _team.earnedit.global.jwt.ExternalJwtUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
@@ -42,43 +43,19 @@ public class AppleOAuthService {
             String kid = header.get("kid").asText();
             String alg = header.get("alg").asText();
 
-            // Apple 공개 키 목록 불러와 매칭되는 키 찾기
-            JsonNode publicKeys = objectMapper.readTree(new URL(APPLE_PUBLIC_KEYS_URL));
-
-            JsonNode matchedKey = null;
-            for (JsonNode key : publicKeys.get("keys")) {
-                if (key.get("kid").asText().equals(kid) && key.get("alg").asText().equals(alg)) {
-                    matchedKey = key;
-                    break;
-                }
-            }
-
-            if (matchedKey == null) {
-                throw new OAuthException(ErrorCode.APPLE_PUBLIC_KEY_NOT_FOUND);
-            }
-
-            // 공개 키 생성
+            // 공개키 가져오기 (Redis or Apple)
             PublicKey publicKey = getApplePublicKeyFromRedisOrFetch(kid, alg);
 
-            // idToken 검증 + 파싱
-            Claims claims = Jwts.parserBuilder()
-                    .deserializeJsonWith(new JacksonDeserializer<>())
-                    .setSigningKey(publicKey)
-                    .build()
-                    .parseClaimsJws(idToken)
-                    .getBody();
-
-            Date expiration = claims.getExpiration();
-            if (expiration != null && expiration.before(new Date())) {
+            // idToken 파싱 + 만료 확인
+            Claims claims = ExternalJwtUtil.parse(idToken, publicKey);
+            if (ExternalJwtUtil.isExpired(claims)) {
                 throw new OAuthException(ErrorCode.TOKEN_EXPIRED);
             }
 
-            String email = (String) claims.get("email");
-            String sub = claims.getSubject();
-
+            // 유저 정보 추출
             AppleUserInfoDto dto = new AppleUserInfoDto();
-            dto.setEmail(email);
-            dto.setSub(sub);
+            dto.setEmail((String) claims.get("email"));
+            dto.setSub(claims.getSubject());
             return dto;
 
         } catch (SignatureException e) {
@@ -112,10 +89,10 @@ public class AppleOAuthService {
                     );
                     PublicKey pubKey = KeyFactory.getInstance("RSA").generatePublic(keySpec);
 
-                    // Base64 인코딩 후 Redis 저장 (12시간)
-                    String encoded = Base64.getEncoder().encodeToString(pubKey.getEncoded());
-                    redisTemplate.opsForValue().set(redisKey, encoded, Duration.ofHours(12));
-
+                    // Redis 캐시 저장 (12시간)
+                    redisTemplate.opsForValue().set(redisKey,
+                            Base64.getEncoder().encodeToString(pubKey.getEncoded()),
+                            Duration.ofHours(12));
                     return pubKey;
                 }
             }
