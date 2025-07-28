@@ -2,6 +2,8 @@ package _team.earnedit.service;
 
 import _team.earnedit.dto.auth.*;
 import _team.earnedit.dto.jwt.JwtUserInfoDto;
+import _team.earnedit.dto.socialLogin.AppleSignInRequestDto;
+import _team.earnedit.dto.socialLogin.AppleUserInfoDto;
 import _team.earnedit.dto.socialLogin.KakaoSignInRequestDto;
 import _team.earnedit.dto.socialLogin.KakaoUserInfoDto;
 import _team.earnedit.entity.Term;
@@ -12,6 +14,7 @@ import _team.earnedit.global.jwt.JwtUtil;
 import _team.earnedit.repository.SalaryRepository;
 import _team.earnedit.repository.TermRepository;
 import _team.earnedit.repository.UserRepository;
+import _team.earnedit.service.socialLogin.AppleOAuthService;
 import _team.earnedit.service.socialLogin.KakaoOAuthService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +36,7 @@ public class AuthService {
     private final SalaryRepository salaryRepository;
     private final EmailVerificationService emailVerificationService;
     private final KakaoOAuthService kakaoOAuthService;
+    private final AppleOAuthService appleOAuthService;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final RedisTemplate<String, String> redisTemplate;
@@ -125,6 +129,36 @@ public class AuthService {
 
 
     // 소셜 로그인 : APPLE
+    @Transactional
+    public SignInResponseDto signInWithApple(AppleSignInRequestDto requestDto) {
+        AppleUserInfoDto userInfo = appleOAuthService.getUserInfo(requestDto.getIdToken());
+
+        String appleId = userInfo.getSub();
+        String email = userInfo.getEmail();
+        String nickname = generateUniqueNickname();
+
+        // 이메일이 없는 경우
+        String safeEmail = (email != null) ? email : "apple_" + appleId + "@apple-user.com";
+
+        Optional<User> optionalUser = userRepository.findByProviderAndProviderId(User.Provider.APPLE, appleId);
+
+        User user = optionalUser.orElseGet(() ->
+                userRepository.save(User.builder()
+                        .provider(User.Provider.APPLE)
+                        .providerId(appleId)
+                        .email(safeEmail)
+                        .nickname(nickname)
+                        .status(User.Status.ACTIVE)
+                        .build()
+                )
+        );
+
+        if (user.getStatus() == User.Status.DELETED) {
+            throw new UserException(ErrorCode.USER_ALREADY_DELETED);
+        }
+
+        return generateLoginResponse(user);
+    }
 
 
 
