@@ -55,8 +55,6 @@ public class AuthService {
                         .nickname(nickname)
                         .provider(User.Provider.LOCAL)
                         .status(User.Status.ACTIVE)
-                        .isDarkMode(false)
-                        .isPublic(false)
                         .build()
         );
 
