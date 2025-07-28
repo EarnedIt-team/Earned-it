@@ -8,7 +8,10 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "users")
+@Table(
+        name = "users",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"provider", "provider_id"})
+)
 @Getter
 @Setter
 @Builder
@@ -21,7 +24,7 @@ public class User {
     }
 
     public enum Provider {
-        LOCAL, SOCIAL
+        LOCAL, KAKAO, APPLE
     }
 
     @Id
@@ -56,9 +59,14 @@ public class User {
     @Column(nullable = false)
     private Provider provider;
 
+    @Column
+    private String providerId;
+
+    @Builder.Default
     @Column(nullable = false)
     private Boolean isDarkMode = false;
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean isPublic = false;
 }

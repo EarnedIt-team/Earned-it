@@ -2,6 +2,8 @@ package _team.earnedit.service;
 
 import _team.earnedit.dto.auth.*;
 import _team.earnedit.dto.jwt.JwtUserInfoDto;
+import _team.earnedit.dto.socialLogin.KakaoSignInRequestDto;
+import _team.earnedit.dto.socialLogin.KakaoUserInfoDto;
 import _team.earnedit.entity.Term;
 import _team.earnedit.entity.User;
 import _team.earnedit.global.ErrorCode;
@@ -10,6 +12,7 @@ import _team.earnedit.global.jwt.JwtUtil;
 import _team.earnedit.repository.SalaryRepository;
 import _team.earnedit.repository.TermRepository;
 import _team.earnedit.repository.UserRepository;
+import _team.earnedit.service.socialLogin.KakaoOAuthService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -18,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -28,6 +32,7 @@ public class AuthService {
     private final TermRepository termRepository;
     private final SalaryRepository salaryRepository;
     private final EmailVerificationService emailVerificationService;
+    private final KakaoOAuthService kakaoOAuthService;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final RedisTemplate<String, String> redisTemplate;
@@ -50,8 +55,6 @@ public class AuthService {
                         .nickname(nickname)
                         .provider(User.Provider.LOCAL)
                         .status(User.Status.ACTIVE)
-                        .isDarkMode(false)
-                        .isPublic(false)
                         .build()
         );
 
@@ -83,6 +86,47 @@ public class AuthService {
 
         return generateLoginResponse(user);
     }
+
+    // 소셜 로그인 : KAKAO
+    @Transactional
+    public SignInResponseDto signInWithKakao(KakaoSignInRequestDto requestDto) {
+        KakaoUserInfoDto kakaoUserInfo = kakaoOAuthService.getUserInfo(requestDto.getAccessToken());
+
+        String kakaoId = kakaoUserInfo.getId();
+        String email = kakaoUserInfo.getEmail();
+        String nickname = generateUniqueNickname();
+        String profileImage = kakaoUserInfo.getProfileImage();
+
+        // 이메일이 없는 경우
+        String safeEmail = (email != null) ? email : "kakao_" + kakaoId + "@kakao-user.com";
+
+        Optional<User> optionalUser = userRepository.findByProviderAndProviderId(
+                User.Provider.KAKAO, kakaoId
+        );
+
+        optionalUser.ifPresent(user -> {
+            if (user.getStatus() == User.Status.DELETED) {
+                throw new UserException(ErrorCode.USER_ALREADY_DELETED);
+            }
+        });
+
+        // 기존 유저가 없으면 유저 저장
+        User user = optionalUser.orElseGet(() -> userRepository.save(User.builder()
+                .provider(User.Provider.KAKAO)
+                .providerId(kakaoId)
+                .email(safeEmail)
+                .nickname(nickname)
+                .profileImage(profileImage)
+                .status(User.Status.ACTIVE)
+                .build()));
+
+        return generateLoginResponse(user);
+    }
+
+
+    // 소셜 로그인 : APPLE
+
+
 
     // 로그인 연장 (refresh)
     @Transactional

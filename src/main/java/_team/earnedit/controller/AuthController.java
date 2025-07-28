@@ -1,6 +1,7 @@
 package _team.earnedit.controller;
 
 import _team.earnedit.dto.auth.*;
+import _team.earnedit.dto.socialLogin.KakaoSignInRequestDto;
 import _team.earnedit.global.ApiResponse;
 import _team.earnedit.service.AuthService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,24 +19,38 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<SignUpResponseDto>> signup(@RequestBody @Valid SignUpRequestDto requestDto) {
+    public ResponseEntity<ApiResponse<SignUpResponseDto>> signup(
+            @RequestBody @Valid SignUpRequestDto requestDto
+    ) {
         SignUpResponseDto responseDto = authService.signUp(requestDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("회원가입이 완료되었습니다.", responseDto));
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<ApiResponse<SignInResponseDto>> signIn(@RequestBody SignInRequestDto requestDto) {
+    public ResponseEntity<ApiResponse<SignInResponseDto>> signIn(
+            @RequestBody SignInRequestDto requestDto
+    ) {
         SignInResponseDto responseDto = authService.signIn(requestDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("로그인이 완료되었습니다.", responseDto));
+    }
+
+    @PostMapping("/signin/kakao")
+    public ResponseEntity<ApiResponse<SignInResponseDto>> signInWithKakao(
+            @RequestBody KakaoSignInRequestDto requestDto
+    ) {
+        SignInResponseDto responseDto = authService.signInWithKakao(requestDto);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("카카오 로그인이 완료되었습니다.", responseDto));
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse<RefreshResponseDto>> refreshToken(
             @RequestHeader("Authorization") String refreshToken
     ) {
-        RefreshResponseDto response = authService.refreshAccessToken(refreshToken);
-        return ResponseEntity.ok(ApiResponse.success("액세스 토큰 재생성과 리프레시 토큰 갱신이 완료되었습니다.", response));
+        RefreshResponseDto responseDto = authService.refreshAccessToken(refreshToken);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("액세스 토큰 재생성과 리프레시 토큰 갱신이 완료되었습니다.", responseDto));
     }
 }

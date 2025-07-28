@@ -14,11 +14,5 @@ public class SignUpRequestDto {
 
     private String password;
 
-    @Builder.Default
-    private Boolean isDarkMode = false;
-
-    @Builder.Default
-    private Boolean isPublic = false;
-
     private List<TermRequestDto> terms;
 }
