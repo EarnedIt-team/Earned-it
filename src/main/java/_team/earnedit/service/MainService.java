@@ -28,17 +28,20 @@ public class MainService {
 
     @Transactional(readOnly = true)
     public MainPageResponse getInfo(Long userId) {
-        User user = userRepository.findById(userId)
+        userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
-        boolean hasSalary = salaryRepository.existsByUserId(user.getId());
-        Salary salary = salaryRepository.findById(user.getId())
+        Salary salary = salaryRepository.findByUserId(userId)
                 .orElseThrow(() -> new SalaryException(ErrorCode.SALARY_NOT_FOUND));
+
+        boolean hasSalary = salaryRepository.existsByUserId(userId);
 
         // 유저 정보 (초당 수익, 수익 유무)
         MainPageResponse.UserInfo userInfo = MainPageResponse.UserInfo.builder()
+                .amount(salary.getAmount())
                 .hasSalary(hasSalary)
                 .amountPerSec(salary.getAmountPerSec())
+                .payday(salary.getPayday())
                 .build();
 
         // Top5 정보 조회

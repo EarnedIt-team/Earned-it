@@ -16,7 +16,9 @@ public class MainPageResponse {
     @Getter
     @Builder
     public static class UserInfo {
+        private double amount;
         private double amountPerSec;
         private boolean hasSalary;
+        private int payday;
     }
 }
