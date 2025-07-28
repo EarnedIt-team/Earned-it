@@ -78,6 +78,11 @@ public class WishService {
 
         Wish wish = wishRepository.findById(wishId).orElseThrow(() -> new WishException(ErrorCode.WISH_NOT_FOUND));
 
+        // 다른 사용자의 수정 시도에 대한 예외처리
+        if (!wish.getUser().getId().equals(userId)) {
+            throw new WishException(ErrorCode.WISH_UPDATE_FORBIDDEN);
+        }
+
         wish.update(
                 wishUpdateRequest.getName(),
                 wishUpdateRequest.getPrice(),
@@ -95,5 +100,21 @@ public class WishService {
                 .url(wish.getUrl())
                 .updatedAt(wish.getUpdatedAt())
                 .build();
+    }
+
+    @Transactional
+    public void deleteWish(Long wishId, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        Wish wish = wishRepository.findById(wishId)
+                .orElseThrow(() -> new WishException(ErrorCode.WISH_NOT_FOUND));
+
+        // 다른 사용자의 삭제 시도에 대한 예외처리
+        if (!wish.getUser().getId().equals(userId)) {
+            throw new WishException(ErrorCode.WISH_DELETE_FORBIDDEN);
+        }
+
+        wishRepository.delete(wish);
     }
 }
