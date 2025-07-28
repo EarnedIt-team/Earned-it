@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Builder
 @Getter
-public class WishResponse {
+public class WishListResponse {
     private Long id;
     private Long userId;
     private String name;

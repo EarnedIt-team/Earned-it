@@ -45,7 +45,7 @@ public class WishService {
     }
 
     @Transactional(readOnly = true)
-    public List<WishResponse> getWishList(Long userId) {
+    public List<WishListResponse> getWishList(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
@@ -56,7 +56,7 @@ public class WishService {
         }
 
         return wishList.stream()
-                .map(wish -> WishResponse.builder()
+                .map(wish -> WishListResponse.builder()
                         .id(wish.getId())
                         .userId(wish.getUser().getId())
                         .name(wish.getName())
@@ -116,5 +116,28 @@ public class WishService {
         }
 
         wishRepository.delete(wish);
+    }
+
+    @Transactional(readOnly = true)
+    public WishDetailResponse getWish(Long wishId, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        Wish wish = wishRepository.findById(wishId)
+                .orElseThrow(() -> new WishException(ErrorCode.WISH_NOT_FOUND));
+
+        return WishDetailResponse.builder()
+                .id(wish.getId())
+                .name(wish.getName())
+                .price(wish.getPrice())
+                .itemImage(wish.getItemImage())
+                .isBought(wish.isBought())
+                .vendor(wish.getVendor())
+                .createdAt(wish.getCreatedAt())
+                .updatedAt(wish.getUpdatedAt())
+                .isStarred(wish.isStarred())
+                .url(wish.getUrl())
+                .build();
+
     }
 }
