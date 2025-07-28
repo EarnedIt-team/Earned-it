@@ -96,14 +96,11 @@ public class AuthService {
 
         String kakaoId = kakaoUserInfo.getId();
         String email = kakaoUserInfo.getEmail();
-        String nickname = kakaoUserInfo.getNickname();
+        String nickname = generateUniqueNickname();
         String profileImage = kakaoUserInfo.getProfileImage();
 
         // 이메일이 없는 경우
         String safeEmail = (email != null) ? email : "kakao_" + kakaoId + "@kakao-user.com";
-
-        // 닉네임이 없는 경우
-        String safeNickname = (nickname != null) ? nickname : generateUniqueNickname();;
 
         Optional<User> optionalUser = userRepository.findByProviderAndProviderId(
                 User.Provider.KAKAO, kakaoId
@@ -120,7 +117,7 @@ public class AuthService {
                 .provider(User.Provider.KAKAO)
                 .providerId(kakaoId)
                 .email(safeEmail)
-                .nickname(safeNickname)
+                .nickname(nickname)
                 .profileImage(profileImage)
                 .status(User.Status.ACTIVE)
                 .build()));
