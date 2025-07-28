@@ -1,10 +1,7 @@
 package _team.earnedit.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.boot.model.naming.Identifier;
 
 @Builder
@@ -26,5 +23,6 @@ public class Star {
     @JoinColumn(name = "wish_id", nullable = false)
     private Wish wish;
 
+    @Setter
     private int rank;
 }
