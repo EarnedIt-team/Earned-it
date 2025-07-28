@@ -22,7 +22,7 @@ public class KakaoUserInfoDto {
     @Getter
     @NoArgsConstructor
     public static class Profile {
-        private String nickname;
+//        private String nickname;
         @JsonProperty("profile_image_url")
         private String profileImageUrl;
     }
@@ -31,10 +31,12 @@ public class KakaoUserInfoDto {
         return kakaoAccount != null ? kakaoAccount.getEmail() : null;
     }
 
+    /*
     public String getNickname() {
         return kakaoAccount != null && kakaoAccount.getProfile() != null
                 ? kakaoAccount.getProfile().getNickname() : null;
     }
+     */
 
     public String getProfileImage() {
         return kakaoAccount != null && kakaoAccount.getProfile() != null
