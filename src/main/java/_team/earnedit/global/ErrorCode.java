@@ -39,6 +39,9 @@ public enum ErrorCode {
 
     // OAuth
     INVALID_OAUTH_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 소셜 인증 토큰입니다."),
+    TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "만료된 소셜 인증 토큰입니다."),
+    APPLE_PUBLIC_KEY_NOT_FOUND(HttpStatus.UNAUTHORIZED, "Apple 공개 키를 찾을 수 없습니다."),
+    APPLE_ID_TOKEN_PARSING_ERROR(HttpStatus.UNAUTHORIZED, "Apple idToken 파싱 중 오류가 발생했습니다."),
 
     // 이메일 인증
     EMAIL_ALREADY_EXISTED(HttpStatus.CONFLICT, "이미 사용 중인 이메일입니다."),
