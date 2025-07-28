@@ -47,20 +47,6 @@ public class WishController {
 
     }
 
-    @GetMapping("/{wishId}")
-    @Operation(
-            security = {@SecurityRequirement(name = "bearer-key")}
-    )
-    public ResponseEntity<ApiResponse<WishResponse>> getWish(
-            @PathVariable Long wishId,
-            @AuthenticationPrincipal JwtUserInfoDto userInfo) {
-
-        WishResponse wish = wishService.getWish(wishId, userInfo.getUserId());
-
-        return ResponseEntity.ok(ApiResponse.success("위시를 조회하였습니다.", wish));
-
-    }
-
 
     @PatchMapping("/{wishId}")
     @Operation(
@@ -85,7 +71,7 @@ public class WishController {
     ) {
         wishService.deleteWish(wishId, userInfo.getUserId());
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success("위시가 삭제되었습니다."));
+        return ResponseEntity.ok(ApiResponse.success("위시가 삭제되었습니다."));
     }
 
 }
