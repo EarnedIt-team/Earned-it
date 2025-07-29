@@ -53,7 +53,11 @@ public class User {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
+    @Column
     private LocalDateTime lastLoginAt;
+
+    @Column
+    private LocalDateTime deletedAt;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
