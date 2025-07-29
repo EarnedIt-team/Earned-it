@@ -4,8 +4,10 @@ import _team.earnedit.entity.Term;
 import _team.earnedit.entity.Term.Type;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 public interface TermRepository extends JpaRepository<Term, Long> {
 
-    boolean existsByUserIdAndType(Long userId, Type type);
+    Optional<Term> findByUserIdAndType(Long userId, Type type);
 
 }
