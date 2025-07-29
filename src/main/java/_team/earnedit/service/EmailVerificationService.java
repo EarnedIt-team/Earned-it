@@ -1,6 +1,7 @@
 package _team.earnedit.service;
 
 import _team.earnedit.entity.EmailToken;
+import _team.earnedit.entity.User;
 import _team.earnedit.global.ErrorCode;
 import _team.earnedit.global.exception.user.UserException;
 import _team.earnedit.repository.EmailTokenRepository;
@@ -27,7 +28,7 @@ public class EmailVerificationService {
 
         validateEmailFormat(email);
 
-        if (userRepository.existsByEmail(email)) {
+        if (userRepository.existsByEmailAndProvider(email, User.Provider.LOCAL)) {
             throw new UserException(ErrorCode.EMAIL_ALREADY_EXISTED);
         }
 
