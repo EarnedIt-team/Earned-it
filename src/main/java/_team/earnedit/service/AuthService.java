@@ -77,7 +77,7 @@ public class AuthService {
     // 로그인
     @Transactional
     public SignInResponseDto signIn(SignInRequestDto requestDto) {
-        User user = userRepository.findByEmail(requestDto.getEmail())
+        User user = userRepository.findByEmailAndProvider(requestDto.getEmail(), User.Provider.LOCAL)
                 .orElseThrow(() -> new UserException(ErrorCode.EMAIL_NOT_FOUND));
 
         if (user.getStatus() == User.Status.DELETED) {
