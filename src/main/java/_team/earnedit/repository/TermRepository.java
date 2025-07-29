@@ -10,4 +10,5 @@ public interface TermRepository extends JpaRepository<Term, Long> {
 
     Optional<Term> findByUserIdAndType(Long userId, Type type);
 
+    boolean existsByUserId(Long id);
 }

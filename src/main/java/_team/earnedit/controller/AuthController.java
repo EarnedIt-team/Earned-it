@@ -33,7 +33,7 @@ public class AuthController {
             @RequestBody SignInRequestDto requestDto
     ) {
         SignInResponseDto responseDto = authService.signIn(requestDto);
-        return ResponseEntity.status(HttpStatus.CREATED)
+        return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success("로그인이 완료되었습니다.", responseDto));
     }
 

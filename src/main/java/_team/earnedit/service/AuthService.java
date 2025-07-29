@@ -88,7 +88,7 @@ public class AuthService {
             throw new UserException(ErrorCode.INCORRECT_PASSWORD);
         }
 
-        return generateLoginResponse(user, false);
+        return generateLoginResponse(user);
     }
 
     // 소셜 로그인 : KAKAO
@@ -125,7 +125,7 @@ public class AuthService {
                 .status(User.Status.ACTIVE)
                 .build()));
 
-        return generateLoginResponse(user, isSignUp);
+        return generateLoginResponse(user);
     }
 
 
@@ -160,7 +160,7 @@ public class AuthService {
             throw new UserException(ErrorCode.USER_ALREADY_DELETED);
         }
 
-        return generateLoginResponse(user, isSignUp);
+        return generateLoginResponse(user);
     }
 
 
@@ -198,7 +198,7 @@ public class AuthService {
     }
 
     // JWT 발급 및 로그인 응답 생성
-    private SignInResponseDto generateLoginResponse(User user, boolean isSignUp) {
+    private SignInResponseDto generateLoginResponse(User user) {
         String[] tokens = jwtUtil.generateToken(new JwtUserInfoDto(user.getId()));
         String accessToken = tokens[0];
         String refreshToken = tokens[1];
@@ -209,7 +209,9 @@ public class AuthService {
         redisTemplate.opsForValue()
                 .set("refresh:" + user.getId(), refreshToken, Duration.ofMillis(jwtUtil.getRefreshTokenExpireTime()));
 
-        return new SignInResponseDto(accessToken, refreshToken, user.getId(), isSignUp);
+        boolean hasAgreedTerm = termRepository.existsByUserId(user.getId());
+
+        return new SignInResponseDto(accessToken, refreshToken, user.getId(), hasAgreedTerm);
     }
 
     private String generateUniqueNickname() {
