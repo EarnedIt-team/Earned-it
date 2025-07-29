@@ -13,6 +13,6 @@ public class SignInResponseDto {
 
     private Long userId;
 
-    private boolean hasSalary;
+    private boolean isSignUp = false;
 
 }

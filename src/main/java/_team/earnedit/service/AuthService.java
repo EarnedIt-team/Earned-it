@@ -88,7 +88,7 @@ public class AuthService {
             throw new UserException(ErrorCode.INCORRECT_PASSWORD);
         }
 
-        return generateLoginResponse(user);
+        return generateLoginResponse(user, false);
     }
 
     // 소셜 로그인 : KAKAO
@@ -114,7 +114,8 @@ public class AuthService {
             }
         });
 
-        // 기존 유저가 없으면 유저 저장
+        boolean isSignUp = optionalUser.isEmpty();
+
         User user = optionalUser.orElseGet(() -> userRepository.save(User.builder()
                 .provider(User.Provider.KAKAO)
                 .providerId(kakaoId)
@@ -124,7 +125,7 @@ public class AuthService {
                 .status(User.Status.ACTIVE)
                 .build()));
 
-        return generateLoginResponse(user);
+        return generateLoginResponse(user, isSignUp);
     }
 
 
@@ -142,6 +143,8 @@ public class AuthService {
 
         Optional<User> optionalUser = userRepository.findByProviderAndProviderId(User.Provider.APPLE, appleId);
 
+        boolean isSignUp = optionalUser.isEmpty();
+
         User user = optionalUser.orElseGet(() ->
                 userRepository.save(User.builder()
                         .provider(User.Provider.APPLE)
@@ -157,7 +160,7 @@ public class AuthService {
             throw new UserException(ErrorCode.USER_ALREADY_DELETED);
         }
 
-        return generateLoginResponse(user);
+        return generateLoginResponse(user, isSignUp);
     }
 
 
@@ -195,7 +198,7 @@ public class AuthService {
     }
 
     // JWT 발급 및 로그인 응답 생성
-    private SignInResponseDto generateLoginResponse(User user) {
+    private SignInResponseDto generateLoginResponse(User user, boolean isSignUp) {
         String[] tokens = jwtUtil.generateToken(new JwtUserInfoDto(user.getId()));
         String accessToken = tokens[0];
         String refreshToken = tokens[1];
@@ -206,9 +209,7 @@ public class AuthService {
         redisTemplate.opsForValue()
                 .set("refresh:" + user.getId(), refreshToken, Duration.ofMillis(jwtUtil.getRefreshTokenExpireTime()));
 
-        boolean hasSalary = salaryRepository.existsByUserId(user.getId());
-
-        return new SignInResponseDto(accessToken, refreshToken, user.getId(), hasSalary);
+        return new SignInResponseDto(accessToken, refreshToken, user.getId(), isSignUp);
     }
 
     private String generateUniqueNickname() {

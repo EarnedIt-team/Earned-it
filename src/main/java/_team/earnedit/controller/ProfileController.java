@@ -3,8 +3,10 @@ package _team.earnedit.controller;
 import _team.earnedit.dto.jwt.JwtUserInfoDto;
 import _team.earnedit.dto.profile.SalaryRequestDto;
 import _team.earnedit.dto.profile.SalaryResponseDto;
+import _team.earnedit.dto.term.TermRequestDto;
 import _team.earnedit.global.ApiResponse;
 import _team.earnedit.service.ProfileService;
+import _team.earnedit.service.TermService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
@@ -13,11 +15,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/profile")
 public class ProfileController {
+
     private final ProfileService profileService;
+    private final TermService termService;
 
     @Operation(
             security = {@SecurityRequirement(name = "bearer-key")}
@@ -25,9 +31,24 @@ public class ProfileController {
     @PostMapping("/salary")
     public ResponseEntity<ApiResponse<SalaryResponseDto>> saveSalary(
             @AuthenticationPrincipal JwtUserInfoDto userInfo,
-            @RequestBody SalaryRequestDto requestDto) {
+            @RequestBody SalaryRequestDto requestDto)
+    {
         SalaryResponseDto responseDto = profileService.updateSalary(userInfo.getUserId(), requestDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("수익 정보를 업데이트했습니다",responseDto));
     }
+
+    @Operation(
+            security = {@SecurityRequirement(name = "bearer-key")}
+    )
+    @PostMapping("/terms")
+    public ResponseEntity<ApiResponse<Void>> agreeToTerms(
+            @AuthenticationPrincipal JwtUserInfoDto userInfo,
+            @RequestBody List<TermRequestDto> requestDtos)
+    {
+        termService.agreeToTerms(userInfo.getUserId(), requestDtos);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("약관 동의 여부를 업데이트했습니다"));
+    }
+
 }
