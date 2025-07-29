@@ -62,4 +62,15 @@ public class Wish {
         this.vendor = vendor;
         this.url = url;
     }
+
+    // Star 상태
+    public void setStarred(boolean starred) {
+        this.isStarred =  starred;
+    }
+
+    // Bought 상태
+    public void setBought(boolean bought) {
+        this.isBought =  bought;
+    }
+
 }

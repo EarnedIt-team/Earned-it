@@ -1,0 +1,48 @@
+package _team.earnedit.controller;
+
+import _team.earnedit.dto.jwt.JwtUserInfoDto;
+import _team.earnedit.dto.wish.WishListResponse;
+import _team.earnedit.global.ApiResponse;
+import _team.earnedit.service.StarService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/star")
+@RequiredArgsConstructor
+public class StarController {
+
+    private final StarService starService;
+
+    @PatchMapping("/{wishId}")
+    @Operation(
+            security = {@SecurityRequirement(name = "bearer-key")}
+    )
+    public ResponseEntity<ApiResponse<Boolean>> updateStar(
+            @AuthenticationPrincipal JwtUserInfoDto userInfo,
+            @PathVariable long wishId) {
+        boolean isStar = starService.updateStar(userInfo.getUserId(), wishId);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(String.format("Star 상태를 변경했습니다. %s", isStar)));
+    }
+
+    @GetMapping
+    @Operation(
+            security = {@SecurityRequirement(name = "bearer-key")}
+    )
+    public ResponseEntity<ApiResponse<List<WishListResponse>>> getStarsWish(
+            @AuthenticationPrincipal JwtUserInfoDto userInfo
+    ) {
+        List<WishListResponse> starsWish = starService.getStarsWish(userInfo.getUserId());
+
+        return ResponseEntity.ok(ApiResponse.success("Star 목록을 조회했습니다.", starsWish));
+    }
+
+}

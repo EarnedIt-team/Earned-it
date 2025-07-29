@@ -140,4 +140,17 @@ public class WishService {
                 .build();
 
     }
+
+    @Transactional
+    public boolean toggleBoughtStatus(Long wishId, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        Wish wish = wishRepository.findById(wishId)
+                .orElseThrow(() -> new WishException(ErrorCode.WISH_NOT_FOUND));
+
+        wish.setBought(!wish.isBought());
+
+        return wish.isBought();
+    }
 }
