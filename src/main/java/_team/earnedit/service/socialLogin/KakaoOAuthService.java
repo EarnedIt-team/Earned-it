@@ -2,7 +2,7 @@ package _team.earnedit.service.socialLogin;
 
 import _team.earnedit.dto.socialLogin.KakaoUserInfoDto;
 import _team.earnedit.global.ErrorCode;
-import _team.earnedit.global.exception.CustomException;
+import _team.earnedit.global.exception.OAuth.OAuthException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
@@ -31,7 +31,7 @@ public class KakaoOAuthService {
 
             return response.getBody();
         } catch (HttpClientErrorException e) {
-            throw new CustomException(ErrorCode.INVALID_OAUTH_TOKEN);
+            throw new OAuthException(ErrorCode.INVALID_OAUTH_TOKEN);
         }
 
     }
