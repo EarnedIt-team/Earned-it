@@ -4,6 +4,7 @@ import _team.earnedit.dto.wish.WishListResponse;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.math.BigInteger;
 import java.util.List;
 
 @Builder
@@ -16,7 +17,7 @@ public class MainPageResponse {
     @Getter
     @Builder
     public static class UserInfo {
-        private double amount;
+        private long amount;
         private double amountPerSec;
         private boolean hasSalary;
         private int payday;
