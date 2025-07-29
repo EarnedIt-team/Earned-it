@@ -38,6 +38,9 @@ public enum ErrorCode {
     SALARY_NOT_FOUND(HttpStatus.NOT_FOUND, "조회된 급여 정보가 없습니다."),
 
 
+    // 약관 Term
+    TERM_MUST_BE_CHECKED(HttpStatus.BAD_REQUEST, "필수 약관 동의 여부는 true여야 합니다."),
+
     // 인증 Authentication
     AUTH_REQUIRED(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 리프레시 토큰입니다."),
