@@ -19,6 +19,8 @@ public enum ErrorCode {
     INCORRECT_PASSWORD(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
     USER_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "탈퇴한 회원입니다."),
 
+    USER_DELETION_EXPIRED_RECOVERY(HttpStatus.FORBIDDEN, "탈퇴한 지 30일이 넘어 복구할 수 없습니다."),
+
     // Wish
     ALREADY_EXITS_WISH(HttpStatus.CONFLICT, "이미 추가된 위시입니다."),
     WISH_NAME_REQUIRED(HttpStatus.BAD_REQUEST, "이름은 공백값이 불가능합니다."),
