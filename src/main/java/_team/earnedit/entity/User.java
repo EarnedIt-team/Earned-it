@@ -53,7 +53,11 @@ public class User {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
+    @Column
     private LocalDateTime lastLoginAt;
+
+    @Column
+    private LocalDateTime deletedAt;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -69,4 +73,10 @@ public class User {
     @Builder.Default
     @Column(nullable = false)
     private Boolean isPublic = false;
+
+    public void softDeleted() {
+        this.status = Status.DELETED;
+        this.deletedAt = LocalDateTime.now();
+    }
+
 }

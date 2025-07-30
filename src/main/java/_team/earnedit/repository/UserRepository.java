@@ -3,6 +3,8 @@ package _team.earnedit.repository;
 import _team.earnedit.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -17,4 +19,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmailAndProvider(String email, User.Provider provider);
 
+    List<User> findByStatusAndDeletedAtBefore(User.Status status, LocalDateTime threshold);
+
+    List<User> findByStatusAndDeletedAtBeforeAndEmailNotContaining(User.Status status, LocalDateTime threshold, String deleted);
+
+    Optional<User> findByProviderAndProviderIdAndStatus(User.Provider provider, String kakaoId, User.Status status);
 }

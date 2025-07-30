@@ -8,6 +8,8 @@ import _team.earnedit.dto.socialLogin.KakaoSignInRequestDto;
 import _team.earnedit.dto.socialLogin.KakaoUserInfoDto;
 import _team.earnedit.entity.Term;
 import _team.earnedit.entity.User;
+import _team.earnedit.entity.User.Provider;
+import _team.earnedit.entity.User.Status;
 import _team.earnedit.global.ErrorCode;
 import _team.earnedit.global.exception.user.UserException;
 import _team.earnedit.global.jwt.JwtUtil;
@@ -77,19 +79,20 @@ public class AuthService {
     // 로그인
     @Transactional
     public SignInResponseDto signIn(SignInRequestDto requestDto) {
-        User user = userRepository.findByEmailAndProvider(requestDto.getEmail(), User.Provider.LOCAL)
+        User user = userRepository.findByEmailAndProvider(requestDto.getEmail(), Provider.LOCAL)
                 .orElseThrow(() -> new UserException(ErrorCode.EMAIL_NOT_FOUND));
-
-        if (user.getStatus() == User.Status.DELETED) {
-            throw new UserException(ErrorCode.USER_ALREADY_DELETED);
-        }
 
         if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
             throw new UserException(ErrorCode.INCORRECT_PASSWORD);
         }
 
+        if (user.getStatus() == Status.DELETED) {
+            recoverIfEligible(user);
+        }
+
         return generateLoginResponse(user);
     }
+
 
     // 소셜 로그인 : KAKAO
     @Transactional
@@ -100,33 +103,30 @@ public class AuthService {
         String email = kakaoUserInfo.getEmail();
         String nickname = generateUniqueNickname();
         String profileImage = kakaoUserInfo.getProfileImage();
-
-        // 이메일이 없는 경우
         String safeEmail = (email != null) ? email : "kakao_" + kakaoId + "@kakao-user.com";
 
-        Optional<User> optionalUser = userRepository.findByProviderAndProviderId(
-                User.Provider.KAKAO, kakaoId
-        );
-
-        optionalUser.ifPresent(user -> {
-            if (user.getStatus() == User.Status.DELETED) {
-                throw new UserException(ErrorCode.USER_ALREADY_DELETED);
-            }
-        });
-
-        boolean isSignUp = optionalUser.isEmpty();
-
-        User user = optionalUser.orElseGet(() -> userRepository.save(User.builder()
-                .provider(User.Provider.KAKAO)
-                .providerId(kakaoId)
-                .email(safeEmail)
-                .nickname(nickname)
-                .profileImage(profileImage)
-                .status(User.Status.ACTIVE)
-                .build()));
-
-        return generateLoginResponse(user);
+        return userRepository.findByProviderAndProviderId(Provider.KAKAO, kakaoId)
+                .map(user -> {
+                    if (user.getStatus() == Status.DELETED) {
+                        user = recoverIfEligible(user);
+                    }
+                    return generateLoginResponse(user);
+                })
+                .orElseGet(() -> {
+                    User user = userRepository.save(
+                            User.builder()
+                                    .provider(Provider.KAKAO)
+                                    .providerId(kakaoId)
+                                    .email(safeEmail)
+                                    .nickname(nickname)
+                                    .profileImage(profileImage)
+                                    .status(Status.ACTIVE)
+                                    .build()
+                    );
+                    return generateLoginResponse(user);
+                });
     }
+
 
 
     // 소셜 로그인 : APPLE
@@ -137,30 +137,27 @@ public class AuthService {
         String appleId = userInfo.getSub();
         String email = userInfo.getEmail();
         String nickname = generateUniqueNickname();
-
-        // 이메일이 없는 경우
         String safeEmail = (email != null) ? email : "apple_" + appleId + "@apple-user.com";
 
-        Optional<User> optionalUser = userRepository.findByProviderAndProviderId(User.Provider.APPLE, appleId);
-
-        boolean isSignUp = optionalUser.isEmpty();
-
-        User user = optionalUser.orElseGet(() ->
-                userRepository.save(User.builder()
-                        .provider(User.Provider.APPLE)
-                        .providerId(appleId)
-                        .email(safeEmail)
-                        .nickname(nickname)
-                        .status(User.Status.ACTIVE)
-                        .build()
-                )
-        );
-
-        if (user.getStatus() == User.Status.DELETED) {
-            throw new UserException(ErrorCode.USER_ALREADY_DELETED);
-        }
-
-        return generateLoginResponse(user);
+        return userRepository.findByProviderAndProviderId(Provider.APPLE, appleId)
+                .map(user -> {
+                    if (user.getStatus() == Status.DELETED) {
+                        user = recoverIfEligible(user);
+                    }
+                    return generateLoginResponse(user);
+                })
+                .orElseGet(() -> {
+                    User user = userRepository.save(
+                            User.builder()
+                                    .provider(Provider.APPLE)
+                                    .providerId(appleId)
+                                    .email(safeEmail)
+                                    .nickname(nickname)
+                                    .status(Status.ACTIVE)
+                                    .build()
+                    );
+                    return generateLoginResponse(user);
+                });
     }
 
 
@@ -197,6 +194,15 @@ public class AuthService {
         return new RefreshResponseDto(newAccessToken, newRefreshToken);
     }
 
+
+
+
+
+    /*
+     *  Util 메서드 ~~~~~~~~~~~~~~
+     */
+
+
     // JWT 발급 및 로그인 응답 생성
     private SignInResponseDto generateLoginResponse(User user) {
         String[] tokens = jwtUtil.generateToken(new JwtUserInfoDto(user.getId()));
@@ -214,6 +220,20 @@ public class AuthService {
         return new SignInResponseDto(accessToken, refreshToken, user.getId(), hasAgreedTerm);
     }
 
+    // 탈퇴 유저 복구
+    private User recoverIfEligible(User user) {
+        if (user.getStatus() != Status.DELETED) return user;
+        // status==Deleted 인데, deletedAt 이 null 이거나 탈퇴한 지 30일 이상 경과 : 복구 불가
+        if (user.getDeletedAt() == null || user.getDeletedAt().isBefore(LocalDateTime.now().minusDays(30))) {
+            throw new UserException(ErrorCode.USER_DELETION_EXPIRED_RECOVERY);
+        }
+
+        user.setStatus(Status.ACTIVE);
+        user.setDeletedAt(null);
+        return user;
+    }
+
+    // 닉네임 생성기
     private String generateUniqueNickname() {
         Random random = new Random();
         String nickname;
