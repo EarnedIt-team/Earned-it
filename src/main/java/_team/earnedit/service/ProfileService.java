@@ -8,6 +8,8 @@ import _team.earnedit.global.util.SalaryCalculator;
 import _team.earnedit.repository.SalaryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -16,23 +18,34 @@ public class ProfileService {
     private final SalaryRepository salaryRepository;
     private final SalaryCalculator salaryCalculator;
 
+    @Transactional
     public SalaryResponseDto updateSalary(long userId, SalaryRequestDto requestDto) {
         Long amount = requestDto.getAmount();
         Integer payday = requestDto.getPayday();
         double amountPerSec = salaryCalculator.calculateAmountPerSec(amount);
 
-        Salary salary = salaryRepository.save(
-                Salary.builder()
+        Optional<Salary> existing = salaryRepository.findByUserId(userId);
+
+        Salary salary = existing
+                .map(s -> {
+                    s.setAmount(amount);
+                    s.setPayday(payday);
+                    s.updateAmountPerSec(amountPerSec);
+                    s.setTax(false);
+                    s.setType(Salary.SalaryType.MONTH);
+                    return s;
+                })
+                .orElseGet(() -> Salary.builder()
                         .user(User.builder().id(userId).build())
                         .type(Salary.SalaryType.MONTH)
                         .amount(amount)
                         .tax(false)
                         .amountPerSec(amountPerSec)
                         .payday(payday)
-                        .build()
-        );
+                        .build());
 
-        return SalaryResponseDto.from(salary);
+        Salary saved = salaryRepository.save(salary);
+        return SalaryResponseDto.from(saved);
     }
 
     // 수익 조회용 (예정)

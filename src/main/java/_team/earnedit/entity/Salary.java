@@ -19,12 +19,14 @@ public class Salary {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private SalaryType type;
 
     private Boolean severance;
 
+    @Setter
     @Column(nullable = false)
     private Long amount;
 
@@ -32,12 +34,14 @@ public class Salary {
 
     private Long taxExemptAmount;
 
+    @Setter
     @Column(nullable = false)
     private Boolean tax = false;
 
     @Column(nullable = false)
     private Double amountPerSec;
 
+    @Setter
     @Column(nullable = false)
     private Integer payday;
 
