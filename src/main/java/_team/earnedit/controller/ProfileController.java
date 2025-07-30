@@ -41,6 +41,19 @@ public class ProfileController {
     @Operation(
             security = {@SecurityRequirement(name = "bearer-key")}
     )
+    @GetMapping("/salary")
+    public ResponseEntity<ApiResponse<SalaryResponseDto>> getSalary(
+            @AuthenticationPrincipal JwtUserInfoDto userInfo)
+    {
+        SalaryResponseDto responseDto = profileService.getSalary(userInfo.getUserId());
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("수익 정보를 조회했습니다", responseDto));
+    }
+
+
+    @Operation(
+            security = {@SecurityRequirement(name = "bearer-key")}
+    )
     @PostMapping("/terms")
     public ResponseEntity<ApiResponse<Void>> agreeToTerms(
             @AuthenticationPrincipal JwtUserInfoDto userInfo,
