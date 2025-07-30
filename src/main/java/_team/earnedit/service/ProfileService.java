@@ -4,6 +4,8 @@ import _team.earnedit.dto.profile.SalaryRequestDto;
 import _team.earnedit.dto.profile.SalaryResponseDto;
 import _team.earnedit.entity.Salary;
 import _team.earnedit.entity.User;
+import _team.earnedit.global.ErrorCode;
+import _team.earnedit.global.exception.salary.SalaryException;
 import _team.earnedit.global.util.SalaryCalculator;
 import _team.earnedit.repository.SalaryRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ public class ProfileService {
     private final SalaryRepository salaryRepository;
     private final SalaryCalculator salaryCalculator;
 
+    // 수익 정보 입력 + 수정 (덮어쓰기)
     @Transactional
     public SalaryResponseDto updateSalary(long userId, SalaryRequestDto requestDto) {
         Long amount = requestDto.getAmount();
@@ -48,8 +51,13 @@ public class ProfileService {
         return SalaryResponseDto.from(saved);
     }
 
-    // 수익 조회용 (예정)
-//    public SalaryResponseDto getSalary() {
-//
-//    }
+    // 수익 조회
+    @Transactional(readOnly = true)
+    public SalaryResponseDto getSalary(Long userId) {
+        Salary salary = salaryRepository.findByUserId(userId)
+                .orElseThrow(() -> new SalaryException(ErrorCode.SALARY_NOT_FOUND));
+
+        return SalaryResponseDto.from(salary);
+    }
+
 }
