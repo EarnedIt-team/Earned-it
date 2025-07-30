@@ -28,4 +28,22 @@ public class UserCleanupScheduler {
             log.info("[hard-delete] {}명의 탈퇴한 사용자를 영구 삭제했습니다.", usersToDelete.size());
         }
     }
+
+    @Scheduled(cron = "0 0 0 * * *") // 매일 자정
+    public void renameDeletedUserEmailsAfter30Days() {
+        LocalDateTime threshold = LocalDateTime.now().minusDays(30);
+
+        List<User> targets = userRepository.findByStatusAndDeletedAtBeforeAndEmailNotContaining(
+                User.Status.DELETED, threshold, "_deleted_"
+        );
+
+        for (User user : targets) {
+            String newEmail = user.getEmail() + "_deleted_" + user.getDeletedAt().toLocalDate().toString().replace("-", "");
+            user.setEmail(newEmail);
+            userRepository.save(user);
+        }
+
+        log.info("[탈퇴 30일 초과] {}명의 유저 이메일을 변경했습니다.", targets.size());
+    }
+
 }
