@@ -77,8 +77,23 @@ public class PasswordResetService {
     // 비밀번호 변경
     @Transactional
     public void resetPassword(String email, String newPassword) {
-        User user = userRepository.findByEmailAndProvider(email, User.Provider.LOCAL)
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        if (user.getProvider() != User.Provider.LOCAL) {
+            throw new UserException(ErrorCode.INVALID_LOGIN_PROVIDER);
+        }
+
+        PasswordResetToken token = tokenRepository.findByEmail(email)
+                .orElseThrow(() -> new UserException(ErrorCode.EMAIL_TOKEN_NOT_FOUND));
+
+        if (!token.isUsed()) {
+            throw new UserException(ErrorCode.EMAIL_NOT_VERIFIED);
+        }
+
+        if (user.getPassword().equals(newPassword)) {
+            throw new UserException(ErrorCode.PASSWORD_SAME_AS_BEFORE);
+        }
 
         user.updatePassword(newPassword);
     }
