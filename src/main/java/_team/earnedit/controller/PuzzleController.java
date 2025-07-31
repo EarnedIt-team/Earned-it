@@ -1,6 +1,7 @@
 package _team.earnedit.controller;
 
 import _team.earnedit.dto.jwt.JwtUserInfoDto;
+import _team.earnedit.dto.puzzle.PuzzleResponse;
 import _team.earnedit.global.ApiResponse;
 import _team.earnedit.service.PuzzleService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,14 +19,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class PuzzleController {
     private final PuzzleService puzzleService;
 
-    @GetMapping
     @Operation(summary = "", description = "", security = {@SecurityRequirement(name = "bearer-key")})
-    public ResponseEntity<ApiResponse<String>> getPuzzle(
-            @AuthenticationPrincipal JwtUserInfoDto userInfoDto) {
-        puzzleService.getPuzzle(userInfoDto.getUserId());
-
+    @GetMapping
+    public ResponseEntity<ApiResponse<PuzzleResponse>> getPuzzleInfo(@AuthenticationPrincipal JwtUserInfoDto userInfo) {
+        PuzzleResponse response = puzzleService.getPuzzle(userInfo.getUserId());
+        return ResponseEntity.ok(ApiResponse.success("퍼즐 정보를 불러왔습니다.", response));
     }
-
-
 }
 

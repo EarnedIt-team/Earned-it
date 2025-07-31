@@ -1,34 +1,36 @@
 package _team.earnedit.dto.puzzle;
 
-
-import _team.earnedit.entity.Item;
-import _team.earnedit.entity.Piece;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.Map;
 
-@Builder
 @Getter
-@Schema(description = "퍼즐 응답 DTO")
+@Builder
 public class PuzzleResponse {
-    private PuzzleInfo puzzleInfo;
-    private Themes themes;
+    private Map<String, PuzzleThemeData> data;
 
-    @Builder
     @Getter
-    @Schema(description = "퍼즐 통계")
-    public static class PuzzleInfo {
-        private
+    @Builder
+    public static class PuzzleThemeData {
+        private String themeName;
+        private int collectedCount;
+        private int totalCount;
+        private long totalValue;
+        private List<SlotInfo> slots;
     }
 
-    @Builder
     @Getter
-    @Schema(description = "테마의 아이템")
-    public static class Themes {
-        List<Piece> pieces;
-
+    @Builder
+    public static class SlotInfo {
+        private int slotIndex;
+        private boolean isCollected;
+        private Long itemId;
+        private String itemName;
+        private String image;
+        private Long value;
+        private String collectedAt;
     }
-
 }
