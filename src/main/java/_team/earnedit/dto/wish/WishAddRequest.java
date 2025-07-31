@@ -21,7 +21,7 @@ public class WishAddRequest {
 
     @NotNull(message = "가격은 필수입니다.")
     @Positive(message = "가격은 0보다 커야 합니다.")
-    @Schema(description = "위시 가격", example = "1,500,000")
+    @Schema(description = "위시 가격", example = "1500000")
     private int price;
 
     @NotBlank(message = "상품 이미지는 반드시 있어야합니다.")
