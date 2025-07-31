@@ -69,4 +69,12 @@ public class PasswordResetService {
         tokenRepository.save(resetToken);
     }
 
+    // 비밀번호 변경
+    @Transactional
+    public void resetPassword(String email, String newPassword) {
+        User user = userRepository.findByEmailAndProvider(email, User.Provider.LOCAL)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        user.updatePassword(newPassword);
+    }
 }
