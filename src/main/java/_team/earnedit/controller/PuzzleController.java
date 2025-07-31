@@ -22,14 +22,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class PuzzleController {
     private final PuzzleService puzzleService;
 
-    @Operation(summary = "", description = "", security = {@SecurityRequirement(name = "bearer-key")})
+    @Operation(summary = "퍼즐 정보 조회", description = "사용자의 퍼즐 정보를 조회합니다.", security = {@SecurityRequirement(name = "bearer-key")})
     @GetMapping("/puzzle")
     public ResponseEntity<ApiResponse<PuzzleResponse>> getPuzzleInfo(@AuthenticationPrincipal JwtUserInfoDto userInfo) {
         PuzzleResponse response = puzzleService.getPuzzle(userInfo.getUserId());
         return ResponseEntity.ok(ApiResponse.success("퍼즐 정보를 불러왔습니다.", response));
     }
 
-    @Operation(summary = "", description = "", security = {@SecurityRequirement(name = "bearer-key")})
+    @Operation(summary = "조각 정보 조회", description = "조각의 상세 정보를 조회합니다.", security = {@SecurityRequirement(name = "bearer-key")})
     @GetMapping("/piece/{pieceId}")
     public ResponseEntity<ApiResponse<PieceResponse>> getPieceInfo(
             @AuthenticationPrincipal JwtUserInfoDto userInfo,
