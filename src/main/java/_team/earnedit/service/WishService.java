@@ -49,7 +49,8 @@ public class WishService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
-        List<Wish> wishList = wishRepository.findByUserId(userId);
+        // 이름 순서로 조회
+        List<Wish> wishList = wishRepository.findByUserIdOrderByNameAsc(userId);
 
         if (wishList.isEmpty()) {
             throw new WishException(ErrorCode.WISHLIST_EMPTY);
@@ -152,5 +153,33 @@ public class WishService {
         wish.setBought(!wish.isBought());
 
         return wish.isBought();
+    }
+
+    @Transactional(readOnly = true)
+    public List<WishDetailResponse> highlightWish(Long userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        List<Wish> wishList = wishRepository.findByUserIdOrderByNameAsc(userId);
+
+        if (wishList.isEmpty()) {
+            throw new WishException(ErrorCode.WISHLIST_EMPTY);
+        }
+
+        return wishList.stream()
+                .limit(3) // 3개만 조회
+                .map(wish -> WishDetailResponse.builder()
+                        .id(wish.getId())
+                        .userId(wish.getUser().getId())
+                        .name(wish.getName())
+                        .price(wish.getPrice())
+                        .itemImage(wish.getItemImage())
+                        .isBought(wish.isBought())
+                        .vendor(wish.getVendor())
+                        .createdAt(wish.getCreatedAt())
+                        .isStarred(wish.isStarred())
+                        .build())
+                .toList();
+
     }
 }
