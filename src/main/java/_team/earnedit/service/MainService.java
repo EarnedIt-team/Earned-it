@@ -4,10 +4,8 @@ import _team.earnedit.dto.main.MainPageResponse;
 import _team.earnedit.dto.wish.WishListResponse;
 import _team.earnedit.entity.Salary;
 import _team.earnedit.entity.Star;
-import _team.earnedit.entity.User;
 import _team.earnedit.entity.Wish;
 import _team.earnedit.global.ErrorCode;
-import _team.earnedit.global.exception.salary.SalaryException;
 import _team.earnedit.global.exception.user.UserException;
 import _team.earnedit.repository.SalaryRepository;
 import _team.earnedit.repository.StarRepository;
@@ -17,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -30,18 +29,20 @@ public class MainService {
     public MainPageResponse getInfo(Long userId) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+//
+//        Salary salary = salaryRepository.findByUserId(userId)
+//                .orElseThrow(() -> new SalaryException(ErrorCode.SALARY_NOT_FOUND));
 
-        Salary salary = salaryRepository.findByUserId(userId)
-                .orElseThrow(() -> new SalaryException(ErrorCode.SALARY_NOT_FOUND));
+        Optional<Salary> salary = salaryRepository.findByUserId(userId);
 
-        boolean hasSalary = salaryRepository.existsByUserId(userId);
+        boolean hasSalary = salary.isPresent();
 
         // 유저 정보 (초당 수익, 수익 유무)
         MainPageResponse.UserInfo userInfo = MainPageResponse.UserInfo.builder()
-                .amount(salary.getAmount())
+                .amount(salary.map(Salary::getAmount).orElse(0L))
+                .amountPerSec(salary.map(Salary::getAmountPerSec).orElse(0.0))
+                .payday(salary.map(Salary::getPayday).orElse(0))
                 .hasSalary(hasSalary)
-                .amountPerSec(salary.getAmountPerSec())
-                .payday(salary.getPayday())
                 .build();
 
         // Top5 정보 조회
