@@ -21,7 +21,7 @@ public class MainController {
     private final MainService mainService;
 
     @GetMapping
-    @Operation(security = {@SecurityRequirement(name = "bearer-key")})
+    @Operation(summary = "메인페이지 정보 조회", description = "메인페이지의 정보를 조회합니다.", security = {@SecurityRequirement(name = "bearer-key")})
     public ResponseEntity<ApiResponse<MainPageResponse>> getInfo(
             @AuthenticationPrincipal JwtUserInfoDto userInfo) {
         MainPageResponse response = mainService.getInfo(userInfo.getUserId());
