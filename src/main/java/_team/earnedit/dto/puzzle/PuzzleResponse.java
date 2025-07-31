@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -60,6 +61,6 @@ public class PuzzleResponse {
         private Long value;
 
         @Schema(description = "수집한 시각", example = "2025-07-31T12:00:00")
-        private String collectedAt;
+        private LocalDateTime collectedAt;
     }
 }
