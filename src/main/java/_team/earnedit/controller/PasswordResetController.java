@@ -26,4 +26,15 @@ public class PasswordResetController {
                 .body(ApiResponse.success("비밀번호 재설정 이메일이 전송되었습니다.", email));
     }
 
+
+    // 인증 코드 검증
+    @PostMapping("/verify")
+    public ResponseEntity<ApiResponse<String>> verifyResetToken(
+            @RequestBody PasswordResetTokenVerifyRequestDto requestDto)
+    {
+        passwordResetService.verifyResetToken(requestDto.getEmail(), requestDto.getToken());
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("인증이 완료되었습니다."));
+    }
+
 }
