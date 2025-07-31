@@ -6,6 +6,7 @@ import _team.earnedit.global.ApiResponse;
 import _team.earnedit.service.MainService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,12 +17,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/mainpage")
 @RequiredArgsConstructor
+@Tag(name = "MainPage API", description = "메인 페이지 정보 조회 API")
 public class MainController {
 
     private final MainService mainService;
 
     @GetMapping
-    @Operation(security = {@SecurityRequirement(name = "bearer-key")})
+    @Operation(summary = "메인페이지 정보 조회", description = "메인페이지의 정보를 조회합니다.", security = {@SecurityRequirement(name = "bearer-key")})
     public ResponseEntity<ApiResponse<MainPageResponse>> getInfo(
             @AuthenticationPrincipal JwtUserInfoDto userInfo) {
         MainPageResponse response = mainService.getInfo(userInfo.getUserId());

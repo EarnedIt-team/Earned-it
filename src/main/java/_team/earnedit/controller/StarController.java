@@ -6,6 +6,7 @@ import _team.earnedit.global.ApiResponse;
 import _team.earnedit.service.StarService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,14 +18,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/star")
 @RequiredArgsConstructor
+@Tag(name = "Star API", description = "Star 관련 기능 (조회, 수정 등)")
 public class StarController {
 
     private final StarService starService;
 
     @PatchMapping("/{wishId}")
-    @Operation(
-            security = {@SecurityRequirement(name = "bearer-key")}
-    )
+    @Operation(summary = "Star 상태 변경", description = "위시의 Star 상태를 변경합니다.", security = {@SecurityRequirement(name = "bearer-key")})
     public ResponseEntity<ApiResponse<Boolean>> updateStar(
             @AuthenticationPrincipal JwtUserInfoDto userInfo,
             @PathVariable long wishId) {
@@ -34,9 +34,7 @@ public class StarController {
     }
 
     @GetMapping
-    @Operation(
-            security = {@SecurityRequirement(name = "bearer-key")}
-    )
+    @Operation(summary = "Star 목록 조회", description = "Star 목록을 조회합니다.", security = {@SecurityRequirement(name = "bearer-key")})
     public ResponseEntity<ApiResponse<List<WishListResponse>>> getStarsWish(
             @AuthenticationPrincipal JwtUserInfoDto userInfo
     ) {

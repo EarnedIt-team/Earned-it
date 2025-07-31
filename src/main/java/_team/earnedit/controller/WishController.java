@@ -6,6 +6,7 @@ import _team.earnedit.global.ApiResponse;
 import _team.earnedit.service.WishService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,11 +19,12 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/wish")
+@Tag(name = "Wish API", description = "위시 관련 기능 (조회, 수정, 삭제 등)")
 public class WishController {
     private final WishService wishService;
 
     @PostMapping
-    @Operation(security = {@SecurityRequirement(name = "bearer-key")})
+    @Operation(summary = "위시 추가", description = "위시를 추가합니다.", security = {@SecurityRequirement(name = "bearer-key")})
     public ResponseEntity<ApiResponse<WishAddResponse>> addWish(
             @RequestBody @Valid WishAddRequest wishAddRequest,
             @AuthenticationPrincipal JwtUserInfoDto userInfo) {
@@ -33,7 +35,11 @@ public class WishController {
     }
 
     @GetMapping
-    @Operation(security = {@SecurityRequirement(name = "bearer-key")})
+    @Operation(
+            summary = "위시 목록 조회",
+            description = "사용자의 전체 위시 목록을 조회합니다.",
+            security = {@SecurityRequirement(name = "bearer-key")}
+    )
     public ResponseEntity<ApiResponse<List<WishListResponse>>> getWishList(
             @AuthenticationPrincipal JwtUserInfoDto userInfo) {
 
@@ -44,7 +50,11 @@ public class WishController {
     }
 
     @GetMapping("/{wishId}")
-    @Operation(security = {@SecurityRequirement(name = "bearer-key")})
+    @Operation(
+            summary = "단일 위시 조회",
+            description = "위시 ID를 이용해 해당 위시 상세 정보를 조회합니다.",
+            security = {@SecurityRequirement(name = "bearer-key")}
+    )
     public ResponseEntity<ApiResponse<WishDetailResponse>> getWish(
             @PathVariable Long wishId,
             @AuthenticationPrincipal JwtUserInfoDto userInfo) {
@@ -57,7 +67,11 @@ public class WishController {
 
 
     @PatchMapping("/{wishId}")
-    @Operation(security = {@SecurityRequirement(name = "bearer-key")})
+    @Operation(
+            summary = "위시 수정",
+            description = "위시 ID와 수정할 정보를 입력받아 해당 위시를 수정합니다.",
+            security = {@SecurityRequirement(name = "bearer-key")}
+    )
     public ResponseEntity<ApiResponse<WishUpdateResponse>> updateWish(
             @RequestBody @Valid WishUpdateRequest wishUpdateRequest,
             @PathVariable Long wishId,
@@ -68,7 +82,11 @@ public class WishController {
     }
 
     @DeleteMapping("/{wishId}")
-    @Operation(security = {@SecurityRequirement(name = "bearer-key")})
+    @Operation(
+            summary = "위시 삭제",
+            description = "위시 ID를 이용해 해당 위시를 삭제합니다.",
+            security = {@SecurityRequirement(name = "bearer-key")}
+    )
     public ResponseEntity<ApiResponse<Long>> deleteWish(
             @PathVariable Long wishId,
             @AuthenticationPrincipal JwtUserInfoDto userInfo) {
@@ -78,12 +96,31 @@ public class WishController {
     }
 
     @PatchMapping("/{wishId}/toggle-bought")
-    @Operation(security = {@SecurityRequirement(name = "bearer-key")})
+    @Operation(
+            summary = "위시 구매상태 토글",
+            description = "위시 ID를 이용해 해당 위시의 구매상태를 true/false로 전환합니다.",
+            security = {@SecurityRequirement(name = "bearer-key")}
+    )
     public ResponseEntity<ApiResponse<String>> toggleBought(
             @PathVariable Long wishId,
             @AuthenticationPrincipal JwtUserInfoDto userInfo) {
         boolean isBought = wishService.toggleBoughtStatus(wishId, userInfo.getUserId());
         return ResponseEntity.ok(ApiResponse.success(String.format("구매상태가 변경되었습니다 %s", isBought)));
+    }
+
+    @GetMapping("/highlight")
+    @Operation(
+            summary = "위시 하이라이트 조회",
+            description = "사용자의 하이라이트 위시(3개)를 조회합니다.",
+            security = {@SecurityRequirement(name = "bearer-key")}
+    )
+    public ResponseEntity<ApiResponse<List<WishDetailResponse>>> highlightWish(
+            @AuthenticationPrincipal JwtUserInfoDto userInfo
+    ) {
+        List<WishDetailResponse> response = wishService.highlightWish(userInfo.getUserId());
+
+        return ResponseEntity.ok(ApiResponse.success("위시 하이라이트를 조회하였습니다.", response));
+
     }
 
 }
