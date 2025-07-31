@@ -44,7 +44,7 @@ public class PasswordResetService {
                 .build();
 
         tokenRepository.save(resetToken);
-        emailService.sendVerificationEmail(email, token);
+        emailService.sendPasswordResetEmail(email, token);
     }
 
     // 인증 번호 검증
