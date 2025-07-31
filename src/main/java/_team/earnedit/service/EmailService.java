@@ -40,6 +40,27 @@ public class EmailService {
         sendHtml(email, subject, html);
     }
 
+    public void sendPasswordResetEmail(String email, String token) {
+        String subject = "[earned It !] 비밀번호 재설정 인증 코드 안내";
+
+        String html = """
+        <div style="font-family: Arial, sans-serif; font-size: 16px; color: #333;">
+            <h2>비밀번호 재설정 인증 코드</h2>
+            <p>아래 인증 코드를 입력해서 비밀번호를 재설정하세요.</p>
+
+            <div style="font-size: 24px; font-weight: bold; color: #4CAF50; margin: 20px 0;">
+                %s
+            </div>
+
+            <p style="margin-top: 30px; font-size: 12px; color: #999;">
+                인증 코드는 15분 동안만 유효합니다.
+            </p>
+        </div>
+        """.formatted(token);
+
+        sendHtml(email, subject, html);
+    }
+
 
     private void sendHtml(String to, String subject, String html) {
         try {
