@@ -1,5 +1,6 @@
 package _team.earnedit.service;
 
+import _team.earnedit.dto.puzzle.PieceResponse;
 import _team.earnedit.dto.puzzle.PuzzleResponse;
 import _team.earnedit.entity.Item;
 import _team.earnedit.entity.Piece;
@@ -79,5 +80,10 @@ public class PuzzleService {
         return PuzzleResponse.builder()
                 .themes(responseMap)
                 .build();
+    }
+
+    public PieceResponse getPieceInfo(Long userId, Long pieceId) {
+
+
     }
 }
