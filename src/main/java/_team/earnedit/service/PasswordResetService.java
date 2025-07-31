@@ -26,8 +26,13 @@ public class PasswordResetService {
     public void sendPasswordResetEmail(String email) {
         EmailUtils.validateEmailFormat(email);
 
-        User user = userRepository.findByEmailAndProvider(email, User.Provider.LOCAL)
+        // 가입 이력 아예 없는 이메일인 경우
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        // 가입한 이메일이 로컬이 아닌 경우
+        if (user.getProvider() != User.Provider.LOCAL) {
+            throw new UserException(ErrorCode.INVALID_LOGIN_PROVIDER);
+        }
 
         // 기존 토큰 삭제 (이메일당 하나만 존재하도록)
         tokenRepository.deleteByEmail(email);
