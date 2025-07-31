@@ -10,7 +10,7 @@ import java.util.Map;
 @Getter
 @Builder
 public class PuzzleResponse {
-    private Map<String, PuzzleThemeData> data;
+    private Map<String, PuzzleThemeData> themes;
 
     @Getter
     @Builder

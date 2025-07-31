@@ -77,7 +77,7 @@ public class PuzzleService {
         }
 
         return PuzzleResponse.builder()
-                .data(responseMap)
+                .themes(responseMap)
                 .build();
     }
 }
