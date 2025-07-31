@@ -47,4 +47,26 @@ public class PasswordResetService {
         emailService.sendVerificationEmail(email, token);
     }
 
+    // 인증 번호 검증
+    @Transactional
+    public void verifyResetToken(String email, String token) {
+        PasswordResetToken resetToken = tokenRepository.findByToken(token)
+                .orElseThrow(() -> new UserException(ErrorCode.EMAIL_TOKEN_NOT_FOUND));
+
+        if (!resetToken.getEmail().equals(email)) {
+            throw new UserException(ErrorCode.EMAIL_TOKEN_INVALID_EMAIL);
+        }
+
+        if (resetToken.isUsed()) {
+            throw new UserException(ErrorCode.EMAIL_TOKEN_ALREADY_VERIFIED);
+        }
+
+        if (resetToken.getExpiredAt().isBefore(LocalDateTime.now())) {
+            throw new UserException(ErrorCode.EMAIL_TOKEN_EXPIRED);
+        }
+
+        resetToken.setUsed(true);
+        tokenRepository.save(resetToken);
+    }
+
 }
