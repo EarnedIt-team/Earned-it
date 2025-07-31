@@ -3,6 +3,8 @@ package _team.earnedit.controller;
 import _team.earnedit.global.ApiResponse;
 import _team.earnedit.service.FileUploadService;
 import com.amazonaws.services.s3.AmazonS3Client;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +23,7 @@ public class FileUploadController {
 
 
     @PostMapping
+    @Operation(summary = "사진 업로드", description = "입력받은 사진 또는 파일을 S3에 업로드합니다.", security = {@SecurityRequirement(name = "bearer-key")})
     public ResponseEntity<ApiResponse<String>> uploadFile(@RequestParam("file") MultipartFile file) {
         String url = fileUploadService.uploadFile(file);
 
