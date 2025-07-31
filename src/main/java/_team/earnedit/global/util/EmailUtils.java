@@ -12,7 +12,7 @@ public class EmailUtils {
     }
 
     // 이메일 포맷 검증
-    public void validateEmailFormat(String email) {
+    public static void validateEmailFormat(String email) {
         // 1. 표준 이메일 패턴 검증
         String regex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9-]+(\\.[a-zA-Z]{2,})+$";
         if (!email.matches(regex)) {
@@ -26,7 +26,7 @@ public class EmailUtils {
     }
 
     // 5자리 숫자 랜덤 토큰 생성
-    public String generateToken() {
+    public static String generateToken() {
         Random random = new Random();
         int number = 10000 + random.nextInt(90000);  // 10000~99999 사이 숫자
         return String.valueOf(number);
