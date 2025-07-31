@@ -5,6 +5,7 @@ import _team.earnedit.service.FileUploadService;
 import com.amazonaws.services.s3.AmazonS3Client;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/upload")
+@Tag(name = "S3 API", description = "S3 파일 업로드 API")
 public class FileUploadController {
 
     private final FileUploadService fileUploadService;
