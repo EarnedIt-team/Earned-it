@@ -8,6 +8,7 @@ import _team.earnedit.repository.PasswordResetTokenRepository;
 import _team.earnedit.repository.UserRepository;
 import _team.earnedit.global.util.EmailUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,8 @@ public class PasswordResetService {
     private final PasswordResetTokenRepository tokenRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
+    private final PasswordEncoder passwordEncoder;
+
 
     // 비밀번호 재설정 인증 요청
     @Transactional
@@ -91,10 +94,12 @@ public class PasswordResetService {
             throw new UserException(ErrorCode.EMAIL_NOT_VERIFIED);
         }
 
-        if (user.getPassword().equals(newPassword)) {
+        if (passwordEncoder.matches(newPassword, user.getPassword())) {
             throw new UserException(ErrorCode.PASSWORD_SAME_AS_BEFORE);
         }
 
-        user.updatePassword(newPassword);
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        user.updatePassword(encodedPassword);
     }
+
 }
