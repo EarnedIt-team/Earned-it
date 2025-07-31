@@ -107,4 +107,24 @@ public class PuzzleService {
                 .build();
 
     }
+
+    @Transactional(readOnly = true)
+    public PieceResponse getPieceRecent(Long userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        Piece piece = pieceRepository.findTopByUserIdOrderByCollectedAtDesc(userId)
+                .orElseThrow(() -> new PieceException(ErrorCode.PIECE_NOT_FOUND));
+
+        return PieceResponse.builder()
+                .pieceId(piece.getId())
+                .collectedAt(piece.getCollectedAt())
+                .price(piece.getItem().getPrice())
+                .description(piece.getItem().getDescription())
+                .image(piece.getItem().getImage())
+                .vendor(piece.getItem().getVendor())
+                .rarity(piece.getItem().getRarity())
+                .name(piece.getItem().getName())
+                .build();
+    }
 }

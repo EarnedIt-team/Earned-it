@@ -8,6 +8,7 @@ import _team.earnedit.global.ApiResponse;
 import _team.earnedit.service.PuzzleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
+@Tag(name = "Puzzle", description = "Puzzle API")
 public class PuzzleController {
     private final PuzzleService puzzleService;
 
@@ -38,6 +40,16 @@ public class PuzzleController {
         PieceResponse pieceInfo = puzzleService.getPieceInfo(userInfo.getUserId(), pieceId);
         return ResponseEntity.ok(ApiResponse.success("퍼즐 정보를 불러왔습니다.", pieceInfo));
     }
+
+    @Operation(summary = "가장 최근 조각 조회", description = "가장 최근 조각의 상세 정보를 조회합니다.", security = {@SecurityRequirement(name = "bearer-key")})
+    @GetMapping("/piece/recent")
+    public ResponseEntity<ApiResponse<PieceResponse>> getPieceRecent(
+            @AuthenticationPrincipal JwtUserInfoDto userInfo
+    ) {
+        PieceResponse pieceInfo = puzzleService.getPieceRecent(userInfo.getUserId());
+        return ResponseEntity.ok(ApiResponse.success("가장 최근 조각의 상세 정보를 조회했습니다.", pieceInfo));
+    }
+
 
 
 }
