@@ -22,9 +22,7 @@ public class StarController {
     private final StarService starService;
 
     @PatchMapping("/{wishId}")
-    @Operation(
-            security = {@SecurityRequirement(name = "bearer-key")}
-    )
+    @Operation(summary = "Star 상태 변경", description = "위시의 Star 상태를 변경합니다.", security = {@SecurityRequirement(name = "bearer-key")})
     public ResponseEntity<ApiResponse<Boolean>> updateStar(
             @AuthenticationPrincipal JwtUserInfoDto userInfo,
             @PathVariable long wishId) {
@@ -34,9 +32,7 @@ public class StarController {
     }
 
     @GetMapping
-    @Operation(
-            security = {@SecurityRequirement(name = "bearer-key")}
-    )
+    @Operation(summary = "Star 목록 조회", description = "Star 목록을 조회합니다.", security = {@SecurityRequirement(name = "bearer-key")})
     public ResponseEntity<ApiResponse<List<WishListResponse>>> getStarsWish(
             @AuthenticationPrincipal JwtUserInfoDto userInfo
     ) {
