@@ -1,5 +1,6 @@
 package _team.earnedit.dto.puzzle;
 
+import _team.earnedit.entity.Rarity;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -9,7 +10,7 @@ import java.time.LocalDateTime;
 @Builder
 public class PieceResponse {
     private Long pieceId;
-    private String rarity;
+    private Rarity rarity;
     private LocalDateTime collectedAt;
     private String image;
     private String vendor;
