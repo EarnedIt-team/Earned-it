@@ -37,4 +37,15 @@ public class PasswordResetController {
                 .body(ApiResponse.success("인증이 완료되었습니다."));
     }
 
+
+    // 비밀번호 변경
+    @PostMapping("/reset")
+    public ResponseEntity<ApiResponse<String>> resetPassword(
+            @RequestBody PasswordResetRequestDto requestDto)
+    {
+        passwordResetService.resetPassword(requestDto.getEmail(), requestDto.getNewPassword());
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("비밀번호가 성공적으로 변경되었습니다."));
+    }
+
 }
