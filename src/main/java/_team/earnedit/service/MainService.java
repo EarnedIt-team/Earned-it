@@ -1,12 +1,17 @@
 package _team.earnedit.service;
 
 import _team.earnedit.dto.main.MainPageResponse;
+import _team.earnedit.dto.puzzle.PieceResponse;
 import _team.earnedit.dto.wish.WishListResponse;
+import _team.earnedit.entity.Piece;
 import _team.earnedit.entity.Salary;
 import _team.earnedit.entity.Star;
 import _team.earnedit.entity.Wish;
 import _team.earnedit.global.ErrorCode;
+import _team.earnedit.global.exception.piece.PieceException;
+import _team.earnedit.global.exception.salary.SalaryException;
 import _team.earnedit.global.exception.user.UserException;
+import _team.earnedit.repository.PieceRepository;
 import _team.earnedit.repository.SalaryRepository;
 import _team.earnedit.repository.StarRepository;
 import _team.earnedit.repository.UserRepository;
@@ -24,6 +29,7 @@ public class MainService {
     private final UserRepository userRepository;
     private final SalaryRepository salaryRepository;
     private final StarRepository starRepository;
+    private final PieceRepository pieceRepository;
 
     @Transactional(readOnly = true)
     public MainPageResponse getInfo(Long userId) {
@@ -55,10 +61,28 @@ public class MainService {
                 })
                 .toList();
 
+        // 가장 최근 조각 1개 조회하여 삽입
+        Piece recentPiece = pieceRepository.findTopByUserIdOrderByCollectedAtDesc(userId)
+                .orElseThrow(() -> new PieceException(ErrorCode.PIECE_NOT_FOUND));
+
+        // PieceResponse 객체 생성
+        PieceResponse pieceResponse = PieceResponse.builder()
+                .pieceId(recentPiece.getId())
+                .collectedAt(recentPiece.getCollectedAt())
+                .price(recentPiece.getItem().getPrice())
+                .rarity(recentPiece.getItem().getRarity())
+                .name(recentPiece.getItem().getName())
+                .image(recentPiece.getItem().getImage())
+                .vendor(recentPiece.getItem().getVendor())
+                .description(recentPiece.getItem().getDescription())
+                .build();
+
+
         // 응답 객체 생성
         return MainPageResponse.builder()
                 .starWishes(starWishList)
                 .userInfo(userInfo)
+                .pieceInfo(pieceResponse)
                 .build();
     }
 }
