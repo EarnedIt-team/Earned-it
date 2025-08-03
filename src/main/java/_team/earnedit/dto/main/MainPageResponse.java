@@ -1,5 +1,6 @@
 package _team.earnedit.dto.main;
 
+import _team.earnedit.dto.puzzle.PieceResponse;
 import _team.earnedit.dto.wish.WishListResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -17,6 +18,9 @@ public class MainPageResponse {
 
     @Schema(description = "Top 5 위시 리스트")
     private List<WishListResponse> starWishes;
+
+    @Schema(description = "조각 정보")
+    private PieceResponse pieceInfo;
 
     @Getter
     @Builder
