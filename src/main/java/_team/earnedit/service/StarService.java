@@ -89,7 +89,7 @@ public class StarService {
                 .map(star -> {
                     Wish wish = star.getWish();
                     return StarListResponse.builder()
-                            .id(star.getId())
+                            .starId(star.getId())
                             .wishId(wish.getId())
                             .userId(star.getUser().getId())
                             .name(wish.getName())

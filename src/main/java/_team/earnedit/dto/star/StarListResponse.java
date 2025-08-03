@@ -9,7 +9,7 @@ import lombok.Getter;
 @Schema(description = "Star 아이템 응답 DTO")
 public class StarListResponse {
     @Schema(description = "Star ID", example = "1")
-    private Long id;
+    private Long starId;
 
     @Schema(description = "Wish ID", example = "1")
     private Long wishId;
