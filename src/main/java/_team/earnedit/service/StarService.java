@@ -1,6 +1,6 @@
 package _team.earnedit.service;
 
-import _team.earnedit.dto.wish.WishListResponse;
+import _team.earnedit.dto.star.StarListResponse;
 import _team.earnedit.entity.Star;
 import _team.earnedit.entity.User;
 import _team.earnedit.entity.Wish;
@@ -70,7 +70,7 @@ public class StarService {
     }
 
     @Transactional(readOnly = true)
-    public List<WishListResponse> getStarsWish(Long userId) {
+    public List<StarListResponse> getStarsWish(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
@@ -85,7 +85,17 @@ public class StarService {
         return stars.stream()
                 .map(star -> {
                     Wish wish = star.getWish();
-                    return WishListResponse.from(wish);  // 또는 WishListResponse 생성자 활용
+                    return StarListResponse.builder()
+                            .id(star.getId())
+                            .userId(star.getUser().getId())
+                            .name(wish.getName())
+                            .rank(star.getRank())
+                            .itemImage(wish.getItemImage())
+                            .vendor(wish.getVendor())
+                            .price(wish.getPrice())
+                            .rank(star.getRank())
+                            .isBought(wish.isBought())
+                            .build();
                 })
                 .collect(Collectors.toList());
     }
