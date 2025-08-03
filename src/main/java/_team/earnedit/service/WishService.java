@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -25,11 +26,15 @@ public class WishService {
     private final WishRepository wishRepository;
     private final UserRepository userRepository;
     private final StarRepository starRepository;
+    private final FileUploadService fileUploadService;
 
     @Transactional
-    public WishAddResponse addWish(WishAddRequest wishAddRequest, Long userId) {
+    public WishAddResponse addWish(WishAddRequest wishAddRequest, Long userId, MultipartFile itemImage) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        // 이미지 업로드 처리 (예: S3)
+        String imageUrl = fileUploadService.uploadFile(itemImage);
 
         boolean isStarred = wishAddRequest.isStarred();
         log.info("isStarred {}", isStarred);
@@ -47,7 +52,7 @@ public class WishService {
                 .user(user)
                 .price(wishAddRequest.getPrice())
                 .url(wishAddRequest.getUrl())
-                .itemImage(wishAddRequest.getItemImage())
+                .itemImage(imageUrl)
                 .name(wishAddRequest.getName())
                 .vendor(wishAddRequest.getVendor())
                 .isStarred(isStarred)
@@ -86,7 +91,7 @@ public class WishService {
 
         return wishList.stream()
                 .map(wish -> WishListResponse.builder()
-                        .id(wish.getId())
+                        .wishId(wish.getId())
                         .userId(wish.getUser().getId())
                         .name(wish.getName())
                         .price(wish.getPrice())
@@ -144,7 +149,8 @@ public class WishService {
             throw new WishException(ErrorCode.WISH_DELETE_FORBIDDEN);
         }
 
-        wishRepository.delete(wish);
+        starRepository.deleteByWishId(wishId);
+        wishRepository.deleteById(wishId);
     }
 
     @Transactional(readOnly = true)

@@ -10,9 +10,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -23,13 +25,14 @@ import java.util.List;
 public class WishController {
     private final WishService wishService;
 
-    @PostMapping
+    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "위시 추가", description = "위시를 추가합니다.", security = {@SecurityRequirement(name = "bearer-key")})
     public ResponseEntity<ApiResponse<WishAddResponse>> addWish(
             @RequestBody @Valid WishAddRequest wishAddRequest,
-            @AuthenticationPrincipal JwtUserInfoDto userInfo) {
+            @AuthenticationPrincipal JwtUserInfoDto userInfo,
+            @RequestPart("image") MultipartFile itemImage) {
 
-        WishAddResponse response = wishService.addWish(wishAddRequest, userInfo.getUserId());
+        WishAddResponse response = wishService.addWish(wishAddRequest, userInfo.getUserId(), itemImage);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("위시가 추가되었습니다.", response));
     }
@@ -92,7 +95,7 @@ public class WishController {
             @AuthenticationPrincipal JwtUserInfoDto userInfo) {
         wishService.deleteWish(wishId, userInfo.getUserId());
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success("위시가 삭제되었습니다."));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("위시가 삭제되었습니다."));
     }
 
     @PatchMapping("/{wishId}/toggle-bought")
