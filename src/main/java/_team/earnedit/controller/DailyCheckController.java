@@ -34,7 +34,7 @@ public class DailyCheckController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("조각이 퍼즐에 성공적으로 등록되었습니다.", response));
     }
 
-    @Operation(summary = "보상 후보 요청", description = "보상 후보 요청.", security = {@SecurityRequirement(name = "bearer-key")})
+    @Operation(summary = "보상 후보 요청", description = "보상 후보 3개를 요청합니다.", security = {@SecurityRequirement(name = "bearer-key")})
     @PostMapping("/candidates")
     public ResponseEntity<ApiResponse<RewardCandidate>> getCandidates(
             @AuthenticationPrincipal JwtUserInfoDto userInfo
@@ -45,7 +45,7 @@ public class DailyCheckController {
                 .success("성공", rewardCandidate));
     }
 
-    @Operation(summary = "보상 선택", description = "보상 선택", security = {@SecurityRequirement(name = "bearer-key")})
+    @Operation(summary = "보상 선택", description = "보상을 선택하여 Piece에 추가합니다.", security = {@SecurityRequirement(name = "bearer-key")})
     @PostMapping("/select")
     public ResponseEntity<ApiResponse<String>> selectReward(
             @AuthenticationPrincipal JwtUserInfoDto userInfo,

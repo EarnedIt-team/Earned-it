@@ -83,7 +83,7 @@ public class DailyCheckService {
         List<Long> candidateIds = randomItems.stream().map(Item::getId).toList();
 
         try {
-            String json = objectMapper.writeValueAsString(candidateIds); // ✅ JSON 문자열로 저장
+            String json = objectMapper.writeValueAsString(candidateIds);
             redisTemplate.opsForValue().set("reward:" + rewardToken, json, REWARD_TTL);
         } catch (Exception e) {
             throw new RuntimeException("Redis 저장 실패", e);
@@ -111,7 +111,7 @@ public class DailyCheckService {
 
         List<Long> candidateIds;
         try {
-            String json = redisTemplate.opsForValue().get(key); // ✅ JSON 문자열로 가져오기
+            String json = redisTemplate.opsForValue().get(key);
             if (json == null) throw new IllegalArgumentException("보상 정보가 없습니다.");
             candidateIds = objectMapper.readValue(json, new TypeReference<>() {});
         } catch (Exception e) {
