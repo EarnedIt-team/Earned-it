@@ -11,6 +11,9 @@ public class StarListResponse {
     @Schema(description = "Star ID", example = "1")
     private Long id;
 
+    @Schema(description = "Wish ID", example = "1")
+    private Long wishId;
+
     @Schema(description = "사용자 ID", example = "100")
     private Long userId;
 
