@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Schema(description = "위시 아이템 응답 DTO")
 public class WishListResponse {
     @Schema(description = "위시 ID", example = "1")
-    private Long id;
+    private Long wishId;
 
     @Schema(description = "사용자 ID", example = "100")
     private Long userId;
@@ -41,7 +41,7 @@ public class WishListResponse {
 
     public static WishListResponse from(Wish wish) {
         return WishListResponse.builder()
-                .id(wish.getId())
+                .wishId(wish.getId())
                 .userId(wish.getUser().getId())
                 .name(wish.getName())
                 .price(wish.getPrice())
