@@ -12,4 +12,6 @@ public interface StarRepository extends JpaRepository<Star, Long> {
     void deleteByUserIdAndWishId(Long userId, Long wishId);
 
     List<Star> findByUserIdOrderByRankAsc(Long userId);
+
+    List<Star> findByUserId(Long userId);
 }

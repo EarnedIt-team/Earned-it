@@ -25,4 +25,8 @@ public class Star {
 
     @Setter
     private int rank;
+
+    public void updateRank(int rank) {
+        this.rank = rank;
+    }
 }

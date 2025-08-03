@@ -2,6 +2,7 @@ package _team.earnedit.controller;
 
 import _team.earnedit.dto.jwt.JwtUserInfoDto;
 import _team.earnedit.dto.star.StarListResponse;
+import _team.earnedit.dto.star.StarOrderUpdateRequest;
 import _team.earnedit.global.ApiResponse;
 import _team.earnedit.service.StarService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -42,15 +43,17 @@ public class StarController {
 
         return ResponseEntity.ok(ApiResponse.success("Star 목록을 조회했습니다.", starsWish));
     }
-//
-//    @PatchMapping("/order")
-//    @Operation(summary = "Star 순서 저장", description = "요청 받은 순서대로 서버에 Star 순서를 저장한다.", security = {@SecurityRequirement(name = "bearer-key")})
-//    public ResponseEntity<ApiResponse<Boolean>> updateStarOrder(
-//            @AuthenticationPrincipal JwtUserInfoDto userInfo,
-//
-//    ) {
-//        starService.updateStarOrder(userInfo.getUserId(), );
-//    }
+
+    @PatchMapping("/order")
+    @Operation(summary = "Star 순서 저장", description = "요청 받은 순서대로 서버에 Star 순서를 저장한다.", security = {@SecurityRequirement(name = "bearer-key")})
+    public ResponseEntity<ApiResponse<String>> updateStarOrder(
+            @AuthenticationPrincipal JwtUserInfoDto userInfo,
+            @RequestBody StarOrderUpdateRequest orderUpdateRequest
+            ) {
+        starService.updateStarOrder(userInfo.getUserId(), orderUpdateRequest.getOrderedWishIds());
+
+        return ResponseEntity.ok(ApiResponse.success("Star의 순서를 성공적으로 변경하였습니다."));
+    }
 
 
 
