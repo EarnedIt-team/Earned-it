@@ -1,6 +1,7 @@
 package _team.earnedit.service;
 
-import _team.earnedit.dto.wish.WishListResponse;
+import _team.earnedit.dto.star.StarListResponse;
+import _team.earnedit.dto.star.StarOrderUpdateRequest;
 import _team.earnedit.entity.Star;
 import _team.earnedit.entity.User;
 import _team.earnedit.entity.Wish;
@@ -17,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -70,8 +73,8 @@ public class StarService {
     }
 
     @Transactional(readOnly = true)
-    public List<WishListResponse> getStarsWish(Long userId) {
-        User user = userRepository.findById(userId)
+    public List<StarListResponse> getStarsWish(Long userId) {
+        userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
         // 정렬된 순서로
@@ -85,8 +88,42 @@ public class StarService {
         return stars.stream()
                 .map(star -> {
                     Wish wish = star.getWish();
-                    return WishListResponse.from(wish);  // 또는 WishListResponse 생성자 활용
+                    return StarListResponse.builder()
+                            .starId(star.getId())
+                            .wishId(wish.getId())
+                            .userId(star.getUser().getId())
+                            .name(wish.getName())
+                            .rank(star.getRank())
+                            .itemImage(wish.getItemImage())
+                            .vendor(wish.getVendor())
+                            .price(wish.getPrice())
+                            .rank(star.getRank())
+                            .isBought(wish.isBought())
+                            .build();
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void updateStarOrder(Long userId, List<Long> orderedWishIds) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        List<Star> stars = starRepository.findByUserId(userId);
+
+        // WishId → Star 매핑
+        Map<Long, Star> wishIdToStarMap = stars.stream()
+                .collect(Collectors.toMap(star -> star.getWish().getId(), Function.identity()));
+
+        // 순서대로 rank 갱신
+        for (int i = 0; i < orderedWishIds.size(); i++) {
+            Long wishId = orderedWishIds.get(i);
+            Star star = wishIdToStarMap.get(wishId);
+            if (star != null) {
+                star.updateRank(i + 1); // 1부터 시작
+            } else {
+                throw new StarException(ErrorCode.STAR_NOT_FOUND);
+            }
+        }
     }
 }

@@ -35,6 +35,7 @@ public enum ErrorCode {
     // Star
     TOP_WISH_LIMIT_EXCEEDED(HttpStatus.CONFLICT, "Star는 5개를 초과할 수 없습니다."),
     TOP_WISH_EMPTY(HttpStatus.NOT_FOUND, "조회된 Star가 없습니다."),
+    STAR_NOT_FOUND(HttpStatus.NOT_FOUND, "Star를 찾을 수 없습니다."),
 
     // Piece
     PIECE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 조각은 존재하지 않습니다."),
