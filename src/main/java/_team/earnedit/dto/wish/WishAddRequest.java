@@ -30,4 +30,7 @@ public class WishAddRequest {
 
     @Schema(description = "상품 구매 URL", example = "https://store.example.com/products/item123")
     private String url;
+
+    @Schema(description = "Top 5 등록 여부", example = "true")
+    private boolean starred;
 }
