@@ -33,11 +33,10 @@ public class WishService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
-        // 이미지 업로드 처리 (예: S3)
+        // 이미지 업로드 처리
         String imageUrl = fileUploadService.uploadFile(itemImage);
 
         boolean isStarred = wishAddRequest.isStarred();
-        log.info("isStarred {}", isStarred);
 
         // Top 5 초과 예외 처리
         if (isStarred) {

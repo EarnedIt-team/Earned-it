@@ -4,7 +4,11 @@ import _team.earnedit.dto.jwt.JwtUserInfoDto;
 import _team.earnedit.dto.wish.*;
 import _team.earnedit.global.ApiResponse;
 import _team.earnedit.service.WishService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -24,13 +28,22 @@ import java.util.List;
 @Tag(name = "Wish API", description = "위시 관련 기능 (조회, 수정, 삭제 등)")
 public class WishController {
     private final WishService wishService;
+    private final ObjectMapper objectMapper;
 
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "위시 추가", description = "위시를 추가합니다.", security = {@SecurityRequirement(name = "bearer-key")})
     public ResponseEntity<ApiResponse<WishAddResponse>> addWish(
-            @RequestBody @Valid WishAddRequest wishAddRequest,
-            @AuthenticationPrincipal JwtUserInfoDto userInfo,
-            @RequestPart("image") MultipartFile itemImage) {
+            @Parameter(
+                    name = "wish",
+                    description = "위시 정보 JSON 문자열",
+                    required = true,
+                    schema = @Schema(type = "string", example = "{ \"name\": \"아이폰 15 pro max\", \"vendor\": \"애플\", \"price\": 1500000, \"url\": \"https://store.example.com/item123\", \"starred\": true }")
+            )
+            @RequestPart("wish") String wishJson,
+            @RequestPart("image") MultipartFile itemImage,
+            @AuthenticationPrincipal JwtUserInfoDto userInfo) throws JsonProcessingException {
+
+        WishAddRequest wishAddRequest = objectMapper.readValue(wishJson, WishAddRequest.class);
 
         WishAddResponse response = wishService.addWish(wishAddRequest, userInfo.getUserId(), itemImage);
 
@@ -49,7 +62,6 @@ public class WishController {
         List<WishListResponse> wishList = wishService.getWishList(userInfo.getUserId());
 
         return ResponseEntity.ok(ApiResponse.success("위시 목록을 조회하였습니다.", wishList));
-
     }
 
     @GetMapping("/{wishId}")
