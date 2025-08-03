@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 public class WishDetailResponse {
 
     @Schema(description = "위시 ID", example = "1")
-    private Long id;
+    private Long wishId;
 
     @Schema(description = "사용자 ID", example = "1001")
     private Long userId;

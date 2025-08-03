@@ -161,7 +161,7 @@ public class WishService {
                 .orElseThrow(() -> new WishException(ErrorCode.WISH_NOT_FOUND));
 
         return WishDetailResponse.builder()
-                .id(wish.getId())
+                .wishId(wish.getId())
                 .name(wish.getName())
                 .price(wish.getPrice())
                 .itemImage(wish.getItemImage())
@@ -202,7 +202,7 @@ public class WishService {
         return wishList.stream()
                 .limit(3) // 3개만 조회
                 .map(wish -> WishDetailResponse.builder()
-                        .id(wish.getId())
+                        .wishId(wish.getId())
                         .userId(wish.getUser().getId())
                         .name(wish.getName())
                         .price(wish.getPrice())
