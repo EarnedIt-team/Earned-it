@@ -3,7 +3,9 @@ package _team.earnedit.service;
 import _team.earnedit.global.ErrorCode;
 import _team.earnedit.global.exception.file.FileException;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,15 +29,22 @@ public class FileUploadService {
         return uploadFileUrl(file);
     }
 
-    // file upload 로직
     public String uploadFileUrl(MultipartFile file) {
         try {
             String fileName = file.getOriginalFilename();
-            String fileUrl = "https://" + bucket + "/test" + fileName;
+
+            // 실제 접근 가능한 S3 도메인 형식으로 구성
+            String fileUrl = "https://" + bucket + ".s3." + s3Client.getRegionName() + ".amazonaws.com/" + fileName;
+
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(file.getContentType());
             metadata.setContentLength(file.getSize());
-            s3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
+
+            // 퍼블릭 읽기 권한 부여
+            PutObjectRequest putObjectRequest = new PutObjectRequest(bucket, fileName, file.getInputStream(), metadata);
+
+            s3Client.putObject(putObjectRequest);
+
             return fileUrl;
         } catch (IOException e) {
             throw new FileException(ErrorCode.FILE_UPLOAD_FAILED);
