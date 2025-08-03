@@ -1,5 +1,7 @@
 package _team.earnedit.controller;
 
+import _team.earnedit.dto.dailyCheck.RewardCandidate;
+import _team.earnedit.dto.dailyCheck.RewardSelectionRequest;
 import _team.earnedit.dto.jwt.JwtUserInfoDto;
 import _team.earnedit.dto.puzzle.PieceResponse;
 import _team.earnedit.global.ApiResponse;
@@ -30,5 +32,26 @@ public class DailyCheckController {
         PieceResponse response = dailyCheckService.addPieceToPuzzle(userInfo.getUserId(), itemId);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("조각이 퍼즐에 성공적으로 등록되었습니다.", response));
+    }
+
+    @Operation(summary = "보상 후보 요청", description = "보상 후보 3개를 요청합니다.", security = {@SecurityRequirement(name = "bearer-key")})
+    @PostMapping("/candidates")
+    public ResponseEntity<ApiResponse<RewardCandidate>> getCandidates(
+            @AuthenticationPrincipal JwtUserInfoDto userInfo
+    ) {
+        RewardCandidate rewardCandidate = dailyCheckService.generateRewardCandidates(userInfo.getUserId());
+
+        return ResponseEntity.ok(ApiResponse
+                .success("성공", rewardCandidate));
+    }
+
+    @Operation(summary = "보상 선택", description = "보상을 선택하여 Piece에 추가합니다.", security = {@SecurityRequirement(name = "bearer-key")})
+    @PostMapping("/select")
+    public ResponseEntity<ApiResponse<String>> selectReward(
+            @AuthenticationPrincipal JwtUserInfoDto userInfo,
+            @RequestBody RewardSelectionRequest request
+    ) {
+        dailyCheckService.selectReward(userInfo.getUserId(), request);
+        return ResponseEntity.ok(ApiResponse.success("보상이 정상적으로 지급되었습니다."));
     }
 }

@@ -34,4 +34,7 @@ public class StarListResponse {
 
     @Schema(description = "순서", example = "1~5")
     private int rank;
+
+    @Schema(description = "구매 링크", example = "https://cdn.example.com/buyitem")
+    private String url;
 }

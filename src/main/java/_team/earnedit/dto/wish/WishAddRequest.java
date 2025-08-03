@@ -24,10 +24,6 @@ public class WishAddRequest {
     @Schema(description = "위시 가격", example = "1500000")
     private int price;
 
-    @NotBlank(message = "상품 이미지는 반드시 있어야합니다.")
-    @Schema(description = "위시 이미지", example = "https://cdn.example.com/images/item123.png")
-    private String itemImage;
-
     @Schema(description = "상품 구매 URL", example = "https://store.example.com/products/item123")
     private String url;
 

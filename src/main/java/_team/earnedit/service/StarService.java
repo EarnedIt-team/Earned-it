@@ -99,6 +99,7 @@ public class StarService {
                             .price(wish.getPrice())
                             .rank(star.getRank())
                             .isBought(wish.isBought())
+                            .url(wish.getUrl())
                             .build();
                 })
                 .collect(Collectors.toList());
