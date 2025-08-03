@@ -35,7 +35,7 @@ public class DailyCheckController {
     }
 
     @Operation(summary = "보상 후보 요청", description = "보상 후보 3개를 요청합니다.", security = {@SecurityRequirement(name = "bearer-key")})
-    @PostMapping("/candidates")
+    @GetMapping("/candidates")
     public ResponseEntity<ApiResponse<RewardCandidate>> getCandidates(
             @AuthenticationPrincipal JwtUserInfoDto userInfo
     ) {
