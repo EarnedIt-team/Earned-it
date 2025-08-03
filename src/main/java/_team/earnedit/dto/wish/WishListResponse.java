@@ -38,6 +38,8 @@ public class WishListResponse {
     @Schema(description = "Top 5 즐겨찾기 여부", example = "true")
     private boolean isStarred;
 
+    @Schema(description = "구매 링크", example = "https://naver.com/shoplink.png")
+    private String url;
 
     public static WishListResponse from(Wish wish) {
         return WishListResponse.builder()
@@ -50,6 +52,7 @@ public class WishListResponse {
                 .vendor(wish.getVendor())
                 .createdAt(wish.getCreatedAt())
                 .isStarred(wish.isStarred())
+                .url(wish.getUrl())
                 .build();
     }
 }

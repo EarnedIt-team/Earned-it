@@ -99,6 +99,7 @@ public class WishService {
                         .vendor(wish.getVendor())
                         .createdAt(wish.getCreatedAt())
                         .isStarred(wish.isStarred())
+                        .url(wish.getUrl())
                         .build())
                 .toList();
 
