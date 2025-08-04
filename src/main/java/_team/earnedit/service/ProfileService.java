@@ -1,13 +1,17 @@
 package _team.earnedit.service;
 
+import _team.earnedit.dto.profile.NicknameRequestDto;
 import _team.earnedit.dto.profile.SalaryRequestDto;
 import _team.earnedit.dto.profile.SalaryResponseDto;
 import _team.earnedit.entity.Salary;
 import _team.earnedit.entity.User;
 import _team.earnedit.global.ErrorCode;
+import _team.earnedit.global.exception.profile.ProfileException;
 import _team.earnedit.global.exception.salary.SalaryException;
+import _team.earnedit.global.exception.user.UserException;
 import _team.earnedit.global.util.SalaryCalculator;
 import _team.earnedit.repository.SalaryRepository;
+import _team.earnedit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +21,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProfileService {
 
+    private final UserRepository userRepository;
     private final SalaryRepository salaryRepository;
     private final SalaryCalculator salaryCalculator;
 
@@ -58,6 +63,20 @@ public class ProfileService {
                 .orElseThrow(() -> new SalaryException(ErrorCode.SALARY_NOT_FOUND));
 
         return SalaryResponseDto.from(salary);
+    }
+
+    @Transactional
+    public void updateNickname(Long userId, NicknameRequestDto requestDto) {
+        String nickname = requestDto.getNickname();
+
+        if (userRepository.existsByNickname(nickname)) {
+            throw new ProfileException(ErrorCode.NICKNAME_ALREADY_EXISTS);
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        user.updateNickname(nickname);
     }
 
 }
