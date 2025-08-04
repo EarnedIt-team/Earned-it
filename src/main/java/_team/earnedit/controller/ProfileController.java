@@ -1,6 +1,7 @@
 package _team.earnedit.controller;
 
 import _team.earnedit.dto.jwt.JwtUserInfoDto;
+import _team.earnedit.dto.profile.NicknameRequestDto;
 import _team.earnedit.dto.profile.SalaryRequestDto;
 import _team.earnedit.dto.profile.SalaryResponseDto;
 import _team.earnedit.dto.term.TermRequestDto;
@@ -62,6 +63,19 @@ public class ProfileController {
         termService.agreeToTerms(userInfo.getUserId(), requestDtos);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("약관 동의 여부를 업데이트했습니다"));
+    }
+
+    @Operation(
+            security = {@SecurityRequirement(name = "bearer-key")}
+    )
+    @PatchMapping("/nickname")
+    public ResponseEntity<ApiResponse<Void>> updateNickname(
+            @AuthenticationPrincipal JwtUserInfoDto userInfo,
+            @RequestBody NicknameRequestDto requestDto)
+    {
+        profileService.updateNickname(userInfo.getUserId(), requestDto);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("닉네임 변경이 완료되었습니다"));
     }
 
 }
