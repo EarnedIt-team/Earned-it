@@ -2,6 +2,7 @@ package _team.earnedit.controller;
 
 import _team.earnedit.dto.jwt.JwtUserInfoDto;
 import _team.earnedit.dto.profile.NicknameRequestDto;
+import _team.earnedit.dto.profile.ProfileImageRequestDto;
 import _team.earnedit.dto.profile.SalaryRequestDto;
 import _team.earnedit.dto.profile.SalaryResponseDto;
 import _team.earnedit.dto.term.TermRequestDto;
@@ -12,9 +13,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -76,6 +79,19 @@ public class ProfileController {
         profileService.updateNickname(userInfo.getUserId(), requestDto);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success("닉네임 변경이 완료되었습니다"));
+    }
+
+    @Operation(
+            security = {@SecurityRequirement(name = "bearer-key")}
+    )
+    @PatchMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<Void>> updateProfileImage(
+            @ModelAttribute ProfileImageRequestDto requestDto,
+            @AuthenticationPrincipal JwtUserInfoDto userInfo)
+    {
+        profileService.updateProfileImage(userInfo.getUserId(), requestDto.getProfileImage());
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("프로필 사진 변경이 완료되었습니다"));
     }
 
 }
