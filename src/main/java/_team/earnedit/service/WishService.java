@@ -76,6 +76,8 @@ public class WishService {
                 .build();
     }
 
+
+    // Todo 페이지 네이션 작업해야함
     @Transactional(readOnly = true)
     public List<WishListResponse> getWishList(Long userId) {
         User user = userRepository.findById(userId)
@@ -215,5 +217,28 @@ public class WishService {
                         .build())
                 .toList();
 
+    }
+
+    @Transactional(readOnly = true)
+    public List<WishListResponse> searchWish(Long userId, String keyword) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        // 해당 유저가 가진 위시 중에서 검색
+        List<Wish> result = wishRepository.findByNameContainingIgnoreCaseAndUser(keyword, user);
+
+        return result.stream()
+                .map(wish -> WishListResponse
+                        .builder()
+                        .name(wish.getName())
+                        .wishId(wish.getId())
+                        .price(wish.getPrice())
+                        .itemImage(wish.getItemImage())
+                        .isBought(wish.isBought())
+                        .vendor(wish.getVendor())
+                        .createdAt(wish.getCreatedAt())
+                        .isStarred(wish.isStarred())
+                        .build()
+                ).toList();
     }
 }

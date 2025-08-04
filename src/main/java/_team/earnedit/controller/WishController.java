@@ -138,4 +138,19 @@ public class WishController {
 
     }
 
+    @GetMapping("/search")
+    @Operation(
+            summary = "위시 검색",
+            description = "검색어를 입력해 위시를 탐색합니다. ",
+            security = {@SecurityRequirement(name = "bearer-key")}
+    )
+    public ResponseEntity<ApiResponse<List<WishListResponse>>> searchWish(
+            @AuthenticationPrincipal JwtUserInfoDto userInfo,
+            @RequestParam String keyword
+    ) {
+        List<WishListResponse> wishListResponses = wishService.searchWish(userInfo.getUserId(), keyword);
+
+        return ResponseEntity.ok(ApiResponse.success("검색어 결과입니다.", wishListResponses));
+    }
+
 }
