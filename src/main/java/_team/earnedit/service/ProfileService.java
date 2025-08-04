@@ -1,24 +1,32 @@
 package _team.earnedit.service;
 
+import _team.earnedit.dto.profile.NicknameRequestDto;
 import _team.earnedit.dto.profile.SalaryRequestDto;
 import _team.earnedit.dto.profile.SalaryResponseDto;
 import _team.earnedit.entity.Salary;
 import _team.earnedit.entity.User;
 import _team.earnedit.global.ErrorCode;
+import _team.earnedit.global.exception.profile.ProfileException;
 import _team.earnedit.global.exception.salary.SalaryException;
+import _team.earnedit.global.exception.user.UserException;
 import _team.earnedit.global.util.SalaryCalculator;
 import _team.earnedit.repository.SalaryRepository;
+import _team.earnedit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class ProfileService {
 
+    private final UserRepository userRepository;
     private final SalaryRepository salaryRepository;
     private final SalaryCalculator salaryCalculator;
+    private final FileUploadService fileUploadService;
 
     // 수익 정보 입력 + 수정 (덮어쓰기)
     @Transactional
@@ -58,6 +66,34 @@ public class ProfileService {
                 .orElseThrow(() -> new SalaryException(ErrorCode.SALARY_NOT_FOUND));
 
         return SalaryResponseDto.from(salary);
+    }
+
+
+    // 닉네임 변경
+    @Transactional
+    public void updateNickname(Long userId, NicknameRequestDto requestDto) {
+        String nickname = requestDto.getNickname();
+
+        if (userRepository.existsByNickname(nickname)) {
+            throw new ProfileException(ErrorCode.NICKNAME_ALREADY_EXISTS);
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        user.updateNickname(nickname);
+    }
+
+
+    // 프로필 사진 변경
+    @Transactional
+    public void updateProfileImage(Long userId, MultipartFile profileImage) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        String imageUrl = fileUploadService.uploadFile(profileImage);
+
+        user.updateProfileImage(imageUrl);
     }
 
 }

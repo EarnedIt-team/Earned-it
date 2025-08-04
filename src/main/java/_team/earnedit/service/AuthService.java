@@ -28,6 +28,8 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -194,6 +196,22 @@ public class AuthService {
         return new RefreshResponseDto(newAccessToken, newRefreshToken);
     }
 
+
+
+    // 로그아웃
+    @Transactional
+    public void signOut(Long userId, String accessToken) {
+        // Redis에서 refresh token 삭제
+        redisTemplate.delete("refresh:" + userId);
+
+        // access token 블랙리스트 등록
+        Date expiration = jwtUtil.getAccessTokenExpiration(accessToken);
+        long now = System.currentTimeMillis();
+        long ttl = expiration.getTime() - now;
+
+        redisTemplate.opsForValue()
+                .set("BL:" + accessToken, "logout", ttl, TimeUnit.MILLISECONDS);
+    }
 
 
 
