@@ -39,6 +39,8 @@ public enum ErrorCode {
     // Salary
     SALARY_NOT_FOUND(HttpStatus.NOT_FOUND, "조회된 급여 정보가 없습니다."),
 
+    // profile
+    NICKNAME_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "중복된 닉네임이 이미 있습니다."),
 
     // 약관 Term
     TERM_MUST_BE_CHECKED(HttpStatus.BAD_REQUEST, "필수 약관 동의 여부는 true여야 합니다."),
