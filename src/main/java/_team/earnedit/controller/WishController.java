@@ -62,6 +62,11 @@ public class WishController {
     )
     public ResponseEntity<ApiResponse<PagedResponse<WishListResponse>>> getWishList(
             @AuthenticationPrincipal JwtUserInfoDto userInfo,
+
+            @Parameter(
+                    name = "pageable",
+                    description = "페이징 정보 (예: page=0, size=10, sort=createdAt,desc)"
+            )
             @PageableDefault(size = 10, sort = "name", direction = Sort.Direction.DESC) Pageable pageable
             ) {
 
