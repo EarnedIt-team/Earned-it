@@ -1,5 +1,6 @@
 package _team.earnedit.controller;
 
+import _team.earnedit.dto.PagedResponse;
 import _team.earnedit.dto.jwt.JwtUserInfoDto;
 import _team.earnedit.dto.wish.*;
 import _team.earnedit.global.ApiResponse;
@@ -13,6 +14,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -56,10 +60,12 @@ public class WishController {
             description = "사용자의 전체 위시 목록을 조회합니다.",
             security = {@SecurityRequirement(name = "bearer-key")}
     )
-    public ResponseEntity<ApiResponse<List<WishListResponse>>> getWishList(
-            @AuthenticationPrincipal JwtUserInfoDto userInfo) {
+    public ResponseEntity<ApiResponse<PagedResponse<WishListResponse>>> getWishList(
+            @AuthenticationPrincipal JwtUserInfoDto userInfo,
+            @PageableDefault(size = 10, sort = "name", direction = Sort.Direction.DESC) Pageable pageable
+            ) {
 
-        List<WishListResponse> wishList = wishService.getWishList(userInfo.getUserId());
+        PagedResponse<WishListResponse> wishList = wishService.getWishList(userInfo.getUserId(), pageable);
 
         return ResponseEntity.ok(ApiResponse.success("위시 목록을 조회하였습니다.", wishList));
     }
@@ -136,6 +142,26 @@ public class WishController {
 
         return ResponseEntity.ok(ApiResponse.success("위시 하이라이트를 조회하였습니다.", response));
 
+    }
+
+    @GetMapping("/search")
+    @Operation(
+            summary = "위시 검색",
+            description = "검색어를 입력해 위시를 탐색합니다. ",
+            security = {@SecurityRequirement(name = "bearer-key")}
+    )
+    public ResponseEntity<ApiResponse<PagedResponse<WishListResponse>>> searchWish(
+            @AuthenticationPrincipal JwtUserInfoDto userInfo,
+            @ModelAttribute WishSearchCondition condition,
+            @Parameter(
+                    name = "pageable",
+                    description = "페이징 정보 (예: page=0, size=10, sort=createdAt,desc)"
+            )
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        PagedResponse<WishListResponse> result = wishService.searchWish(userInfo.getUserId(), condition, pageable);
+
+        return ResponseEntity.ok(ApiResponse.success("검색 결과입니다.", result));
     }
 
 }

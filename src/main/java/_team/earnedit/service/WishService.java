@@ -1,6 +1,8 @@
 package _team.earnedit.service;
 
+import _team.earnedit.dto.PagedResponse;
 import _team.earnedit.dto.wish.*;
+import _team.earnedit.entity.QWish;
 import _team.earnedit.entity.Star;
 import _team.earnedit.entity.User;
 import _team.earnedit.entity.Wish;
@@ -11,13 +13,21 @@ import _team.earnedit.global.exception.wish.WishException;
 import _team.earnedit.repository.StarRepository;
 import _team.earnedit.repository.UserRepository;
 import _team.earnedit.repository.WishRepository;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -27,6 +37,7 @@ public class WishService {
     private final UserRepository userRepository;
     private final StarRepository starRepository;
     private final FileUploadService fileUploadService;
+    private final JPAQueryFactory queryFactory;
 
     @Transactional
     public WishAddResponse addWish(WishAddRequest wishAddRequest, Long userId, MultipartFile itemImage) {
@@ -76,33 +87,45 @@ public class WishService {
                 .build();
     }
 
+
+    // Todo 페이지 네이션 작업해야함
     @Transactional(readOnly = true)
-    public List<WishListResponse> getWishList(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+    public PagedResponse<WishListResponse> getWishList(Long userId, Pageable pageable) {
+        QWish wish = QWish.wish;
 
-        // 이름 순서로 조회
-        List<Wish> wishList = wishRepository.findByUserIdOrderByNameAsc(userId);
+        // 정렬 조건을 Pageable로부터 QueryDSL용 OrderSpecifier로 변환
+        List<OrderSpecifier<?>> orderSpecifiers = getOrderSpecifiers(pageable);
 
-        if (wishList.isEmpty()) {
-            throw new WishException(ErrorCode.WISHLIST_EMPTY);
-        }
+        List<Wish> content = queryFactory
+                .selectFrom(wish)
+                .where(wish.user.id.eq(userId))
+                .orderBy(orderSpecifiers.toArray(OrderSpecifier[]::new))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
 
-        return wishList.stream()
-                .map(wish -> WishListResponse.builder()
-                        .wishId(wish.getId())
-                        .userId(wish.getUser().getId())
-                        .name(wish.getName())
-                        .price(wish.getPrice())
-                        .itemImage(wish.getItemImage())
-                        .isBought(wish.isBought())
-                        .vendor(wish.getVendor())
-                        .createdAt(wish.getCreatedAt())
-                        .isStarred(wish.isStarred())
-                        .url(wish.getUrl())
-                        .build())
+        long total = Optional.ofNullable(
+                queryFactory
+                        .select(wish.count())
+                        .from(wish)
+                        .where(wish.user.id.eq(userId))
+                        .fetchOne()
+        ).orElse(0L);
+
+        List<WishListResponse> responseList = content.stream()
+                .map(WishListResponse::from)
                 .toList();
 
+        PageImpl<WishListResponse> page = new PageImpl<>(responseList, pageable, total);
+
+        return PagedResponse.<WishListResponse>builder()
+                .content(page.getContent())
+                .page(page.getNumber())
+                .size(page.getSize())
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .last(page.isLast())
+                .build();
     }
 
     @Transactional
@@ -215,5 +238,87 @@ public class WishService {
                         .build())
                 .toList();
 
+    }
+
+    @Transactional(readOnly = true)
+    public PagedResponse<WishListResponse> searchWish(Long userId, WishSearchCondition cond, Pageable pageable) {
+        QWish wish = QWish.wish;
+
+        // 조건 빌더 초기화 - 사용자 ID로 기본 필터 설정
+        BooleanBuilder builder = new BooleanBuilder()
+                .and(wish.user.id.eq(userId));
+
+        // 키워드 검색 (이름 또는 회사명에 포함된 경우)
+        if (cond.getKeyword() != null && !cond.getKeyword().isBlank()) {
+            builder.and(
+                    wish.name.containsIgnoreCase(cond.getKeyword())
+                            .or(wish.vendor.containsIgnoreCase(cond.getKeyword()))
+            );
+        }
+
+        // 구매 여부 필터
+        if (cond.getIsBought() != null) {
+            builder.and(wish.isBought.eq(cond.getIsBought()));
+        }
+
+        // 별표 여부 필터
+        if (cond.getIsStarred() != null) {
+            builder.and(wish.isStarred.eq(cond.getIsStarred()));
+        }
+
+        // 정렬 조건을 Pageable로부터 QueryDSL용 OrderSpecifier로 변환
+        List<OrderSpecifier<?>> orderSpecifiers = getOrderSpecifiers(pageable);
+
+        // 전체 개수 조회 (null일 경우 0L로 대체)
+        long total = Optional.ofNullable(
+                queryFactory
+                        .select(wish.count())
+                        .from(wish)
+                        .where(builder)
+                        .fetchOne()
+        ).orElse(0L);
+
+        // 페이지 결과 조회
+        List<Wish> content = queryFactory
+                .selectFrom(wish)
+                .where(builder)
+                .orderBy(orderSpecifiers.toArray(OrderSpecifier[]::new))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        PageImpl<WishListResponse> page = new PageImpl<>(content.stream().map(WishListResponse::from).toList(), pageable, total);
+
+        return PagedResponse.<WishListResponse>builder()
+                .content(page.getContent())
+                .page(page.getNumber())
+                .size(page.getSize())
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .last(page.isLast())
+                .build();
+    }
+
+
+    private List<OrderSpecifier<?>> getOrderSpecifiers(Pageable pageable) {
+        QWish wish = QWish.wish;
+        List<OrderSpecifier<?>> orders = new ArrayList<>();
+
+        for (Sort.Order order : pageable.getSort()) {
+            String property = order.getProperty();
+            boolean isAsc = order.isAscending();
+
+            OrderSpecifier<?> specifier = switch (property) {
+                case "name" -> isAsc ? wish.name.asc() : wish.name.desc();
+                case "vendor" -> isAsc ? wish.vendor.asc() : wish.vendor.desc();
+                case "price" -> isAsc ? wish.price.asc() : wish.price.desc();
+                case "createdAt" -> isAsc ? wish.createdAt.asc() : wish.createdAt.desc();
+                default -> throw new IllegalArgumentException("지원하지 않는 정렬 필드: " + property);
+            };
+
+            orders.add(specifier);
+        }
+
+        return orders;
     }
 }
