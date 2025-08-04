@@ -91,18 +91,27 @@ public class WishController {
 
     }
 
-
-    @PatchMapping("/{wishId}")
+    @PatchMapping(value = "/{wishId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(
             summary = "위시 수정",
             description = "위시 ID와 수정할 정보를 입력받아 해당 위시를 수정합니다.",
             security = {@SecurityRequirement(name = "bearer-key")}
     )
     public ResponseEntity<ApiResponse<WishUpdateResponse>> updateWish(
-            @RequestBody @Valid WishUpdateRequest wishUpdateRequest,
+            @Parameter(
+                    name = "wish",
+                    description = "위시 정보 JSON 문자열",
+                    required = true,
+                    schema = @Schema(type = "string", example = "{ \"name\": \"아이폰 15 pro max\", \"vendor\": \"애플\", \"price\": 1500000, \"url\": \"https://store.example.com/item123\", \"starred\": true }")
+            )
+            @RequestPart("wish") String wishJson,
+            @RequestPart("image") MultipartFile itemImage,
             @PathVariable Long wishId,
-            @AuthenticationPrincipal JwtUserInfoDto userInfo) {
-        WishUpdateResponse response = wishService.updateWish(wishUpdateRequest, userInfo.getUserId(), wishId);
+            @AuthenticationPrincipal JwtUserInfoDto userInfo) throws JsonProcessingException {
+
+        WishUpdateRequest updateRequest = objectMapper.readValue(wishJson, WishUpdateRequest.class);
+
+        WishUpdateResponse response = wishService.updateWish(updateRequest, userInfo.getUserId(), wishId, itemImage);
 
         return ResponseEntity.ok(ApiResponse.success("위시가 수정되었습니다.", response));
     }
