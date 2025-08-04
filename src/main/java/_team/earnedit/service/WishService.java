@@ -90,32 +90,42 @@ public class WishService {
 
     // Todo 페이지 네이션 작업해야함
     @Transactional(readOnly = true)
-    public List<WishListResponse> getWishList(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+    public PagedResponse<WishListResponse> getWishList(Long userId, Pageable pageable) {
+        QWish wish = QWish.wish;
 
-        // 이름 순서로 조회
-        List<Wish> wishList = wishRepository.findByUserIdOrderByNameAsc(userId);
+        // 정렬 조건을 Pageable로부터 QueryDSL용 OrderSpecifier로 변환
+        List<OrderSpecifier<?>> orderSpecifiers = getOrderSpecifiers(pageable);
 
-        if (wishList.isEmpty()) {
-            throw new WishException(ErrorCode.WISHLIST_EMPTY);
-        }
+        List<Wish> content = queryFactory
+                .selectFrom(wish)
+                .where(wish.user.id.eq(userId))
+                .orderBy(orderSpecifiers.toArray(OrderSpecifier[]::new))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
 
-        return wishList.stream()
-                .map(wish -> WishListResponse.builder()
-                        .wishId(wish.getId())
-                        .userId(wish.getUser().getId())
-                        .name(wish.getName())
-                        .price(wish.getPrice())
-                        .itemImage(wish.getItemImage())
-                        .isBought(wish.isBought())
-                        .vendor(wish.getVendor())
-                        .createdAt(wish.getCreatedAt())
-                        .isStarred(wish.isStarred())
-                        .url(wish.getUrl())
-                        .build())
+        long total = Optional.ofNullable(
+                queryFactory
+                        .select(wish.count())
+                        .from(wish)
+                        .where(wish.user.id.eq(userId))
+                        .fetchOne()
+        ).orElse(0L);
+
+        List<WishListResponse> responseList = content.stream()
+                .map(WishListResponse::from)
                 .toList();
 
+        PageImpl<WishListResponse> page = new PageImpl<>(responseList, pageable, total);
+
+        return PagedResponse.<WishListResponse>builder()
+                .content(page.getContent())
+                .page(page.getNumber())
+                .size(page.getSize())
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .last(page.isLast())
+                .build();
     }
 
     @Transactional

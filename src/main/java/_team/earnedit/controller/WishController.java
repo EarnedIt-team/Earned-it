@@ -60,10 +60,12 @@ public class WishController {
             description = "사용자의 전체 위시 목록을 조회합니다.",
             security = {@SecurityRequirement(name = "bearer-key")}
     )
-    public ResponseEntity<ApiResponse<List<WishListResponse>>> getWishList(
-            @AuthenticationPrincipal JwtUserInfoDto userInfo) {
+    public ResponseEntity<ApiResponse<PagedResponse<WishListResponse>>> getWishList(
+            @AuthenticationPrincipal JwtUserInfoDto userInfo,
+            @PageableDefault(size = 10, sort = "name", direction = Sort.Direction.DESC) Pageable pageable
+            ) {
 
-        List<WishListResponse> wishList = wishService.getWishList(userInfo.getUserId());
+        PagedResponse<WishListResponse> wishList = wishService.getWishList(userInfo.getUserId(), pageable);
 
         return ResponseEntity.ok(ApiResponse.success("위시 목록을 조회하였습니다.", wishList));
     }
