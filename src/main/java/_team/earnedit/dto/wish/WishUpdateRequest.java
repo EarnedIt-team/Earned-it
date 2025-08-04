@@ -20,10 +20,6 @@ public class WishUpdateRequest {
     @Schema(description = "가격", example = "29900")
     private int price;
 
-    @NotBlank(message = "상품 이미지는 반드시 있어야합니다.")
-    @Schema(description = "상품 이미지 URL", example = "https://cdn.example.com/images/mouse.png")
-    private String itemImage;
-
     @Schema(description = "상품 구매 URL", example = "https://smartstore.naver.com/item/123")
     private String url;
 }

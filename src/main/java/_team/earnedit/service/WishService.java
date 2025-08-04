@@ -88,7 +88,6 @@ public class WishService {
     }
 
 
-    // Todo 페이지 네이션 작업해야함
     @Transactional(readOnly = true)
     public PagedResponse<WishListResponse> getWishList(Long userId, Pageable pageable) {
         QWish wish = QWish.wish;
@@ -129,11 +128,14 @@ public class WishService {
     }
 
     @Transactional
-    public WishUpdateResponse updateWish(WishUpdateRequest wishUpdateRequest, Long userId, Long wishId) {
+    public WishUpdateResponse updateWish(WishUpdateRequest wishUpdateRequest, Long userId, Long wishId, MultipartFile itemImage) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
         Wish wish = wishRepository.findById(wishId).orElseThrow(() -> new WishException(ErrorCode.WISH_NOT_FOUND));
+
+        // 이미지 업로드 처리
+        String imageUrl = fileUploadService.uploadFile(itemImage);
 
         // 다른 사용자의 수정 시도에 대한 예외처리
         if (!wish.getUser().getId().equals(userId)) {
@@ -143,7 +145,7 @@ public class WishService {
         wish.update(
                 wishUpdateRequest.getName(),
                 wishUpdateRequest.getPrice(),
-                wishUpdateRequest.getItemImage(),
+                imageUrl,
                 wishUpdateRequest.getVendor(),
                 wishUpdateRequest.getUrl()
         );
@@ -151,7 +153,7 @@ public class WishService {
         return WishUpdateResponse.builder()
                 .wishId(wish.getId())
                 .name(wish.getName())
-                .ItemImage(wish.getItemImage())
+                .ItemImage(imageUrl)
                 .vendor(wish.getVendor())
                 .price(wish.getPrice())
                 .url(wish.getUrl())
