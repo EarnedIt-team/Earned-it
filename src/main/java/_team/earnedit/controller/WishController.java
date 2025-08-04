@@ -146,11 +146,11 @@ public class WishController {
     )
     public ResponseEntity<ApiResponse<List<WishListResponse>>> searchWish(
             @AuthenticationPrincipal JwtUserInfoDto userInfo,
-            @RequestParam String keyword
+            @ModelAttribute WishSearchCondition condition
     ) {
-        List<WishListResponse> wishListResponses = wishService.searchWish(userInfo.getUserId(), keyword);
+        List<WishListResponse> wishListResponses = wishService.searchWish(userInfo.getUserId(), condition);
 
-        return ResponseEntity.ok(ApiResponse.success("검색어 결과입니다.", wishListResponses));
+        return ResponseEntity.ok(ApiResponse.success("검색 결과입니다.", wishListResponses));
     }
 
 }

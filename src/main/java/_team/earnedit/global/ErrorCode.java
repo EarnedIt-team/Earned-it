@@ -28,6 +28,7 @@ public enum ErrorCode {
     WISH_IMAGE_REQUIRED(HttpStatus.BAD_REQUEST, "상품 이미지는 반드시 있어야합니다."),
 
     WISHLIST_EMPTY(HttpStatus.NO_CONTENT, "등록된 위시가 없습니다."),
+    NOT_FOUND_SEARCH_RESULT(HttpStatus.NO_CONTENT, "검색 결과가 존재하지 않습니다."),
     WISH_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 위시입니다."),
     WISH_UPDATE_FORBIDDEN(HttpStatus.FORBIDDEN, "다른 사용자의 위시 수정 시도입니다."),
     WISH_DELETE_FORBIDDEN(HttpStatus.FORBIDDEN, "다른 사용자의 위시 삭제 시도입니다."),
