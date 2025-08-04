@@ -1,5 +1,6 @@
 package _team.earnedit.controller;
 
+import _team.earnedit.dto.PagedResponse;
 import _team.earnedit.dto.jwt.JwtUserInfoDto;
 import _team.earnedit.dto.wish.*;
 import _team.earnedit.global.ApiResponse;
@@ -13,6 +14,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -144,13 +148,18 @@ public class WishController {
             description = "검색어를 입력해 위시를 탐색합니다. ",
             security = {@SecurityRequirement(name = "bearer-key")}
     )
-    public ResponseEntity<ApiResponse<List<WishListResponse>>> searchWish(
+    public ResponseEntity<ApiResponse<PagedResponse<WishListResponse>>> searchWish(
             @AuthenticationPrincipal JwtUserInfoDto userInfo,
-            @ModelAttribute WishSearchCondition condition
+            @ModelAttribute WishSearchCondition condition,
+            @Parameter(
+                    name = "pageable",
+                    description = "페이징 정보 (예: page=0, size=10, sort=createdAt,desc)"
+            )
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        List<WishListResponse> wishListResponses = wishService.searchWish(userInfo.getUserId(), condition);
+        PagedResponse<WishListResponse> result = wishService.searchWish(userInfo.getUserId(), condition, pageable);
 
-        return ResponseEntity.ok(ApiResponse.success("검색 결과입니다.", wishListResponses));
+        return ResponseEntity.ok(ApiResponse.success("검색 결과입니다.", result));
     }
 
 }

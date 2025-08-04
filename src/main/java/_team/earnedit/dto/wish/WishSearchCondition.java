@@ -19,10 +19,4 @@ public class WishSearchCondition {
 
     @Schema(description = "별표 여부", example = "false")
     private Boolean isStarred;
-
-    @Schema(description = "정렬 기준 필드", example = "price")
-    private String sort;
-
-    @Schema(description = "정렬 방향", example = "asc")
-    private String direction;
 }

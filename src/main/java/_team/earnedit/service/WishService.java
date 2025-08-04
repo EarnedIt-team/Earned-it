@@ -1,5 +1,6 @@
 package _team.earnedit.service;
 
+import _team.earnedit.dto.PagedResponse;
 import _team.earnedit.dto.wish.*;
 import _team.earnedit.entity.QWish;
 import _team.earnedit.entity.Star;
@@ -14,16 +15,19 @@ import _team.earnedit.repository.UserRepository;
 import _team.earnedit.repository.WishRepository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -226,13 +230,8 @@ public class WishService {
 
     }
 
-    /**
-     * 사용자의 위시리스트를 조건에 맞게 검색합니다.
-     * 필터 조건: 키워드(이름/회사명), 구매여부, 별표 여부
-     * 정렬 조건: 이름, 회사명, 금액, 생성일
-     */
     @Transactional(readOnly = true)
-    public List<WishListResponse> searchWish(Long userId, WishSearchCondition cond) {
+    public PagedResponse<WishListResponse> searchWish(Long userId, WishSearchCondition cond, Pageable pageable) {
         QWish wish = QWish.wish;
 
         // 조건 빌더 초기화 - 사용자 ID로 기본 필터 설정
@@ -257,55 +256,59 @@ public class WishService {
             builder.and(wish.isStarred.eq(cond.getIsStarred()));
         }
 
-        // 정렬 기준 계산
-        OrderSpecifier<?> orderSpecifier = getOrderSpecifier(cond);
+        // 정렬 조건을 Pageable로부터 QueryDSL용 OrderSpecifier로 변환
+        List<OrderSpecifier<?>> orderSpecifiers = getOrderSpecifiers(pageable);
 
-        // QueryDSL 쿼리 실행
-        List<Wish> results = queryFactory
+        // 전체 개수 조회 (null일 경우 0L로 대체)
+        long total = Optional.ofNullable(
+                queryFactory
+                        .select(wish.count())
+                        .from(wish)
+                        .where(builder)
+                        .fetchOne()
+        ).orElse(0L);
+
+        // 페이지 결과 조회
+        List<Wish> content = queryFactory
                 .selectFrom(wish)
                 .where(builder)
-                .orderBy(orderSpecifier)
+                .orderBy(orderSpecifiers.toArray(OrderSpecifier[]::new))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
 
-        if (results.isEmpty()) {
-            throw new WishException(ErrorCode.NOT_FOUND_SEARCH_RESULT);
-        }
+        PageImpl<WishListResponse> page = new PageImpl<>(content.stream().map(WishListResponse::from).toList(), pageable, total);
 
-        // 결과를 DTO로 매핑 후 반환
-        return results.stream()
-                .map(WishListResponse::from)
-                .toList();
+        return PagedResponse.<WishListResponse>builder()
+                .content(page.getContent())
+                .page(page.getNumber())
+                .size(page.getSize())
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .last(page.isLast())
+                .build();
     }
 
-    /**
-     * 검색 조건에 따라 정렬 기준을 반환하는 유틸 메서드
-     * @param cond WishSearchCondition 검색 조건 객체
-     * @return OrderSpecifier 정렬 기준 객체
-     */
-    private OrderSpecifier<?> getOrderSpecifier(WishSearchCondition cond) {
-        // 정렬 방향 파싱 (asc/desc), 기본값은 DESC
-        Sort.Direction direction = Sort.Direction.fromOptionalString(cond.getDirection())
-                .orElse(Sort.Direction.DESC);
 
-        // Wish 엔티티 기준 PathBuilder 생성
-        PathBuilder<Wish> sortPath = new PathBuilder<>(Wish.class, "wish");
-        String sortField = cond.getSort();
+    private List<OrderSpecifier<?>> getOrderSpecifiers(Pageable pageable) {
+        QWish wish = QWish.wish;
+        List<OrderSpecifier<?>> orders = new ArrayList<>();
 
-        // 필드명별 정렬 기준 분기 처리
-        return switch (sortField) {
-            case "name" -> direction.isAscending()
-                    ? sortPath.getString("name").asc()
-                    : sortPath.getString("name").desc();
-            case "vendor" -> direction.isAscending()
-                    ? sortPath.getString("vendor").asc()
-                    : sortPath.getString("vendor").desc();
-            case "price" -> direction.isAscending()
-                    ? sortPath.getNumber("price", Integer.class).asc()
-                    : sortPath.getNumber("price", Integer.class).desc();
-            case "createdAt" -> direction.isAscending()
-                    ? sortPath.getDateTime("createdAt", java.time.LocalDateTime.class).asc()
-                    : sortPath.getDateTime("createdAt", java.time.LocalDateTime.class).desc();
-            default -> throw new IllegalArgumentException("정렬할 수 없는 필드입니다: " + sortField);
-        };
+        for (Sort.Order order : pageable.getSort()) {
+            String property = order.getProperty();
+            boolean isAsc = order.isAscending();
+
+            OrderSpecifier<?> specifier = switch (property) {
+                case "name" -> isAsc ? wish.name.asc() : wish.name.desc();
+                case "vendor" -> isAsc ? wish.vendor.asc() : wish.vendor.desc();
+                case "price" -> isAsc ? wish.price.asc() : wish.price.desc();
+                case "createdAt" -> isAsc ? wish.createdAt.asc() : wish.createdAt.desc();
+                default -> throw new IllegalArgumentException("지원하지 않는 정렬 필드: " + property);
+            };
+
+            orders.add(specifier);
+        }
+
+        return orders;
     }
 }
