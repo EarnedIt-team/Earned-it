@@ -215,17 +215,21 @@ public class WishService {
     }
 
     @Transactional(readOnly = true)
-    public List<WishDetailResponse> highlightWish(Long userId) {
-        userRepository.findById(userId)
+    public WishHighlightResponse highlightWish(Long userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
         List<Wish> wishList = wishRepository.findByUserIdOrderByNameAsc(userId);
+
+        // 전체 개수만 카운트 쿼리로 조회
+        int currentWishCount = wishRepository.countByUser(user);
 
         if (wishList.isEmpty()) {
             throw new WishException(ErrorCode.WISHLIST_EMPTY);
         }
 
-        return wishList.stream()
+        // WishHighlightResponse.WishDetailResponse 생성
+        List<WishDetailResponse> wishDetailResponses = wishList.stream()
                 .limit(3) // 3개만 조회
                 .map(wish -> WishDetailResponse.builder()
                         .wishId(wish.getId())
@@ -240,6 +244,17 @@ public class WishService {
                         .build())
                 .toList();
 
+        // WishHighlightResponse.wishInfo 객체 생성
+        WishHighlightResponse.WishInfo wishInfo = WishHighlightResponse.WishInfo.builder()
+                .currentWishCount(currentWishCount)
+                .build();
+
+
+        // WishHighlightResponse 리턴
+        return WishHighlightResponse.builder()
+                .wishDetailResponse(wishDetailResponses)
+                .wishInfo(wishInfo)
+                .build();
     }
 
     @Transactional(readOnly = true)

@@ -149,10 +149,10 @@ public class WishController {
             description = "사용자의 하이라이트 위시(3개)를 조회합니다.",
             security = {@SecurityRequirement(name = "bearer-key")}
     )
-    public ResponseEntity<ApiResponse<List<WishDetailResponse>>> highlightWish(
+    public ResponseEntity<ApiResponse<WishHighlightResponse>> highlightWish(
             @AuthenticationPrincipal JwtUserInfoDto userInfo
     ) {
-        List<WishDetailResponse> response = wishService.highlightWish(userInfo.getUserId());
+        WishHighlightResponse response = wishService.highlightWish(userInfo.getUserId());
 
         return ResponseEntity.ok(ApiResponse.success("위시 하이라이트를 조회하였습니다.", response));
 
