@@ -1,15 +1,24 @@
 package _team.earnedit.controller;
 
 import _team.earnedit.dto.auth.*;
+import _team.earnedit.dto.jwt.JwtUserInfoDto;
 import _team.earnedit.dto.socialLogin.KakaoSignInRequestDto;
 import _team.earnedit.dto.socialLogin.AppleSignInRequestDto;
 import _team.earnedit.global.ApiResponse;
+import _team.earnedit.global.jwt.JwtUtil;
 import _team.earnedit.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtUtil jwtUtil;
 
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse<SignUpResponseDto>> signup(
@@ -63,4 +73,23 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success("액세스 토큰 재생성과 리프레시 토큰 갱신이 완료되었습니다.", responseDto));
     }
+
+
+
+    @Operation(
+            security = {@SecurityRequirement(name = "bearer-key")}
+    )
+    @PostMapping("/auth/signout")
+    public ResponseEntity<ApiResponse<Void>> signOut(
+            HttpServletRequest request,
+            @AuthenticationPrincipal JwtUserInfoDto userInfoDto) {
+
+        String accessToken = jwtUtil.extractBearerPrefix(request.getHeader("Authorization"));
+        authService.signOut(userInfoDto.getUserId(), accessToken);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("로그아웃이 완료되었습니다."));
+    }
+
+
 }
