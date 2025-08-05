@@ -96,4 +96,13 @@ public class ProfileService {
         user.updateProfileImage(imageUrl);
     }
 
+    // 프로필 사진 삭제
+    @Transactional
+    public void deleteProfileImage(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        user.updateProfileImage(null);
+    }
+
 }
