@@ -1,4 +1,4 @@
-package _team.earnedit.service.item;
+package _team.earnedit.service.admin.item;
 
 import _team.earnedit.entity.Item;
 import _team.earnedit.global.ErrorCode;

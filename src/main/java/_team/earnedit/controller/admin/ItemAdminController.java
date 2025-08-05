@@ -1,9 +1,9 @@
-package _team.earnedit.controller;
+package _team.earnedit.controller.admin;
 
 import _team.earnedit.entity.Item;
 import _team.earnedit.entity.Rarity;
 import _team.earnedit.entity.Theme;
-import _team.earnedit.service.item.ItemService;
+import _team.earnedit.service.admin.item.ItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
