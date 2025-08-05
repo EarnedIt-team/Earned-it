@@ -1,6 +1,7 @@
 package _team.earnedit.controller.admin;
 
 import _team.earnedit.dto.puzzle.PuzzleSlotForm;
+import _team.earnedit.entity.Item;
 import _team.earnedit.entity.PuzzleSlot;
 import _team.earnedit.entity.Theme;
 import _team.earnedit.repository.PuzzleSlotRepository;
@@ -60,7 +61,7 @@ public class PuzzleSlotAdminController {
 
     @GetMapping("/grid")
     public String gridView(Model model) {
-        List<PuzzleSlot> allSlots = puzzleSlotRepository.findAllWithItem(); // item까지 fetch join
+        List<PuzzleSlot> allSlots = puzzleSlotRepository.findAllWithItem();
 
         Map<Theme, List<PuzzleSlot>> grouped = allSlots.stream()
                 .collect(Collectors.groupingBy(PuzzleSlot::getTheme));
@@ -71,22 +72,30 @@ public class PuzzleSlotAdminController {
             Theme theme = entry.getKey();
             List<PuzzleSlot> slots = entry.getValue();
 
-            // 슬롯 인덱스 순으로 정렬
             slots.sort(Comparator.comparingInt(PuzzleSlot::getSlotIndex));
 
-            // 정사각형 만들기 (예: 9개면 3x3)
             int size = (int) Math.ceil(Math.sqrt(slots.size()));
-            List<List<PuzzleSlot>> grid = new ArrayList<>();
+            int totalSlots = size * size;
 
+            // 빈 슬롯을 채워 넣도록 보완
+            for (int i = slots.size(); i < totalSlots; i++) {
+                PuzzleSlot emptySlot = new PuzzleSlot();
+                emptySlot.setId(-1L); // UI용 가짜 ID (주의: 실존 ID 아님)
+                emptySlot.setItem(null);
+                emptySlot.setTheme(theme);
+                emptySlot.setSlotIndex(i);
+                slots.add(emptySlot);
+            }
+
+            List<List<PuzzleSlot>> grid = new ArrayList<>();
             for (int i = 0; i < size; i++) {
                 List<PuzzleSlot> row = new ArrayList<>();
                 for (int j = 0; j < size; j++) {
                     int index = i * size + j;
-                    row.add(index < slots.size() ? slots.get(index) : null);
+                    row.add(slots.get(index));
                 }
                 grid.add(row);
             }
-
             gridMap.put(theme, grid);
         }
 
@@ -109,8 +118,22 @@ public class PuzzleSlotAdminController {
 
     @PostMapping("/replace")
     @ResponseBody
-    public String replaceItem(@RequestParam Long slotId, @RequestParam Long itemId) {
-        puzzleSlotService.replaceSlotItem(slotId, itemId);
+    public String replaceItem(
+            @RequestParam Long slotId,
+            @RequestParam Long itemId,
+            @RequestParam(required = false) Theme theme,
+            @RequestParam(required = false) Integer index
+    ) {
+        puzzleSlotService.replaceSlotItemWithFallback(slotId, itemId, theme, index);
+        return "ok";
+    }
+
+    @PostMapping("/create")
+    @ResponseBody
+    public String createSlot(@RequestParam Theme theme,
+                             @RequestParam int index,
+                             @RequestParam Long itemId) {
+        puzzleSlotService.createSlotAndAssignItem(theme, index, itemId);
         return "ok";
     }
 }

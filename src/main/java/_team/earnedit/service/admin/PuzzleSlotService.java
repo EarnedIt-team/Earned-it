@@ -51,19 +51,6 @@ public class PuzzleSlotService {
         puzzleSlotRepository.deleteById(id);
     }
 
-    @Transactional
-    public void swapSlots(Long sourceId, Long targetId) {
-        PuzzleSlot source = puzzleSlotRepository.findById(sourceId)
-                .orElseThrow(() -> new IllegalArgumentException("소스 슬롯이 존재하지 않음"));
-        PuzzleSlot target = puzzleSlotRepository.findById(targetId)
-                .orElseThrow(() -> new IllegalArgumentException("타겟 슬롯이 존재하지 않음"));
-
-        // 아이템 교환
-        Item temp = source.getItem();
-        source.setItem(target.getItem());
-        target.setItem(temp);
-    }
-
     @Transactional(readOnly = true)
     public List<PuzzleSlotResponse> getAllSlots() {
         List<PuzzleSlot> slots = puzzleSlotRepository.findAllWithItem();
@@ -80,25 +67,67 @@ public class PuzzleSlotService {
                 .toList();
     }
 
+    // ✅ 슬롯 간 아이템 스왑 처리
     @Transactional
     public void swapSlotItems(Long fromId, Long toId) {
         PuzzleSlot from = puzzleSlotRepository.findById(fromId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid fromId"));
+                .orElseThrow(() -> new IllegalArgumentException("Invalid fromId")); // 🔧 추가된 예외 메시지
         PuzzleSlot to = puzzleSlotRepository.findById(toId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid toId"));
+                .orElseThrow(() -> new IllegalArgumentException("Invalid toId")); // 🔧 추가된 예외 메시지
 
-        Item temp = from.getItem();
+        Item temp = from.getItem(); // 🔧 기존 아이템 보관
         from.setItem(to.getItem());
         to.setItem(temp);
     }
 
     @Transactional
     public void replaceSlotItem(Long slotId, Long itemId) {
-        PuzzleSlot slot = puzzleSlotRepository.findById(slotId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid slotId"));
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid itemId"));
 
+        if (slotId == -1L) {
+            // 💡 UI 상의 빈 슬롯에 새 퍼즐 슬롯을 생성하는 로직
+            throw new IllegalArgumentException("slotId가 -1이면 테마 및 슬롯 위치 정보가 필요합니다.");
+        }
+
+        PuzzleSlot slot = puzzleSlotRepository.findById(slotId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid slotId"));
         slot.setItem(item);
     }
+
+    @Transactional
+    public void replaceSlotItemWithFallback(Long slotId, Long itemId, Theme theme, Integer slotIndex) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid itemId"));
+
+        if (slotId == -1L) {
+            if (theme == null || slotIndex == null) {
+                throw new IllegalArgumentException("Theme과 slotIndex는 필수입니다 (빈 슬롯에 삽입 시)");
+            }
+
+            PuzzleSlot newSlot = new PuzzleSlot();
+            newSlot.setItem(item);
+            newSlot.setTheme(theme);
+            newSlot.setSlotIndex(slotIndex);
+            puzzleSlotRepository.save(newSlot);
+        } else {
+            PuzzleSlot slot = puzzleSlotRepository.findById(slotId)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid slotId"));
+            slot.setItem(item);
+        }
+    }
+
+    @Transactional
+    public void createSlotAndAssignItem(Theme theme, int slotIndex, Long itemId) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 아이템입니다."));
+
+        PuzzleSlot slot = new PuzzleSlot();
+        slot.setTheme(theme);
+        slot.setSlotIndex(slotIndex);
+        slot.setItem(item);
+
+        puzzleSlotRepository.save(slot);
+    }
+
 }

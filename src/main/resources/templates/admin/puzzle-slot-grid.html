@@ -15,15 +15,24 @@
         }
 
         .layout {
-            display: grid;
-            grid-template-columns: 1fr 260px;
+            display: flex;
+            flex-wrap: wrap;
             gap: 2rem;
         }
 
-        @media (max-width: 991px) {
-            .layout {
-                grid-template-columns: 1fr;
-            }
+        .grid-container {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .item-palette {
+            width: 260px;
+            background-color: #ffffff;
+            border: 1px solid #ccc;
+            padding: 1rem;
+            overflow-y: auto;
+            max-height: 80vh;
+            border-radius: 8px;
         }
 
         .theme-section {
@@ -31,8 +40,7 @@
         }
 
         .grid-table {
-            width: 100%;
-            table-layout: fixed;
+            border-collapse: collapse;
         }
 
         .slot-box {
@@ -40,9 +48,7 @@
             height: 140px;
             border: 1px solid #ccc;
             text-align: center;
-            vertical-align: top;
             background-color: #f8f8f8;
-            position: relative;
             padding: 5px;
         }
 
@@ -54,15 +60,6 @@
 
         .dragging {
             opacity: 0.5;
-        }
-
-        .item-palette {
-            background-color: #ffffff;
-            border: 1px solid #ccc;
-            padding: 1rem;
-            overflow-y: auto;
-            max-height: 80vh;
-            border-radius: 8px;
         }
 
         .palette-item {
@@ -82,9 +79,18 @@
 
         .theme-title {
             font-weight: bold;
-            margin-top: 1.5rem;
             margin-bottom: 0.5rem;
             font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            .layout {
+                flex-direction: column;
+            }
+
+            .item-palette {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -94,7 +100,7 @@
 
 <div class="layout">
     <!-- 퍼즐 그리드 -->
-    <div>
+    <div class="grid-container">
         <div th:each="entry : ${gridMap}" class="theme-section">
             <div class="theme-title" th:text="'테마: ' + ${entry.key}"></div>
             <table class="grid-table">
@@ -110,11 +116,13 @@
                              ondragstart="drag(event)"
                              th:attr="data-id=${slot.id}"
                              th:id="'slot-' + ${slot.id}">
-
-                            <img th:src="${slot.item.image}" alt="이미지" onerror="this.src='/images/placeholder.png'">
-                            <div th:text="${slot.item.name}"></div>
+                            <img th:src="${slot.item?.image}" alt="이미지" onerror="this.src='/images/placeholder.png'">
+                            <div th:text="${slot.item?.name}"></div>
                             <small th:text="'Index: ' + ${slot.slotIndex}"></small>
                         </div>
+
+                        <!-- 빈 슬롯일 때도 표시 -->
+                        <div th:if="${slot == null}" style="height:100%;"></div>
 
                     </td>
                 </tr>
@@ -169,14 +177,11 @@
             const toSlot = target;
             if (fromSlot === toSlot) return;
 
-            const fromContent = fromSlot.innerHTML;
-            const toContent = toSlot.innerHTML;
-            fromSlot.innerHTML = toContent;
-            toSlot.innerHTML = fromContent;
-
             const fromId = fromSlot.getAttribute('data-slot-id');
             const toId = toSlot.getAttribute('data-slot-id');
-            fetch(`/admin/puzzle-slots/swap?from=${fromId}&to=${toId}`, { method: 'POST' });
+
+            fetch(`/admin/puzzle-slots/swap?from=${fromId}&to=${toId}`, { method: 'POST' })
+                .then(() => location.reload());
         }
     }
 </script>

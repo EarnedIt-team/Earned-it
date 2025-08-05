@@ -19,7 +19,7 @@ public class PuzzleSlotAdminApiController {
 
     @PostMapping("/swap")
     public ResponseEntity<Void> swapSlots(@RequestBody PuzzleSlotSwapRequest request) {
-        puzzleSlotService.swapSlots(request.getSourceSlotId(), request.getTargetSlotId());
+        puzzleSlotService.swapSlotItems(request.getSourceSlotId(), request.getTargetSlotId());
         return ResponseEntity.ok().build();
     }
 
