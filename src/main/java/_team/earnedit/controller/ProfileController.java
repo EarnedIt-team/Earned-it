@@ -1,10 +1,7 @@
 package _team.earnedit.controller;
 
 import _team.earnedit.dto.jwt.JwtUserInfoDto;
-import _team.earnedit.dto.profile.NicknameRequestDto;
-import _team.earnedit.dto.profile.ProfileImageRequestDto;
-import _team.earnedit.dto.profile.SalaryRequestDto;
-import _team.earnedit.dto.profile.SalaryResponseDto;
+import _team.earnedit.dto.profile.*;
 import _team.earnedit.dto.term.TermRequestDto;
 import _team.earnedit.global.ApiResponse;
 import _team.earnedit.service.ProfileService;
@@ -66,6 +63,18 @@ public class ProfileController {
         termService.agreeToTerms(userInfo.getUserId(), requestDtos);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("약관 동의 여부를 업데이트했습니다"));
+    }
+
+    @Operation(
+            security = {@SecurityRequirement(name = "bearer-key")}
+    )
+    @GetMapping
+    public ResponseEntity<ApiResponse<ProfileInfoResponseDto>> getProfile(
+            @AuthenticationPrincipal JwtUserInfoDto userInfoDto)
+    {
+        ProfileInfoResponseDto response = profileService.getProfile(userInfoDto.getUserId());
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("기본 프로필 정보를 조회했습니다", response));
     }
 
     @Operation(
