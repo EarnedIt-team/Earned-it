@@ -21,7 +21,7 @@ public class WishDetailResponse {
     private String name;
 
     @Schema(description = "가격", example = "49000")
-    private int price;
+    private long price;
 
     @Schema(description = "상품 이미지 URL", example = "https://cdn.example.com/images/keyboard.png")
     private String itemImage;
