@@ -94,4 +94,17 @@ public class ProfileController {
                 .body(ApiResponse.success("프로필 사진 변경이 완료되었습니다"));
     }
 
+    @Operation(
+            security = {@SecurityRequirement(name = "bearer-key")}
+    )
+    @PatchMapping("/image/delete")
+    public ResponseEntity<ApiResponse<Void>> deleteProfileImage(
+            @AuthenticationPrincipal JwtUserInfoDto userInfoDto)
+    {
+
+        profileService.deleteProfileImage(userInfoDto.getUserId());
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("프로필 이미지가 삭제되었습니다."));
+    }
+
 }
