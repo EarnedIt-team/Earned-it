@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>관리자 대시보드</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 2rem;
+            background-color: #f8f9fa;
+        }
+
+        h1 {
+            color: #343a40;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        li {
+            background-color: white;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        a {
+            text-decoration: none;
+            color: #007bff;
+            font-size: 1.1rem;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<h1>📊 관리자 대시보드</h1>
+<ul>
+    <li><a th:href="@{/admin/items}">🧺 아이템 목록 관리</a></li>
+    <li><a th:href="@{/admin/items/new}">➕ 아이템 등록</a></li>
+    <li><a th:href="@{/admin/puzzle-slots/view}">🧩 퍼즐 슬롯 그리드 보기</a></li>
+    <li><a th:href="@{/admin/puzzle-slots/grid}">🧩 퍼즐 슬롯 드래그 편집</a></li>
+</ul>
+</body>
+</html>
