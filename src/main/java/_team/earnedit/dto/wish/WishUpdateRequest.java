@@ -18,7 +18,7 @@ public class WishUpdateRequest {
 
     @NotNull(message = "가격은 필수입니다.")
     @Schema(description = "가격", example = "29900")
-    private int price;
+    private long price;
 
     @Schema(description = "상품 구매 URL", example = "https://smartstore.naver.com/item/123")
     private String url;
