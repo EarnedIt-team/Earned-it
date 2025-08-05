@@ -104,27 +104,38 @@
         <div th:each="entry : ${gridMap}" class="theme-section">
             <div class="theme-title" th:text="'테마: ' + ${entry.key}"></div>
             <table class="grid-table">
-                <tr th:each="row : ${entry.value}">
-                    <td th:each="slot : ${row}"
-                        class="slot-box"
-                        th:attr="data-slot-id=${slot?.id}"
-                        ondrop="drop(event)"
-                        ondragover="allowDrop(event)">
+                <tr th:each="row, rowStat : ${entry.value}">
+                    <th:block th:each="slot, colStat : ${row}">
+                        <td th:if="${slot != null}"
+                            class="slot-box"
+                            th:attr="data-slot-id=${slot.id}"
+                            ondrop="drop(event)"
+                            ondragover="allowDrop(event)">
 
-                        <div th:if="${slot != null}"
-                             draggable="true"
-                             ondragstart="drag(event)"
-                             th:attr="data-id=${slot.id}"
-                             th:id="'slot-' + ${slot.id}">
-                            <img th:src="${slot.item?.image}" alt="이미지" onerror="this.src='/images/placeholder.png'">
-                            <div th:text="${slot.item?.name}"></div>
-                            <small th:text="'Index: ' + ${slot.slotIndex}"></small>
-                        </div>
+                            <div draggable="true"
+                                 ondragstart="drag(event)"
+                                 th:attr="data-id=${slot.id}"
+                                 th:id="'slot-' + ${slot.id}">
+                                <img th:src="${slot.item?.image}" alt="이미지" onerror="this.src='/images/placeholder.png'">
+                                <div th:text="${slot.item?.name}"></div>
+                                <small th:text="'Index: ' + ${slot.slotIndex}"></small>
+                            </div>
 
-                        <!-- 빈 슬롯일 때도 표시 -->
-                        <div th:if="${slot == null}" style="height:100%;"></div>
+                            <!-- 빈 슬롯일 때도 표시 -->
+                            <div th:if="${slot == null}" style="height:100%;"></div>
 
-                    </td>
+                        </td>
+
+                        <!-- ✅ 여기에 추가 -->
+                        <td th:if="${slot == null}"
+                            class="slot-box"
+                            data-slot-id="-1"
+                            th:attr="data-theme=${entry.key}, data-index=${rowStat.index * ${row.size()} + colStat.index}"
+                            ondrop="drop(event)"
+                            ondragover="allowDrop(event)">
+                            <div style="height:100%;"></div>
+                        </td>
+                    </th:block>
                 </tr>
             </table>
         </div>
@@ -170,8 +181,18 @@
         const slotId = target.getAttribute("data-slot-id");
 
         if (newItemId) {
-            fetch(`/admin/puzzle-slots/replace?slotId=${slotId}&itemId=${newItemId}`, { method: 'POST' })
-                .then(() => location.reload());
+            if (slotId === "-1") {
+                const theme = target.getAttribute("data-theme");
+                const index = target.getAttribute("data-index");
+
+                fetch(`/admin/puzzle-slots/create?theme=${theme}&index=${index}&itemId=${newItemId}`, {
+                    method: 'POST'
+                }).then(() => location.reload());
+            } else {
+                fetch(`/admin/puzzle-slots/replace?slotId=${slotId}&itemId=${newItemId}`, {
+                    method: 'POST'
+                }).then(() => location.reload());
+            }
         } else if (dragged) {
             const fromSlot = dragged.closest(".slot-box");
             const toSlot = target;
@@ -180,8 +201,9 @@
             const fromId = fromSlot.getAttribute('data-slot-id');
             const toId = toSlot.getAttribute('data-slot-id');
 
-            fetch(`/admin/puzzle-slots/swap?from=${fromId}&to=${toId}`, { method: 'POST' })
-                .then(() => location.reload());
+            fetch(`/admin/puzzle-slots/swap?from=${fromId}&to=${toId}`, {
+                method: 'POST'
+            }).then(() => location.reload());
         }
     }
 </script>
