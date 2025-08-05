@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>아이템 등록/수정</title>
+    <meta charset="UTF-8"/>
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background-color: white;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        textarea {
+            resize: vertical;
+            height: 80px;
+        }
+
+        button {
+            width: 100%;
+            background-color: #2e86de;
+            color: white;
+            padding: 12px;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        button:hover {
+            background-color: #1e6fcb;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>아이템 등록/수정</h1>
+    <form th:action="@{/admin/items}" th:object="${item}" method="post">
+        <input type="hidden" th:field="*{id}"/>
+
+        <label for="name">이름</label>
+        <input type="text" th:field="*{name}" id="name"/>
+
+        <label for="vendor">벤더</label>
+        <input type="text" th:field="*{vendor}" id="vendor"/>
+
+        <label for="price">가격</label>
+        <input type="number" th:field="*{price}" id="price"/>
+
+        <label for="image">이미지 URL</label>
+        <input type="text" th:field="*{image}" id="image"/>
+
+        <label for="description">설명</label>
+        <textarea th:field="*{description}" id="description"></textarea>
+
+        <label for="rarity">희귀도</label>
+        <select th:field="*{rarity}" id="rarity">
+            <option th:each="r : ${rarities}" th:value="${r}" th:text="${r}"></option>
+        </select>
+
+        <label for="theme">테마</label>
+        <select th:field="*{theme}" id="theme">
+            <option th:each="t : ${themes}" th:value="${t}" th:text="${t}"></option>
+        </select>
+
+        <button type="submit">저장</button>
+    </form>
+</div>
+</body>
+</html>
