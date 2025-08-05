@@ -1,10 +1,7 @@
 package _team.earnedit.controller;
 
 import _team.earnedit.dto.jwt.JwtUserInfoDto;
-import _team.earnedit.dto.profile.NicknameRequestDto;
-import _team.earnedit.dto.profile.ProfileImageRequestDto;
-import _team.earnedit.dto.profile.SalaryRequestDto;
-import _team.earnedit.dto.profile.SalaryResponseDto;
+import _team.earnedit.dto.profile.*;
 import _team.earnedit.dto.term.TermRequestDto;
 import _team.earnedit.global.ApiResponse;
 import _team.earnedit.service.ProfileService;
@@ -71,6 +68,18 @@ public class ProfileController {
     @Operation(
             security = {@SecurityRequirement(name = "bearer-key")}
     )
+    @GetMapping
+    public ResponseEntity<ApiResponse<ProfileInfoResponseDto>> getProfile(
+            @AuthenticationPrincipal JwtUserInfoDto userInfoDto)
+    {
+        ProfileInfoResponseDto response = profileService.getProfile(userInfoDto.getUserId());
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("기본 프로필 정보를 조회했습니다", response));
+    }
+
+    @Operation(
+            security = {@SecurityRequirement(name = "bearer-key")}
+    )
     @PatchMapping("/nickname")
     public ResponseEntity<ApiResponse<Void>> updateNickname(
             @AuthenticationPrincipal JwtUserInfoDto userInfo,
@@ -92,6 +101,19 @@ public class ProfileController {
         profileService.updateProfileImage(userInfo.getUserId(), requestDto.getProfileImage());
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success("프로필 사진 변경이 완료되었습니다"));
+    }
+
+    @Operation(
+            security = {@SecurityRequirement(name = "bearer-key")}
+    )
+    @PatchMapping("/image/delete")
+    public ResponseEntity<ApiResponse<Void>> deleteProfileImage(
+            @AuthenticationPrincipal JwtUserInfoDto userInfoDto)
+    {
+
+        profileService.deleteProfileImage(userInfoDto.getUserId());
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("프로필 이미지가 삭제되었습니다."));
     }
 
 }

@@ -1,6 +1,7 @@
 package _team.earnedit.service;
 
 import _team.earnedit.dto.profile.NicknameRequestDto;
+import _team.earnedit.dto.profile.ProfileInfoResponseDto;
 import _team.earnedit.dto.profile.SalaryRequestDto;
 import _team.earnedit.dto.profile.SalaryResponseDto;
 import _team.earnedit.entity.Salary;
@@ -27,6 +28,10 @@ public class ProfileService {
     private final SalaryRepository salaryRepository;
     private final SalaryCalculator salaryCalculator;
     private final FileUploadService fileUploadService;
+
+    /*
+     ******** 수익 관련 ********
+     */
 
     // 수익 정보 입력 + 수정 (덮어쓰기)
     @Transactional
@@ -69,6 +74,26 @@ public class ProfileService {
     }
 
 
+    /*
+     ******** 프로필 관련 ********
+     */
+
+    // 프로필페이지 기본 정보 조회
+    @Transactional(readOnly = true)
+    public ProfileInfoResponseDto getProfile(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        Salary salary = salaryRepository.findByUserId(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.SALARY_NOT_FOUND));
+
+        return ProfileInfoResponseDto.builder()
+                .profileImage(user.getProfileImage())
+                .nickname(user.getNickname())
+                .monthlySalary(salary.getAmount())
+                .build();
+    }
+
     // 닉네임 변경
     @Transactional
     public void updateNickname(Long userId, NicknameRequestDto requestDto) {
@@ -94,6 +119,15 @@ public class ProfileService {
         String imageUrl = fileUploadService.uploadFile(profileImage);
 
         user.updateProfileImage(imageUrl);
+    }
+
+    // 프로필 사진 삭제
+    @Transactional
+    public void deleteProfileImage(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        user.updateProfileImage(null);
     }
 
 }
