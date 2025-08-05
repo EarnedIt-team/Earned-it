@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface WishRepository extends JpaRepository<Wish, Long> {
-    List<Wish> findByUserId(Long userId);
     List<Wish> findByUserIdOrderByNameAsc(Long userId);
-    List<Wish> findByNameContainingIgnoreCaseAndUser(String name, User user);
+    int countByUser(User user);
 }

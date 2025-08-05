@@ -33,6 +33,8 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 public class WishService {
+
+    public static final int MAX_WISH_COUNT = 100;
     private final WishRepository wishRepository;
     private final UserRepository userRepository;
     private final StarRepository starRepository;
@@ -43,6 +45,12 @@ public class WishService {
     public WishAddResponse addWish(WishAddRequest wishAddRequest, Long userId, MultipartFile itemImage) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        // 위시 개수 제한 확인
+        int currentWishCount = wishRepository.countByUser(user);
+        if (currentWishCount >= 100) {
+            throw new WishException(ErrorCode.WISH_LIMIT_EXCEEDED); // 새 에러코드 정의 필요
+        }
 
         // 이미지 업로드 처리
         String imageUrl = fileUploadService.uploadFile(itemImage);
@@ -215,17 +223,21 @@ public class WishService {
     }
 
     @Transactional(readOnly = true)
-    public List<WishDetailResponse> highlightWish(Long userId) {
-        userRepository.findById(userId)
+    public WishHighlightResponse highlightWish(Long userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
         List<Wish> wishList = wishRepository.findByUserIdOrderByNameAsc(userId);
+
+        // 전체 개수만 카운트 쿼리로 조회
+        int currentWishCount = wishRepository.countByUser(user);
 
         if (wishList.isEmpty()) {
             throw new WishException(ErrorCode.WISHLIST_EMPTY);
         }
 
-        return wishList.stream()
+        // WishHighlightResponse.WishDetailResponse 생성
+        List<WishDetailResponse> wishDetailResponses = wishList.stream()
                 .limit(3) // 3개만 조회
                 .map(wish -> WishDetailResponse.builder()
                         .wishId(wish.getId())
@@ -240,6 +252,18 @@ public class WishService {
                         .build())
                 .toList();
 
+        // WishHighlightResponse.wishInfo 객체 생성
+        WishHighlightResponse.WishInfo wishInfo = WishHighlightResponse.WishInfo.builder()
+                .currentWishCount(currentWishCount)
+                .limitWishCount(MAX_WISH_COUNT)
+                .build();
+
+
+        // WishHighlightResponse 리턴
+        return WishHighlightResponse.builder()
+                .wishHighlight(wishDetailResponses)
+                .wishInfo(wishInfo)
+                .build();
     }
 
     @Transactional(readOnly = true)
