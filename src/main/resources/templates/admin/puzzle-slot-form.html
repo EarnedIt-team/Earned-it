@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>퍼즐 슬롯 등록/수정</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-5">
+<h2 class="mb-4">📝 퍼즐 슬롯 등록/수정</h2>
+
+<form th:action="@{/admin/puzzle-slots}" th:object="${slot}" method="post" class="border p-4 rounded shadow-sm bg-light">
+    <input type="hidden" th:field="*{id}" />
+
+    <div class="mb-3">
+        <label class="form-label">슬롯 인덱스</label>
+        <input type="number" th:field="*{slotIndex}" class="form-control" required />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">테마</label>
+        <select th:field="*{theme}" class="form-select" required>
+            <option th:each="t : ${themes}" th:value="${t}" th:text="${t}">테마</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">아이템</label>
+        <select th:field="*{itemId}" class="form-select" required>
+            <option th:each="item : ${items}" th:value="${item.id}" th:text="${item.name}">아이템</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-success">💾 저장</button>
+    <a th:href="@{/admin/puzzle-slots}" class="btn btn-secondary ms-2">🔙 목록</a>
+</form>
+<!-- ✅ 여기 추가 -->
+<div style="margin-top: 15px; text-align: center;">
+    <a href="/admin" style="
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: background-color 0.2s ease-in-out;
+        " onmouseover="this.style.backgroundColor='#5a6268'" onmouseout="this.style.backgroundColor='#6c757d'">
+        대시보드로 이동
+    </a>
+</div>
+</body>
+</html>

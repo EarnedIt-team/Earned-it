@@ -39,7 +39,9 @@ public class SecurityConfig {
                                 "/api-docs/**",
                                 "/swagger-resources/**",
                                 "/webjars/**",
-                                "/api/auth/**").permitAll()
+                                "/api/auth/**",
+                                "/admin/**",
+                                "/images/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtAuthFilter(jwtUtil, redisTemplate), UsernamePasswordAuthenticationFilter.class);

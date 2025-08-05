@@ -55,10 +55,11 @@ public class Wish {
     private String url;
 
 
-    public void update(String name, long price, String itemImage, String vendor, String url) {
+    public void update(String name, long price, boolean isStarred ,String itemImage, String vendor, String url) {
         this.name = name;
         this.price = price;
         this.itemImage = itemImage;
+        this.isStarred = isStarred;
         this.vendor = vendor;
         this.url = url;
     }

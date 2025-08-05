@@ -20,6 +20,10 @@ public class WishUpdateRequest {
     @Schema(description = "가격", example = "29900")
     private long price;
 
+    @NotNull(message = "가격은 필수입니다.")
+    @Schema(description = "Star 여부", example = "true or false")
+    private boolean isStarred;
+
     @Schema(description = "상품 구매 URL", example = "https://smartstore.naver.com/item/123")
     private String url;
 }

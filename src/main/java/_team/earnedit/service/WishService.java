@@ -153,6 +153,7 @@ public class WishService {
         wish.update(
                 wishUpdateRequest.getName(),
                 wishUpdateRequest.getPrice(),
+                wishUpdateRequest.isStarred(),
                 imageUrl,
                 wishUpdateRequest.getVendor(),
                 wishUpdateRequest.getUrl()
