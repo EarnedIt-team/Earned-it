@@ -33,6 +33,8 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 public class WishService {
+
+    public static final int MAX_WISH_COUNT = 100;
     private final WishRepository wishRepository;
     private final UserRepository userRepository;
     private final StarRepository starRepository;
@@ -43,6 +45,12 @@ public class WishService {
     public WishAddResponse addWish(WishAddRequest wishAddRequest, Long userId, MultipartFile itemImage) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        // 위시 개수 제한 확인
+        int currentWishCount = wishRepository.countByUser(user);
+        if (currentWishCount >= 100) {
+            throw new WishException(ErrorCode.WISH_LIMIT_EXCEEDED); // 새 에러코드 정의 필요
+        }
 
         // 이미지 업로드 처리
         String imageUrl = fileUploadService.uploadFile(itemImage);
@@ -247,12 +255,13 @@ public class WishService {
         // WishHighlightResponse.wishInfo 객체 생성
         WishHighlightResponse.WishInfo wishInfo = WishHighlightResponse.WishInfo.builder()
                 .currentWishCount(currentWishCount)
+                .limitWishCount(MAX_WISH_COUNT)
                 .build();
 
 
         // WishHighlightResponse 리턴
         return WishHighlightResponse.builder()
-                .wishDetailResponse(wishDetailResponses)
+                .wishHighlight(wishDetailResponses)
                 .wishInfo(wishInfo)
                 .build();
     }
