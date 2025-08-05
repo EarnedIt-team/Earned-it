@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
@@ -15,6 +16,7 @@ public class PuzzleSlot {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id", nullable = false)
     private Item item;
@@ -25,4 +27,5 @@ public class PuzzleSlot {
 
     @Column(nullable = false)
     private int slotIndex;
+
 }

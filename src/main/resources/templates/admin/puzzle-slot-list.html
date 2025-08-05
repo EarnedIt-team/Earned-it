@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>퍼즐 슬롯 목록</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-5">
+<h2 class="mb-4">🧩 퍼즐 슬롯 목록</h2>
+
+<div class="mb-3">
+    <a th:href="@{/admin/puzzle-slots/new}" class="btn btn-primary">➕ 새 슬롯 추가</a>
+</div>
+
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
+    <tr>
+        <th>ID</th>
+        <th>테마</th>
+        <th>아이템</th>
+        <th>슬롯 인덱스</th>
+        <th>수정</th>
+        <th>삭제</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="slot : ${slots}">
+        <td th:text="${slot.id}">1</td>
+        <td th:text="${slot.theme}">테마</td>
+        <td th:text="${slot.item.name}">아이템 이름</td>
+        <td th:text="${slot.slotIndex}">0</td>
+        <td>
+            <a th:href="@{/admin/puzzle-slots/{id}/edit(id=${slot.id})}" class="btn btn-sm btn-warning">수정</a>
+        </td>
+        <td>
+            <form th:action="@{/admin/puzzle-slots/{id}/delete(id=${slot.id})}" method="post">
+                <button type="submit" class="btn btn-sm btn-danger">삭제</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
