@@ -80,10 +80,11 @@ public class StarService {
         // 정렬된 순서로
         List<Star> stars = starRepository.findByUserIdOrderByRankAsc(userId);
 
-        // 조회된 Star가 없을 때
-        if (stars.isEmpty()) {
-            throw new StarException(ErrorCode.TOP_WISH_EMPTY);
-        }
+        // 프론트 요청으로 [] 로 응답
+//        // 조회된 Star가 없을 때
+//        if (stars.isEmpty()) {
+//            throw new StarException(ErrorCode.TOP_WISH_EMPTY);
+//        }
 
         return stars.stream()
                 .map(star -> {

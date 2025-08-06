@@ -159,6 +159,23 @@ public class WishService {
                 wishUpdateRequest.getUrl()
         );
 
+        if (!wishUpdateRequest.isStarred()) {
+            // star 제거
+            starRepository.deleteByWishId(wishId);
+        } else {
+            // 중복 방지: 이미 Star가 있는지 확인
+            boolean alreadyStarred = starRepository.existsByUserIdAndWishId(userId, wishId);
+            if (!alreadyStarred) {
+                int currentStarCount = starRepository.countByUserId(userId);
+                Star star = Star.builder()
+                        .user(user)
+                        .wish(wish)
+                        .rank(currentStarCount + 1)
+                        .build();
+                starRepository.save(star);
+            }
+        }
+
         return WishUpdateResponse.builder()
                 .wishId(wish.getId())
                 .name(wish.getName())
