@@ -100,6 +100,7 @@ public class StarService {
                             .price(wish.getPrice())
                             .rank(star.getRank())
                             .isBought(wish.isBought())
+                            .starred(wish.isStarred())
                             .url(wish.getUrl())
                             .build();
                 })

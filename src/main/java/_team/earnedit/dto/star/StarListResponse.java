@@ -29,6 +29,9 @@ public class StarListResponse {
     @Schema(description = "구매 여부", example = "false")
     private boolean isBought;
 
+    @Schema(description = "Star 여부", example = "false")
+    private boolean starred;
+
     @Schema(description = "판매자/브랜드명", example = "ABC")
     private String vendor;
 
