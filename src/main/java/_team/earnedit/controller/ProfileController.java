@@ -27,6 +27,8 @@ public class ProfileController {
     private final TermService termService;
 
     @Operation(
+            summary = "월급 정보 저장/갱신",
+            description = "로그인한 사용자의 수익 정보를 저장하거나 갱신합니다.",
             security = {@SecurityRequirement(name = "bearer-key")}
     )
     @PostMapping("/salary")
@@ -40,6 +42,8 @@ public class ProfileController {
     }
 
     @Operation(
+            summary = "월급 정보 조회",
+            description = "로그인한 사용자의 수익 정보를 조회합니다.",
             security = {@SecurityRequirement(name = "bearer-key")}
     )
     @GetMapping("/salary")
@@ -53,6 +57,8 @@ public class ProfileController {
 
 
     @Operation(
+            summary = "약관 동의 처리",
+            description = "회원가입 이후 약관 동의 여부를 저장합니다.",
             security = {@SecurityRequirement(name = "bearer-key")}
     )
     @PostMapping("/terms")
@@ -66,6 +72,8 @@ public class ProfileController {
     }
 
     @Operation(
+            summary = "프로필 정보 조회",
+            description = "닉네임, 프로필 사진, 수익 정보 등 기본 프로필 정보를 조회합니다.",
             security = {@SecurityRequirement(name = "bearer-key")}
     )
     @GetMapping
@@ -78,6 +86,8 @@ public class ProfileController {
     }
 
     @Operation(
+            summary = "닉네임 변경",
+            description = "사용자의 닉네임을 변경합니다.",
             security = {@SecurityRequirement(name = "bearer-key")}
     )
     @PatchMapping("/nickname")
@@ -91,6 +101,8 @@ public class ProfileController {
     }
 
     @Operation(
+            summary = "프로필 이미지 변경",
+            description = "사용자의 프로필 이미지를 변경합니다.",
             security = {@SecurityRequirement(name = "bearer-key")}
     )
     @PatchMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -104,13 +116,14 @@ public class ProfileController {
     }
 
     @Operation(
+            summary = "프로필 이미지 삭제",
+            description = "사용자의 프로필 이미지를 삭제합니다.",
             security = {@SecurityRequirement(name = "bearer-key")}
     )
     @PatchMapping("/image/delete")
     public ResponseEntity<ApiResponse<Void>> deleteProfileImage(
             @AuthenticationPrincipal JwtUserInfoDto userInfoDto)
     {
-
         profileService.deleteProfileImage(userInfoDto.getUserId());
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success("프로필 이미지가 삭제되었습니다."));
