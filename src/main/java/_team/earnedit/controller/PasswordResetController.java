@@ -4,6 +4,8 @@ import _team.earnedit.dto.auth.PasswordResetRequestDto;
 import _team.earnedit.dto.auth.PasswordResetTokenVerifyRequestDto;
 import _team.earnedit.global.ApiResponse;
 import _team.earnedit.service.PasswordResetService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +18,13 @@ public class PasswordResetController {
 
     private final PasswordResetService passwordResetService;
 
-    // 이메일 인증 코드 전송
+    @Operation(
+            summary = "비밀번호 재설정 이메일 전송",
+            description = "입력한 이메일로 비밀번호 재설정용 인증 코드를 보냅니다.",
+            parameters = {
+                    @Parameter(name = "email", description = "인증 코드를 받을 이메일 주소", required = true)
+            }
+    )
     @PostMapping("/email")
     public ResponseEntity<ApiResponse<String>> sendResetEmail(
             @RequestParam String email)
@@ -26,8 +34,10 @@ public class PasswordResetController {
                 .body(ApiResponse.success("비밀번호 재설정 이메일이 전송되었습니다.", email));
     }
 
-
-    // 인증 코드 검증
+    @Operation(
+            summary = "비밀번호 재설정용 인증 코드 검증",
+            description = "이메일로 받은 인증 코드를 검증합니다."
+    )
     @PostMapping("/verify")
     public ResponseEntity<ApiResponse<String>> verifyResetToken(
             @RequestBody PasswordResetTokenVerifyRequestDto requestDto)
@@ -37,8 +47,10 @@ public class PasswordResetController {
                 .body(ApiResponse.success("인증이 완료되었습니다."));
     }
 
-
-    // 비밀번호 변경
+    @Operation(
+            summary = "비밀번호 재설정",
+            description = "이메일과 새 비밀번호를 입력받아 비밀번호를 변경합니다."
+    )
     @PostMapping("/reset")
     public ResponseEntity<ApiResponse<String>> resetPassword(
             @RequestBody PasswordResetRequestDto requestDto)
