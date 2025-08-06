@@ -250,10 +250,6 @@ public class WishService {
         // 전체 개수만 카운트 쿼리로 조회
         int currentWishCount = wishRepository.countByUser(user);
 
-        if (wishList.isEmpty()) {
-            throw new WishException(ErrorCode.WISHLIST_EMPTY);
-        }
-
         // WishHighlightResponse.WishDetailResponse 생성
         List<WishDetailResponse> wishDetailResponses = wishList.stream()
                 .limit(3) // 3개만 조회

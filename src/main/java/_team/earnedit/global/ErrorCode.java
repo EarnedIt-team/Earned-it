@@ -27,7 +27,6 @@ public enum ErrorCode {
     WISH_PRICE_INVALID(HttpStatus.BAD_REQUEST, "상품의 가격은 0 이상이어야 합니다."),
     WISH_IMAGE_REQUIRED(HttpStatus.BAD_REQUEST, "상품 이미지는 반드시 있어야합니다."),
 
-    WISHLIST_EMPTY(HttpStatus.NOT_FOUND, "등록된 위시가 없습니다."),
     NOT_FOUND_SEARCH_RESULT(HttpStatus.NOT_FOUND, "검색 결과가 존재하지 않습니다."),
     WISH_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 위시입니다."),
     WISH_UPDATE_FORBIDDEN(HttpStatus.FORBIDDEN, "다른 사용자의 위시 수정 시도입니다."),
@@ -36,7 +35,6 @@ public enum ErrorCode {
 
     // Star
     TOP_WISH_LIMIT_EXCEEDED(HttpStatus.CONFLICT, "Star는 5개를 초과할 수 없습니다."),
-    TOP_WISH_EMPTY(HttpStatus.NOT_FOUND, "조회된 Star가 없습니다."),
     STAR_NOT_FOUND(HttpStatus.NOT_FOUND, "Star를 찾을 수 없습니다."),
 
     // Piece
