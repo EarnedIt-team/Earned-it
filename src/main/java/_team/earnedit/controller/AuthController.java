@@ -79,7 +79,7 @@ public class AuthController {
     @Operation(
             security = {@SecurityRequirement(name = "bearer-key")}
     )
-    @PostMapping("/auth/signout")
+    @PostMapping("/signout")
     public ResponseEntity<ApiResponse<Void>> signOut(
             HttpServletRequest request,
             @AuthenticationPrincipal JwtUserInfoDto userInfoDto) {
