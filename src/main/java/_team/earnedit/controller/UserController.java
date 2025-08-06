@@ -5,12 +5,15 @@ import _team.earnedit.global.ApiResponse;
 import _team.earnedit.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+
+@Tag(name = "User API", description = "회원 탈퇴 등 사용자 계정 관리 API")
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
