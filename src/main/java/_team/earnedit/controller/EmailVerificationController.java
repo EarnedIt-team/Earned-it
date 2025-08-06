@@ -5,11 +5,14 @@ import _team.earnedit.global.ApiResponse;
 import _team.earnedit.service.EmailVerificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
+@Tag(name = "Email Verification API", description = "이메일 인증 코드 전송 및 검증 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth/email")
