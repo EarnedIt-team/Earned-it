@@ -1,9 +1,6 @@
 package _team.earnedit.mapper;
 
-import _team.earnedit.dto.wish.WishAddRequest;
-import _team.earnedit.dto.wish.WishAddResponse;
-import _team.earnedit.dto.wish.WishListResponse;
-import _team.earnedit.dto.wish.WishUpdateResponse;
+import _team.earnedit.dto.wish.*;
 import _team.earnedit.entity.User;
 import _team.earnedit.entity.Wish;
 import org.mapstruct.Context;
@@ -42,5 +39,9 @@ public interface WishMapper {
 
     @Mapping(target = "wishId", source = "id")
     WishUpdateResponse toWishUpdateResponse(Wish wish);
+
+    @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "wishId", source = "wish.id")
+    WishDetailResponse toWishDetailResponse(Wish wish);
 
 }

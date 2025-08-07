@@ -129,19 +129,7 @@ public class WishService {
         entityFinder.getUserOrThrow(userId);
         Wish wish = entityFinder.getWishOrThrow(wishId);
 
-        return WishDetailResponse.builder()
-                .wishId(wish.getId())
-                .name(wish.getName())
-                .price(wish.getPrice())
-                .itemImage(wish.getItemImage())
-                .isBought(wish.isBought())
-                .vendor(wish.getVendor())
-                .createdAt(wish.getCreatedAt())
-                .updatedAt(wish.getUpdatedAt())
-                .isStarred(wish.isStarred())
-                .url(wish.getUrl())
-                .build();
-
+        return wishMapper.toWishDetailResponse(wish);
     }
 
     @Transactional
