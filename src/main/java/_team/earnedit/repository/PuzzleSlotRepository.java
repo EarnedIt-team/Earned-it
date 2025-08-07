@@ -18,4 +18,6 @@ public interface PuzzleSlotRepository extends JpaRepository<PuzzleSlot, Long> {
     @Modifying
     @Query("DELETE FROM PuzzleSlot ps WHERE ps.item.id = :itemId")
     void deleteByItemId(@Param("itemId") Long itemId);
+
+    List<PuzzleSlot> findByTheme(Theme theme);
 }

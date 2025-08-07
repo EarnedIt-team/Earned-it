@@ -26,11 +26,30 @@ public class PuzzleSlotAdminController {
     private final PuzzleSlotRepository puzzleSlotRepository;
 
     @GetMapping("/view")
-    public String list(Model model) {
-        model.addAttribute("slots", puzzleSlotService.findAll());
+    public String listPuzzleSlots(
+            @RequestParam(name = "theme", required = false) String themeParam,
+            Model model
+    ) {
+        Theme selectedTheme = null;
+        List<PuzzleSlot> slots;
+
+        if (themeParam != null && !themeParam.isBlank()) {
+            try {
+                selectedTheme = Theme.valueOf(themeParam);
+                slots = puzzleSlotRepository.findByTheme(selectedTheme);
+            } catch (IllegalArgumentException e) {
+                // 잘못된 theme 파라미터 처리
+                slots = puzzleSlotRepository.findAll();
+            }
+        } else {
+            slots = puzzleSlotRepository.findAll();
+        }
+
+        model.addAttribute("slots", slots);
+        model.addAttribute("themes", Theme.values());
+        model.addAttribute("selectedTheme", selectedTheme);
         return "admin/puzzle-slot-list";
     }
-
     @GetMapping("/new")
     public String newForm(Model model) {
         model.addAttribute("slot", new PuzzleSlotForm());
