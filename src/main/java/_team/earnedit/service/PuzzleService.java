@@ -32,7 +32,6 @@ public class PuzzleService {
 
     private final PuzzleSlotRepository puzzleSlotRepository;
     private final PieceRepository pieceRepository;
-    private final UserRepository userRepository;
     private final EntityFinder entityFinder;
 
     @Transactional(readOnly = true)

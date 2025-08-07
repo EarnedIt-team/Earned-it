@@ -37,7 +37,6 @@ public class WishService {
 
     public static final int MAX_WISH_COUNT = 100;
     private final WishRepository wishRepository;
-    private final UserRepository userRepository;
     private final StarRepository starRepository;
     private final FileUploadService fileUploadService;
     private final JPAQueryFactory queryFactory;

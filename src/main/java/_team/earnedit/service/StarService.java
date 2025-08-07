@@ -28,10 +28,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class StarService {
     private final StarRepository starRepository;
-    private final WishRepository wishRepository;
-    private final UserRepository userRepository;
     private final EntityFinder entityFinder;
-
 
     @Transactional
     public boolean updateStar(Long userId, long wishId) {

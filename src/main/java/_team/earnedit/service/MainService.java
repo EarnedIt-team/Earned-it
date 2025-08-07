@@ -25,7 +25,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MainService {
 
-    private final UserRepository userRepository;
     private final SalaryRepository salaryRepository;
     private final StarRepository starRepository;
     private final PieceRepository pieceRepository;
@@ -56,10 +55,6 @@ public class MainService {
                     return WishListResponse.from(wish);  // 또는 WishListResponse 생성자 활용
                 })
                 .toList();
-
-        // 가장 최근 조각 1개 조회하여 삽입
-        // Piece recentPiece = pieceRepository.findTopByUserIdOrderByCollectedAtDesc(userId)
-        //.orElseThrow(() -> new PieceException(ErrorCode.PIECE_NOT_FOUND));
 
         // 프론트 측 요청으로 예외를 던지지 않고, null 또는 빈값으로 응답
         Optional<Piece> recentPiece = pieceRepository.findTopByUserIdOrderByCollectedAtDesc(userId);

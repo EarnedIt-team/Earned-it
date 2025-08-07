@@ -32,7 +32,6 @@ public class DailyCheckService {
 
     private final ObjectMapper objectMapper;
 
-    private final UserRepository userRepository;
     private final ItemRepository itemRepository;
     private final PieceRepository pieceRepository;
     private final RedisTemplate<String, String> redisTemplate;
@@ -119,11 +118,8 @@ public class DailyCheckService {
             throw new IllegalArgumentException("유효하지 않은 보상 선택입니다.");
         }
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
-
-        Item item = itemRepository.findById(request.getSelectedItemId())
-                .orElseThrow(() -> new ItemException(ErrorCode.ITEM_NOT_FOUND));
+        User user = entityFinder.getUserOrThrow(userId);
+        Item item = entityFinder.getItemOrThrow(request.getSelectedItemId());
 
         pieceRepository.save(Piece.builder()
                 .user(user)
