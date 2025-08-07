@@ -117,13 +117,11 @@ public class WishService {
         entityFinder.getUserOrThrow(userId);
         Wish wish = entityFinder.getWishOrThrow(wishId);
 
-        // 다른 사용자의 삭제 시도에 대한 예외처리
-        if (!wish.getUser().getId().equals(userId)) {
-            throw new WishException(ErrorCode.WISH_DELETE_FORBIDDEN);
-        }
+        // 다른 사용자의 접근 시도 검증
+        validateWishOwnership(wish, userId);
 
-        starRepository.deleteByWishId(wishId);
-        wishRepository.deleteById(wishId);
+        // 위시 및 Star 삭제
+        deleteWishWithStar(wishId);
     }
 
     @Transactional(readOnly = true)
@@ -376,7 +374,13 @@ public class WishService {
 //    사용자 위시 소유 검증 분리
     private void validateWishOwnership(Wish wish, Long userId) {
         if (!wish.getUser().getId().equals(userId)) {
-            throw new WishException(ErrorCode.WISH_UPDATE_FORBIDDEN);
+            throw new WishException(ErrorCode.WISH_FORBIDDEN_ACCESS);
         }
+    }
+
+//    위시 및 별표 삭제
+    private void deleteWishWithStar(Long wishId) {
+        starRepository.deleteByWishId(wishId);
+        wishRepository.deleteById(wishId);
     }
 }
