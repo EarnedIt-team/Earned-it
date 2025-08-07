@@ -165,51 +165,55 @@ public class WishService {
     public PagedResponse<WishListResponse> searchWish(Long userId, WishSearchCondition cond, Pageable pageable) {
         QWish wish = QWish.wish;
 
-        // 조건 빌더 초기화 - 사용자 ID로 기본 필터 설정
+        // 기본 조건: userId
         BooleanBuilder builder = new BooleanBuilder()
                 .and(wish.user.id.eq(userId));
 
-        // 키워드 검색 (이름 또는 회사명에 포함된 경우)
-        if (cond.getKeyword() != null && !cond.getKeyword().isBlank()) {
-            builder.and(
-                    wish.name.containsIgnoreCase(cond.getKeyword())
-                            .or(wish.vendor.containsIgnoreCase(cond.getKeyword()))
-            );
-        }
+        // 검색 조건 필터 적용 (키워드, 구매 여부, 즐겨찾기 여부 등)
+        applySearchConditions(cond, builder, wish);
 
-        // 구매 여부 필터
-        if (cond.getIsBought() != null) {
-            builder.and(wish.isBought.eq(cond.getIsBought()));
-        }
-
-        // 별표 여부 필터
-        if (cond.getIsStarred() != null) {
-            builder.and(wish.isStarred.eq(cond.getIsStarred()));
-        }
-
-        // 정렬 조건을 Pageable로부터 QueryDSL용 OrderSpecifier로 변환
+        // 정렬 조건 생성
         List<OrderSpecifier<?>> orderSpecifiers = getOrderSpecifiers(pageable);
 
-        // 전체 개수 조회 (null일 경우 0L로 대체)
-        long total = Optional.ofNullable(
-                queryFactory
-                        .select(wish.count())
-                        .from(wish)
-                        .where(builder)
-                        .fetchOne()
-        ).orElse(0L);
+        // 전체 개수 조회
+        long total = getTotal(wish, builder);
 
-        // 페이지 결과 조회
-        List<Wish> content = queryFactory
+        // 조건에 맞는 Wish 엔티티 목록 조회
+        List<Wish> content = getWishes(pageable, wish, builder, orderSpecifiers);
+
+        // DTO 변환 및 페이지 생성
+        PageImpl<WishListResponse> page = new PageImpl<>(content.stream()
+                .map(WishListResponse::from)
+                .toList(), pageable, total);
+
+        // 커스텀 페이징 응답 생성
+        return getPagedResponse(page);
+    }
+
+    // 페이지 결과 조회
+    private List<Wish> getWishes(Pageable pageable, QWish wish, BooleanBuilder builder, List<OrderSpecifier<?>> orderSpecifiers) {
+        return queryFactory
                 .selectFrom(wish)
                 .where(builder)
                 .orderBy(orderSpecifiers.toArray(OrderSpecifier[]::new))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
+    }
 
-        PageImpl<WishListResponse> page = new PageImpl<>(content.stream().map(WishListResponse::from).toList(), pageable, total);
+    // 전체 개수 조회 (null일 경우 0L로 대체)
+    private Long getTotal(QWish wish, BooleanBuilder builder) {
+        return Optional.ofNullable(
+                queryFactory
+                        .select(wish.count())
+                        .from(wish)
+                        .where(builder)
+                        .fetchOne()
+        ).orElse(0L);
+    }
 
+    // 커스텀 PagedResponse 객체 리턴
+    private PagedResponse<WishListResponse> getPagedResponse(PageImpl<WishListResponse> page) {
         return PagedResponse.<WishListResponse>builder()
                 .content(page.getContent())
                 .page(page.getNumber())
@@ -218,6 +222,25 @@ public class WishService {
                 .totalPages(page.getTotalPages())
                 .last(page.isLast())
                 .build();
+    }
+
+    // 추가 검색 조건 적용 (키워드, 구매 여부, 즐겨찾기 여부)
+    private void applySearchConditions(WishSearchCondition cond, BooleanBuilder builder, QWish wish) {
+        // 키워드 검색 (이름 또는 회사명에 포함된 경우)
+        if (cond.getKeyword() != null && !cond.getKeyword().isBlank()) {
+            builder.and(
+                    wish.name.containsIgnoreCase(cond.getKeyword())
+                            .or(wish.vendor.containsIgnoreCase(cond.getKeyword()))
+            );
+        }
+        // 구매 여부 필터
+        if (cond.getIsBought() != null) {
+            builder.and(wish.isBought.eq(cond.getIsBought()));
+        }
+        // 별표 여부 필터
+        if (cond.getIsStarred() != null) {
+            builder.and(wish.isStarred.eq(cond.getIsStarred()));
+        }
     }
 
 
