@@ -1,7 +1,6 @@
 package _team.earnedit.controller.admin;
 
 import _team.earnedit.dto.puzzle.PuzzleSlotForm;
-import _team.earnedit.dto.puzzle.PuzzleSlotResponse;
 import _team.earnedit.entity.PuzzleSlot;
 import _team.earnedit.entity.Theme;
 import _team.earnedit.repository.PuzzleSlotRepository;
@@ -126,20 +125,5 @@ public class PuzzleSlotAdminController {
     ) {
         puzzleSlotService.replaceSlotItemWithFallback(slotId, itemId, theme, index);
         return "ok";
-    }
-
-    @PostMapping("/create")
-    @ResponseBody
-    public String createSlot(@RequestParam Theme theme,
-                             @RequestParam int index,
-                             @RequestParam Long itemId) {
-        puzzleSlotService.createSlotAndAssignItem(theme, index, itemId);
-        return "ok";
-    }
-
-    @GetMapping("/grid/{theme}")
-    @ResponseBody
-    public List<PuzzleSlotResponse> getPuzzleGridByTheme(@PathVariable Theme theme) {
-        return puzzleSlotService.getSlotsByTheme(theme);
     }
 }

@@ -124,29 +124,19 @@
             <table class="grid-table">
                 <tr th:each="row, rowStat : ${entry.value}">
                     <th:block th:each="slot, colStat : ${row}">
-                        <td th:if="${slot != null}"
+                        <td th:if="${slot != null && slot.item != null}"
                             class="slot-box"
                             th:attr="data-slot-id=${slot.id}"
                             ondrop="drop(event)"
                             ondragover="allowDrop(event)">
-
                             <div draggable="true"
                                  ondragstart="drag(event)"
                                  th:attr="data-id=${slot.id}"
                                  th:id="'slot-' + ${slot.id}">
-                                <img th:src="${slot.item?.image}" alt="이미지" onerror="this.src='/images/placeholder.png'">
-                                <div th:text="${slot.item?.name}"></div>
+                                <img th:src="${slot.item.image}" alt="이미지" onerror="this.src='/images/placeholder.png'">
+                                <div th:text="${slot.item.name}"></div>
                                 <small th:text="'Index: ' + ${slot.slotIndex}"></small>
                             </div>
-                        </td>
-
-                        <td th:if="${slot == null}"
-                            class="slot-box"
-                            data-slot-id="-1"
-                            th:attr="data-theme=${entry.key}, data-index=${rowStat.index * ${row.size()} + colStat.index}"
-                            ondrop="drop(event)"
-                            ondragover="allowDrop(event)">
-                            <div style="height:100%;"></div>
                         </td>
                     </th:block>
                 </tr>
@@ -183,7 +173,6 @@
 <ul>
     <li>아이템을 퍼즐 슬롯에 <strong>드래그하여 삽입</strong>할 수 있습니다.</li>
     <li>슬롯 간 드래그로 <strong>위치를 변경</strong>할 수 있습니다.</li>
-    <li>빈 슬롯에 드래그하면 <strong>새 슬롯이 생성</strong>됩니다.</li>
     <li>퍼즐 슬롯을 삭제하고 싶다면 퍼즐 슬롯 추가/수정 페이지에서 관리하세요.</li>
 </ul>
 
