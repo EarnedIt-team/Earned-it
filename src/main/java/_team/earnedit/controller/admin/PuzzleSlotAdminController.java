@@ -1,12 +1,14 @@
 package _team.earnedit.controller.admin;
 
 import _team.earnedit.dto.puzzle.PuzzleSlotForm;
+import _team.earnedit.dto.puzzle.PuzzleSlotResponse;
 import _team.earnedit.entity.PuzzleSlot;
 import _team.earnedit.entity.Theme;
 import _team.earnedit.repository.PuzzleSlotRepository;
 import _team.earnedit.service.admin.PuzzleSlotService;
 import _team.earnedit.service.admin.item.ItemService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -125,5 +127,11 @@ public class PuzzleSlotAdminController {
     ) {
         puzzleSlotService.replaceSlotItemWithFallback(slotId, itemId, theme, index);
         return "ok";
+    }
+
+    @GetMapping("/grid/{theme}")
+    @ResponseBody
+    public List<PuzzleSlotResponse> getPuzzleGridByTheme(@PathVariable Theme theme) {
+        return puzzleSlotService.getSlotsByTheme(theme);
     }
 }
