@@ -9,6 +9,7 @@ import _team.earnedit.entity.Theme;
 import _team.earnedit.global.ErrorCode;
 import _team.earnedit.global.exception.piece.PieceException;
 import _team.earnedit.global.exception.user.UserException;
+import _team.earnedit.global.util.EntityFinder;
 import _team.earnedit.repository.PieceRepository;
 import _team.earnedit.repository.PuzzleSlotRepository;
 import _team.earnedit.repository.UserRepository;
@@ -32,6 +33,7 @@ public class PuzzleService {
     private final PuzzleSlotRepository puzzleSlotRepository;
     private final PieceRepository pieceRepository;
     private final UserRepository userRepository;
+    private final EntityFinder entityFinder;
 
     @Transactional(readOnly = true)
     public PuzzleResponse getPuzzle(Long userId) {
@@ -89,11 +91,9 @@ public class PuzzleService {
 
     @Transactional(readOnly = true)
     public PieceResponse getPieceInfo(Long userId, Long pieceId) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        entityFinder.getUserOrThrow(userId);
 
-        Piece piece = pieceRepository.findById(pieceId)
-                .orElseThrow(() -> new PieceException(ErrorCode.PIECE_NOT_FOUND));
+        Piece piece = entityFinder.getPieceOrThrow(pieceId);
 
         return PieceResponse.builder()
                 .pieceId(piece.getId())
@@ -110,8 +110,7 @@ public class PuzzleService {
 
     @Transactional(readOnly = true)
     public PieceResponse getPieceRecent(Long userId) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        entityFinder.getUserOrThrow(userId);
 
         Piece piece = pieceRepository.findTopByUserIdOrderByCollectedAtDesc(userId)
                 .orElseThrow(() -> new PieceException(ErrorCode.PIECE_NOT_FOUND));

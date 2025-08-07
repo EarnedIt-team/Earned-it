@@ -1,10 +1,13 @@
 package _team.earnedit.global.util;
 
+import _team.earnedit.entity.Piece;
 import _team.earnedit.entity.User;
 import _team.earnedit.entity.Wish;
 import _team.earnedit.global.ErrorCode;
+import _team.earnedit.global.exception.piece.PieceException;
 import _team.earnedit.global.exception.user.UserException;
 import _team.earnedit.global.exception.wish.WishException;
+import _team.earnedit.repository.PieceRepository;
 import _team.earnedit.repository.UserRepository;
 import _team.earnedit.repository.WishRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +19,7 @@ public class EntityFinder {
 
     private final UserRepository userRepository;
     private final WishRepository wishRepository;
+    private final PieceRepository pieceRepository;
 
     public User getUserOrThrow(Long userId) {
         return userRepository.findById(userId)
@@ -27,4 +31,8 @@ public class EntityFinder {
                 .orElseThrow(() -> new WishException(ErrorCode.WISH_NOT_FOUND));
     }
 
+    public Piece getPieceOrThrow(Long pieceId) {
+        return  pieceRepository.findById(pieceId)
+                .orElseThrow(() -> new PieceException(ErrorCode.PIECE_NOT_FOUND));
+    }
 }
