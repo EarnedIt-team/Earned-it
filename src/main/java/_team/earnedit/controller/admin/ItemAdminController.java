@@ -28,7 +28,6 @@ public class ItemAdminController {
     @GetMapping("/new")
     public String newForm(Model model) {
         model.addAttribute("item", new ItemRequest());
-        model.addAttribute("themes", Theme.values());
         model.addAttribute("rarities", Rarity.values());
         model.addAttribute("action", "/admin/items");
         return "admin/item-form";
@@ -39,7 +38,6 @@ public class ItemAdminController {
                        BindingResult bindingResult,
                        Model model) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("themes", Theme.values());
             model.addAttribute("rarities", Rarity.values());
             model.addAttribute("action", "/admin/items");
             return "admin/item-form";
@@ -53,7 +51,6 @@ public class ItemAdminController {
     public String editForm(@PathVariable Long id, Model model) {
         Item item = itemService.findById(id);
         model.addAttribute("item", ItemRequest.from(item));
-        model.addAttribute("themes", Theme.values());
         model.addAttribute("rarities", Rarity.values());
         model.addAttribute("action", "/admin/items/" + id + "/edit");
         return "admin/item-form";
@@ -65,7 +62,6 @@ public class ItemAdminController {
                          BindingResult bindingResult,
                          Model model) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("themes", Theme.values());
             model.addAttribute("rarities", Rarity.values());
             model.addAttribute("action", "/admin/items/" + id + "/edit");
             return "admin/item-form";

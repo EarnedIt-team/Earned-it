@@ -8,6 +8,18 @@
 <body class="container mt-5">
 <h2 class="mb-4">🧩 퍼즐 슬롯 목록</h2>
 
+<form method="get" action="/admin/puzzle-slots/view" class="mb-3 d-flex align-items-center">
+    <label for="theme" class="me-2">테마 필터:</label>
+    <select name="theme" id="theme" class="form-select w-auto me-2" onchange="this.form.submit()">
+        <option value="">전체</option>
+        <option th:each="t : ${themes}"
+                th:value="${t}"
+                th:text="${t}"
+                th:selected="${selectedTheme != null} ? ${selectedTheme} == ${t} : false">
+        </option>
+    </select>
+</form>
+
 <div class="mb-3">
     <a th:href="@{/admin/puzzle-slots/new}" class="btn btn-primary">➕ 새 슬롯 추가</a>
 </div>

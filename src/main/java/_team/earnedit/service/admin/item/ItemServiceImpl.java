@@ -64,7 +64,7 @@ public class ItemServiceImpl implements ItemService {
                 request.getImage(),
                 request.getDescription(),
                 request.getRarity(),
-                request.getTheme()
+                request.getCategory()
         );
     }
 }
