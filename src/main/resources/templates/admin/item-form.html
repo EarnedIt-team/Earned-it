@@ -106,12 +106,9 @@
         </select>
         <div th:if="${#fields.hasErrors('rarity')}" th:errors="*{rarity}" class="error"></div>
 
-        <label for="theme">테마</label>
-        <select th:field="*{theme}" id="theme" required>
-            <option value="">-- 선택하세요 --</option>
-            <option th:each="t : ${themes}" th:value="${t}" th:text="${t}"></option>
-        </select>
-        <div th:if="${#fields.hasErrors('theme')}" th:errors="*{theme}" class="error"></div>
+        <label for="category">카테고리</label>
+        <input type="text" th:field="*{category}" id="category" placeholder="예: CS_MUST_HAVE" required />
+        <div th:if="${#fields.hasErrors('category')}" th:errors="*{category}" class="error"></div>
 
         <button type="submit">저장</button>
     </form>

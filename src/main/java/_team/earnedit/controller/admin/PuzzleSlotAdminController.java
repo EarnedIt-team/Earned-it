@@ -59,9 +59,16 @@ public class PuzzleSlotAdminController {
     }
 
     @PostMapping
-    public String save(@ModelAttribute PuzzleSlotForm form) {
+    public String save(@ModelAttribute PuzzleSlotForm form, Model model) {
         puzzleSlotService.save(form);
-        return "redirect:/admin/puzzle-slots";
+
+        // form을 초기화하여 빈 상태로 다시 제공
+        model.addAttribute("slot", new PuzzleSlotForm());
+        model.addAttribute("themes", Theme.values());
+        model.addAttribute("items", itemService.findAll());
+        model.addAttribute("message", "슬롯이 성공적으로 저장되었습니다!");
+
+        return "admin/puzzle-slot-form"; // 📌 리다이렉트가 아닌 뷰 이름으로 반환
     }
 
     @GetMapping("/{id}/edit")

@@ -31,8 +31,8 @@ public class ItemRequest {
     @NotNull(message = "희귀도를 선택해야 합니다.")
     private Rarity rarity;
 
-    @NotNull(message = "테마를 선택해야 합니다.")
-    private Theme theme;
+    @NotNull(message = "카테고리를 작성해야합니다.")
+    private String category;
 
     public Item toEntity(ItemRequest dto) {
         return Item.builder()
@@ -42,7 +42,7 @@ public class ItemRequest {
                 .image(dto.getImage())
                 .description(dto.getDescription())
                 .rarity(dto.getRarity())
-                .theme(dto.getTheme())
+                .category(dto.getCategory())
                 .build();
     }
 
@@ -54,7 +54,7 @@ public class ItemRequest {
         request.setImage(item.getImage());
         request.setDescription(item.getDescription());
         request.setRarity(item.getRarity());
-        request.setTheme(item.getTheme());
+        request.setCategory(item.getCategory());
         return request;
     }
 }
