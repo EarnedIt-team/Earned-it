@@ -24,7 +24,7 @@ public class WishUpdateResponse {
     private long price;
 
     @Schema(description = "상품 이미지 URL", example = "https://cdn.example.com/images/mouse.png")
-    private String ItemImage;
+    private String itemImage;
 
     @Schema(description = "상품 구매 URL", example = "https://smartstore.naver.com/item/123")
     private String url;

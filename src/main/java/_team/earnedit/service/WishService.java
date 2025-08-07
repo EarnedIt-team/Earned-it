@@ -80,7 +80,6 @@ public class WishService {
 
         // 2. 사용자 전체 위시 수 조회
         long total = getTotalWishesByUser(userId);
-
         List<WishListResponse> responseList = wishMapper.toWishListResponseList(wishes);
 
         // 3.  커스텀 페이징 응답 생성
@@ -89,16 +88,14 @@ public class WishService {
 
     @Transactional
     public WishUpdateResponse updateWish(WishUpdateRequest wishUpdateRequest, Long userId, Long wishId, MultipartFile itemImage) {
+        // 사용자, 위시 조회
         User user = entityFinder.getUserOrThrow(userId);
         Wish wish = entityFinder.getWishOrThrow(wishId);
 
+        // 다른 사용자의 수정 시도에 대한 예외처리
+        validateWishOwnership(wish, userId);
         // 이미지 업로드 처리
         String imageUrl = fileUploadService.uploadFile(itemImage);
-
-        // 다른 사용자의 수정 시도에 대한 예외처리
-        if (!wish.getUser().getId().equals(userId)) {
-            throw new WishException(ErrorCode.WISH_UPDATE_FORBIDDEN);
-        }
 
         wish.update(
                 wishUpdateRequest.getName(),
@@ -109,32 +106,10 @@ public class WishService {
                 wishUpdateRequest.getUrl()
         );
 
-        if (!wishUpdateRequest.isStarred()) {
-            // star 제거
-            starRepository.deleteByWishId(wishId);
-        } else {
-            // 중복 방지: 이미 Star가 있는지 확인
-            boolean alreadyStarred = starRepository.existsByUserIdAndWishId(userId, wishId);
-            if (!alreadyStarred) {
-                int currentStarCount = starRepository.countByUserId(userId);
-                Star star = Star.builder()
-                        .user(user)
-                        .wish(wish)
-                        .rank(currentStarCount + 1)
-                        .build();
-                starRepository.save(star);
-            }
-        }
+        // 별표 처리 로직
+        updateStarStatus(user, wish, wishUpdateRequest.isStarred());
 
-        return WishUpdateResponse.builder()
-                .wishId(wish.getId())
-                .name(wish.getName())
-                .ItemImage(imageUrl)
-                .vendor(wish.getVendor())
-                .price(wish.getPrice())
-                .url(wish.getUrl())
-                .updatedAt(wish.getUpdatedAt())
-                .build();
+        return wishMapper.toWishUpdateResponse(wish);
     }
 
     @Transactional
@@ -376,5 +351,32 @@ public class WishService {
                 .totalPages(page.getTotalPages())
                 .last(page.isLast())
                 .build();
+    }
+    // 별표 처리 로직 분리
+    private void updateStarStatus(User user, Wish wish, boolean isStarred) {
+        Long userId = user.getId();
+        Long wishId = wish.getId();
+
+        if (!isStarred) {
+            starRepository.deleteByWishId(wishId);
+        } else {
+            boolean alreadyStarred = starRepository.existsByUserIdAndWishId(userId, wishId);
+            if (!alreadyStarred) {
+                int currentStarCount = starRepository.countByUserId(userId);
+                Star star = Star.builder()
+                        .user(user)
+                        .wish(wish)
+                        .rank(currentStarCount + 1)
+                        .build();
+                starRepository.save(star);
+            }
+        }
+    }
+
+//    사용자 위시 소유 검증 분리
+    private void validateWishOwnership(Wish wish, Long userId) {
+        if (!wish.getUser().getId().equals(userId)) {
+            throw new WishException(ErrorCode.WISH_UPDATE_FORBIDDEN);
+        }
     }
 }
