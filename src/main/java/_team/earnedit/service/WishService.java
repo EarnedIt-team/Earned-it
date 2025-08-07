@@ -8,11 +8,10 @@ import _team.earnedit.entity.User;
 import _team.earnedit.entity.Wish;
 import _team.earnedit.global.ErrorCode;
 import _team.earnedit.global.exception.star.StarException;
-import _team.earnedit.global.exception.user.UserException;
 import _team.earnedit.global.exception.wish.WishException;
 import _team.earnedit.global.util.EntityFinder;
+import _team.earnedit.mapper.WishMapper;
 import _team.earnedit.repository.StarRepository;
-import _team.earnedit.repository.UserRepository;
 import _team.earnedit.repository.WishRepository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
@@ -41,58 +40,36 @@ public class WishService {
     private final FileUploadService fileUploadService;
     private final JPAQueryFactory queryFactory;
     private final EntityFinder entityFinder;
+    private final WishMapper wishMapper;
 
     @Transactional
     public WishAddResponse addWish(WishAddRequest wishAddRequest, Long userId, MultipartFile itemImage) {
+        // 1. 사용자 조회
         User user = entityFinder.getUserOrThrow(userId);
 
-        // 위시 개수 제한 확인
-        int currentWishCount = wishRepository.countByUser(user);
-        if (currentWishCount >= 100) {
-            throw new WishException(ErrorCode.WISH_LIMIT_EXCEEDED); // 새 에러코드 정의 필요
-        }
+        // 2. 위시 개수 제한 검증
+        validateWishLimit(user);
 
-        // 이미지 업로드 처리
+        // 3. 이미지 업로드 처리
         String imageUrl = fileUploadService.uploadFile(itemImage);
 
+        // 4. 별표 여부 확인 및 Top 5 제한 검증
         boolean isStarred = wishAddRequest.isStarred();
-
-        // Top 5 초과 예외 처리
         if (isStarred) {
-            int currentStarCount = starRepository.countByUserId(userId);
-            if (currentStarCount >= 5) {
-                throw new StarException(ErrorCode.TOP_WISH_LIMIT_EXCEEDED);
-            }
+            validateStarLimit(userId);
         }
 
-        // wish 객체 생성
-        Wish wish = Wish.builder()
-                .user(user)
-                .price(wishAddRequest.getPrice())
-                .url(wishAddRequest.getUrl())
-                .itemImage(imageUrl)
-                .name(wishAddRequest.getName())
-                .vendor(wishAddRequest.getVendor())
-                .isStarred(isStarred)
-                .build();
-
+        // 5. Wish 엔티티 생성 및 저장
+        Wish wish = wishMapper.toEntity(wishAddRequest, user, imageUrl, isStarred);
         wishRepository.save(wish);
 
-        // 별표 로직 분기
+        // 6. 별표 Star 엔티티 추가 (선택적)
         if (isStarred) {
-            int currentStarCount = starRepository.countByUserId(userId);  // 다시 조회하거나 변수 재사용
-            Star star = Star.builder()
-                    .user(user)
-                    .wish(wish)
-                    .rank(currentStarCount + 1)
-                    .build();
-            starRepository.save(star);
+            addStarForWish(user, wish);
         }
 
-        return WishAddResponse.builder()
-                .wishId(wish.getId())
-                .createdAt(wish.getCreatedAt())
-                .build();
+        // 7. 응답 객체 반환
+        return wishMapper.toResponse(wish);
     }
 
 
@@ -348,5 +325,41 @@ public class WishService {
         }
 
         return orders;
+    }
+
+    /**
+     * 사용자 위시(Wish) 개수가 최대 제한(100개)을 초과하지 않는지 검증합니다.
+     * 초과할 경우 WishException을 발생시킵니다.
+     */
+    private void validateWishLimit(User user) {
+        int currentWishCount = wishRepository.countByUser(user);
+        if (currentWishCount >= 100) {
+            throw new WishException(ErrorCode.WISH_LIMIT_EXCEEDED);
+        }
+    }
+
+    /**
+     * 사용자의 별표 위시(Starred Wish) 개수가 최대 5개를 넘지 않도록 검증합니다.
+     * 초과 시 StarException을 발생시킵니다.
+     */
+    private void validateStarLimit(Long userId) {
+        int currentStarCount = starRepository.countByUserId(userId);
+        if (currentStarCount >= 5) {
+            throw new StarException(ErrorCode.TOP_WISH_LIMIT_EXCEEDED);
+        }
+    }
+
+    /**
+     * 별표 위시로 등록된 경우, 새로운 Star 엔티티를 생성하여 저장합니다.
+     * 현재 별표 수를 기준으로 rank를 설정합니다.
+     */
+    private void addStarForWish(User user, Wish wish) {
+        int currentStarCount = starRepository.countByUserId(user.getId());  // 최신 rank 계산
+        Star star = Star.builder()
+                .user(user)
+                .wish(wish)
+                .rank(currentStarCount + 1)
+                .build();
+        starRepository.save(star);
     }
 }
