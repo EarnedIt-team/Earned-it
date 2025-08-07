@@ -1,6 +1,8 @@
 package _team.earnedit.service.admin.item;
 
+import _team.earnedit.dto.item.ItemRequest;
 import _team.earnedit.entity.Item;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -9,4 +11,6 @@ public interface ItemService {
     Item findById(Long id);
     Item save(Item item);
     void delete(Long id);
+
+    void update(Long id, @Valid ItemRequest item);
 }

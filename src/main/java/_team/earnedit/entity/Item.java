@@ -1,20 +1,18 @@
 package _team.earnedit.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Builder
 @Getter
+@Setter
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 public class Item {
 
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
@@ -38,4 +36,15 @@ public class Item {
 
     @Column(nullable = false)
     private String description;
+
+    public void update(String name, String vendor, long price, String image,
+                       String description, Rarity rarity, Theme theme) {
+        this.name = name;
+        this.vendor = vendor;
+        this.price = price;
+        this.image = image;
+        this.description = description;
+        this.rarity = rarity;
+        this.theme = theme;
+    }
 }
