@@ -243,10 +243,7 @@ public class WishService {
         return orders;
     }
 
-    /**
-     * 사용자 위시(Wish) 개수가 최대 제한(100개)을 초과하지 않는지 검증합니다.
-     * 초과할 경우 WishException을 발생시킵니다.
-     */
+    // 사용자 위시(Wish) 개수가 최대 제한(100개)을 초과하지 않는지 검증합니다.
     private void validateWishLimit(User user) {
         int currentWishCount = wishRepository.countByUser(user);
         if (currentWishCount >= 100) {
@@ -254,10 +251,7 @@ public class WishService {
         }
     }
 
-    /**
-     * 사용자의 별표 위시(Starred Wish) 개수가 최대 5개를 넘지 않도록 검증합니다.
-     * 초과 시 StarException을 발생시킵니다.
-     */
+    // 사용자의 별표 위시(Starred Wish) 개수가 최대 5개를 넘지 않도록 검증합니다.
     private void validateStarLimit(Long userId) {
         int currentStarCount = starRepository.countByUserId(userId);
         if (currentStarCount >= 5) {
@@ -265,10 +259,7 @@ public class WishService {
         }
     }
 
-    /**
-     * 별표 위시로 등록된 경우, 새로운 Star 엔티티를 생성하여 저장합니다.
-     * 현재 별표 수를 기준으로 rank를 설정합니다.
-     */
+    // 별표 위시로 등록된 경우, 새로운 Star 엔티티를 생성하여 저장합니다.
     private void addStarForWish(User user, Wish wish) {
         int currentStarCount = starRepository.countByUserId(user.getId());  // 최신 rank 계산
         Star star = Star.builder()
@@ -279,7 +270,7 @@ public class WishService {
         starRepository.save(star);
     }
 
-    // 1. 사용자 위시 목록 조회 (페이지 적용)
+    // 사용자 위시 목록 조회 (페이지 적용)
     private List<Wish> getWishesByUser(Long userId, Pageable pageable) {
         QWish wish = QWish.wish;
         List<OrderSpecifier<?>> orderSpecifiers = getOrderSpecifiers(pageable);
@@ -293,7 +284,7 @@ public class WishService {
                 .fetch();
     }
 
-    // 2. 사용자 전체 위시 수 조회
+    // 사용자 전체 위시 수 조회
     private long getTotalWishesByUser(Long userId) {
         QWish wish = QWish.wish;
         return Optional.ofNullable(
@@ -305,7 +296,7 @@ public class WishService {
         ).orElse(0L);
     }
 
-    // 3. 커스텀 페이징 응답 생성
+    // 커스텀 페이징 응답 생성
     private <T> PagedResponse<T> buildPagedResponse(List<T> content, Pageable pageable, long total) {
         PageImpl<T> page = new PageImpl<>(content, pageable, total);
 
@@ -339,14 +330,14 @@ public class WishService {
         }
     }
 
-//    사용자 위시 소유 검증 분리
+    // 사용자 위시 소유 검증 분리
     private void validateWishOwnership(Wish wish, Long userId) {
         if (!wish.getUser().getId().equals(userId)) {
             throw new WishException(ErrorCode.WISH_FORBIDDEN_ACCESS);
         }
     }
 
-//    위시 및 별표 삭제
+    // 위시 및 별표 삭제
     private void deleteWishWithStar(Long wishId) {
         starRepository.deleteByWishId(wishId);
         wishRepository.deleteById(wishId);
