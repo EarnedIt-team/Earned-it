@@ -80,6 +80,7 @@ public class WishService {
         // 정렬 조건을 Pageable로부터 QueryDSL용 OrderSpecifier로 변환
         List<OrderSpecifier<?>> orderSpecifiers = getOrderSpecifiers(pageable);
 
+        // 동적 쿼리 실행
         List<Wish> content = queryFactory
                 .selectFrom(wish)
                 .where(wish.user.id.eq(userId))
@@ -88,6 +89,7 @@ public class WishService {
                 .limit(pageable.getPageSize())
                 .fetch();
 
+        // 전체 위시 합산 갯수 계산
         long total = Optional.ofNullable(
                 queryFactory
                         .select(wish.count())
@@ -96,12 +98,13 @@ public class WishService {
                         .fetchOne()
         ).orElse(0L);
 
-        List<WishListResponse> responseList = content.stream()
-                .map(WishListResponse::from)
-                .toList();
+        // 응답 DTO 형태로 매핑
+        List<WishListResponse> responseList = wishMapper.toWishListResponseList(content);
 
+        // 페이징 객체로 변환
         PageImpl<WishListResponse> page = new PageImpl<>(responseList, pageable, total);
 
+        // 커스텀 페이징 객체로 응답
         return PagedResponse.<WishListResponse>builder()
                 .content(page.getContent())
                 .page(page.getNumber())
