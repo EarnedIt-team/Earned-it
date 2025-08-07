@@ -117,17 +117,4 @@ public class PuzzleSlotService {
         }
     }
 
-    @Transactional
-    public void createSlotAndAssignItem(Theme theme, int slotIndex, Long itemId) {
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 아이템입니다."));
-
-        PuzzleSlot slot = new PuzzleSlot();
-        slot.setTheme(theme);
-        slot.setSlotIndex(slotIndex);
-        slot.setItem(item);
-
-        puzzleSlotRepository.save(slot);
-    }
-
 }

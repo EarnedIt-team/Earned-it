@@ -53,9 +53,9 @@
         }
 
         .slot-box img {
-            max-width: 90%;
+            max-width: 80px;
             max-height: 60px;
-            margin-top: 6px;
+            object-fit: contain;
         }
 
         .dragging {
@@ -75,12 +75,30 @@
         .palette-item img {
             max-width: 100%;
             max-height: 50px;
+            object-fit: contain;
         }
 
         .theme-title {
             font-weight: bold;
             margin-bottom: 0.5rem;
             font-size: 1.2rem;
+        }
+
+        .item-controls {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .section-divider {
+            margin-top: 40px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
         }
 
         @media (max-width: 768px) {
@@ -106,34 +124,19 @@
             <table class="grid-table">
                 <tr th:each="row, rowStat : ${entry.value}">
                     <th:block th:each="slot, colStat : ${row}">
-                        <td th:if="${slot != null}"
+                        <td th:if="${slot != null && slot.item != null}"
                             class="slot-box"
                             th:attr="data-slot-id=${slot.id}"
                             ondrop="drop(event)"
                             ondragover="allowDrop(event)">
-
                             <div draggable="true"
                                  ondragstart="drag(event)"
                                  th:attr="data-id=${slot.id}"
                                  th:id="'slot-' + ${slot.id}">
-                                <img th:src="${slot.item?.image}" alt="이미지" onerror="this.src='/images/placeholder.png'">
-                                <div th:text="${slot.item?.name}"></div>
+                                <img th:src="${slot.item.image}" alt="이미지" onerror="this.src='/images/placeholder.png'">
+                                <div th:text="${slot.item.name}"></div>
                                 <small th:text="'Index: ' + ${slot.slotIndex}"></small>
                             </div>
-
-                            <!-- 빈 슬롯일 때도 표시 -->
-                            <div th:if="${slot == null}" style="height:100%;"></div>
-
-                        </td>
-
-                        <!-- ✅ 여기에 추가 -->
-                        <td th:if="${slot == null}"
-                            class="slot-box"
-                            data-slot-id="-1"
-                            th:attr="data-theme=${entry.key}, data-index=${rowStat.index * ${row.size()} + colStat.index}"
-                            ondrop="drop(event)"
-                            ondragover="allowDrop(event)">
-                            <div style="height:100%;"></div>
                         </td>
                     </th:block>
                 </tr>
@@ -152,24 +155,26 @@
             <div th:text="${item.name}"></div>
         </div>
     </div>
-
-    <!-- ✅ 여기 추가 -->
-    <div style="margin-top: 15px; text-align: center;">
-        <a href="/admin" style="
-            display: inline-block;
-            margin-top: 10px;
-            padding: 10px 20px;
-            background-color: #6c757d;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            font-size: 14px;
-            transition: background-color 0.2s ease-in-out;
-        " onmouseover="this.style.backgroundColor='#5a6268'" onmouseout="this.style.backgroundColor='#6c757d'">
-            대시보드로 이동
-        </a>
-    </div>
 </div>
+
+<!-- 버튼 섹션 분리 -->
+<div class="item-controls text-center">
+    <div class="section-divider">🔧 기능</div>
+    <a href="/admin/puzzle-slots/new" class="btn btn-success mb-2" style="max-width: 200px;">
+        ➕ 퍼즐 슬롯 추가/수정
+    </a>
+    <a href="/admin" class="btn btn-secondary" style="max-width: 200px;">
+        대시보드로 이동
+    </a>
+</div>
+
+<!-- 사용 설명 섹션 -->
+<div class="section-divider">📘 사용 가이드</div>
+<ul>
+    <li>아이템을 퍼즐 슬롯에 <strong>드래그하여 삽입</strong>할 수 있습니다.</li>
+    <li>슬롯 간 드래그로 <strong>위치를 변경</strong>할 수 있습니다.</li>
+    <li>퍼즐 슬롯을 삭제하고 싶다면 퍼즐 슬롯 추가/수정 페이지에서 관리하세요.</li>
+</ul>
 
 <script>
     let dragged = null;
@@ -224,5 +229,6 @@
         }
     }
 </script>
+
 </body>
 </html>

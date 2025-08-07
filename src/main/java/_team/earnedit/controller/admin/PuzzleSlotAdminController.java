@@ -1,13 +1,14 @@
 package _team.earnedit.controller.admin;
 
 import _team.earnedit.dto.puzzle.PuzzleSlotForm;
-import _team.earnedit.entity.Item;
+import _team.earnedit.dto.puzzle.PuzzleSlotResponse;
 import _team.earnedit.entity.PuzzleSlot;
 import _team.earnedit.entity.Theme;
 import _team.earnedit.repository.PuzzleSlotRepository;
 import _team.earnedit.service.admin.PuzzleSlotService;
 import _team.earnedit.service.admin.item.ItemService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -128,12 +129,9 @@ public class PuzzleSlotAdminController {
         return "ok";
     }
 
-    @PostMapping("/create")
+    @GetMapping("/grid/{theme}")
     @ResponseBody
-    public String createSlot(@RequestParam Theme theme,
-                             @RequestParam int index,
-                             @RequestParam Long itemId) {
-        puzzleSlotService.createSlotAndAssignItem(theme, index, itemId);
-        return "ok";
+    public List<PuzzleSlotResponse> getPuzzleGridByTheme(@PathVariable Theme theme) {
+        return puzzleSlotService.getSlotsByTheme(theme);
     }
 }

@@ -39,10 +39,16 @@
         select {
             width: 100%;
             padding: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 4px;
             border: 1px solid #ccc;
             border-radius: 6px;
             font-size: 14px;
+        }
+
+        .error {
+            color: #d9534f;
+            font-size: 13px;
+            margin-bottom: 16px;
         }
 
         textarea {
@@ -60,6 +66,7 @@
             border-radius: 6px;
             cursor: pointer;
             transition: background-color 0.2s ease-in-out;
+            margin-top: 20px;
         }
 
         button:hover {
@@ -70,53 +77,44 @@
 <body>
 <div class="container">
     <h1>아이템 등록/수정</h1>
-    <form th:action="@{/admin/items}" th:object="${item}" method="post">
-        <input type="hidden" th:field="*{id}"/>
+    <form th:action="@{${action}}" th:object="${item}" method="post">
 
         <label for="name">이름</label>
-        <input type="text" th:field="*{name}" id="name"/>
+        <input type="text" th:field="*{name}" id="name" required/>
+        <div th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="error"></div>
 
         <label for="vendor">벤더</label>
-        <input type="text" th:field="*{vendor}" id="vendor"/>
+        <input type="text" th:field="*{vendor}" id="vendor" required/>
+        <div th:if="${#fields.hasErrors('vendor')}" th:errors="*{vendor}" class="error"></div>
 
         <label for="price">가격</label>
-        <input type="number" th:field="*{price}" id="price"/>
+        <input type="number" th:field="*{price}" id="price" required min="1"/>
+        <div th:if="${#fields.hasErrors('price')}" th:errors="*{price}" class="error"></div>
 
         <label for="image">이미지 URL</label>
-        <input type="text" th:field="*{image}" id="image"/>
+        <input type="text" th:field="*{image}" id="image" required/>
+        <div th:if="${#fields.hasErrors('image')}" th:errors="*{image}" class="error"></div>
 
         <label for="description">설명</label>
-        <textarea th:field="*{description}" id="description"></textarea>
+        <textarea th:field="*{description}" id="description" required></textarea>
+        <div th:if="${#fields.hasErrors('description')}" th:errors="*{description}" class="error"></div>
 
         <label for="rarity">희귀도</label>
-        <select th:field="*{rarity}" id="rarity">
+        <select th:field="*{rarity}" id="rarity" required>
+            <option value="">-- 선택하세요 --</option>
             <option th:each="r : ${rarities}" th:value="${r}" th:text="${r}"></option>
         </select>
+        <div th:if="${#fields.hasErrors('rarity')}" th:errors="*{rarity}" class="error"></div>
 
         <label for="theme">테마</label>
-        <select th:field="*{theme}" id="theme">
+        <select th:field="*{theme}" id="theme" required>
+            <option value="">-- 선택하세요 --</option>
             <option th:each="t : ${themes}" th:value="${t}" th:text="${t}"></option>
         </select>
+        <div th:if="${#fields.hasErrors('theme')}" th:errors="*{theme}" class="error"></div>
 
         <button type="submit">저장</button>
     </form>
-    <!-- ✅ 여기 추가 -->
-    <div style="margin-top: 15px; text-align: center;">
-        <a href="/admin" style="
-            display: inline-block;
-            margin-top: 10px;
-            padding: 10px 20px;
-            background-color: #6c757d;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            font-size: 14px;
-            transition: background-color 0.2s ease-in-out;
-        " onmouseover="this.style.backgroundColor='#5a6268'" onmouseout="this.style.backgroundColor='#6c757d'">
-            대시보드로 이동
-        </a>
-    </div>
-
 </div>
 </body>
 </html>
