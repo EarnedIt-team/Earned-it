@@ -9,6 +9,7 @@ import _team.earnedit.global.ErrorCode;
 import _team.earnedit.global.exception.star.StarException;
 import _team.earnedit.global.exception.user.UserException;
 import _team.earnedit.global.exception.wish.WishException;
+import _team.earnedit.global.util.EntityFinder;
 import _team.earnedit.repository.StarRepository;
 import _team.earnedit.repository.UserRepository;
 import _team.earnedit.repository.WishRepository;
@@ -29,15 +30,14 @@ public class StarService {
     private final StarRepository starRepository;
     private final WishRepository wishRepository;
     private final UserRepository userRepository;
+    private final EntityFinder entityFinder;
 
 
     @Transactional
     public boolean updateStar(Long userId, long wishId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        User user = entityFinder.getUserOrThrow(userId);
 
-        Wish wish = wishRepository.findById(wishId)
-                .orElseThrow(() -> new WishException(ErrorCode.WISH_NOT_FOUND));
+        Wish wish = entityFinder.getWishOrThrow(wishId);
 
         boolean isStarred = wish.isStarred();
 
@@ -74,17 +74,10 @@ public class StarService {
 
     @Transactional(readOnly = true)
     public List<StarListResponse> getStarsWish(Long userId) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        entityFinder.getUserOrThrow(userId);
 
         // 정렬된 순서로
         List<Star> stars = starRepository.findByUserIdOrderByRankAsc(userId);
-
-        // 프론트 요청으로 [] 로 응답
-//        // 조회된 Star가 없을 때
-//        if (stars.isEmpty()) {
-//            throw new StarException(ErrorCode.TOP_WISH_EMPTY);
-//        }
 
         return stars.stream()
                 .map(star -> {
@@ -109,8 +102,8 @@ public class StarService {
 
     @Transactional
     public void updateStarOrder(Long userId, List<Long> orderedWishIds) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        entityFinder.getUserOrThrow(userId);
 
         List<Star> stars = starRepository.findByUserId(userId);
 
