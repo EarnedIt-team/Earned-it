@@ -75,44 +75,16 @@ public class WishService {
 
     @Transactional(readOnly = true)
     public PagedResponse<WishListResponse> getWishList(Long userId, Pageable pageable) {
-        QWish wish = QWish.wish;
+        // 1. 사용자 위시 목록 조회 (페이지 적용)
+        List<Wish> wishes = getWishesByUser(userId, pageable);
 
-        // 정렬 조건을 Pageable로부터 QueryDSL용 OrderSpecifier로 변환
-        List<OrderSpecifier<?>> orderSpecifiers = getOrderSpecifiers(pageable);
+        // 2. 사용자 전체 위시 수 조회
+        long total = getTotalWishesByUser(userId);
 
-        // 동적 쿼리 실행
-        List<Wish> content = queryFactory
-                .selectFrom(wish)
-                .where(wish.user.id.eq(userId))
-                .orderBy(orderSpecifiers.toArray(OrderSpecifier[]::new))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+        List<WishListResponse> responseList = wishMapper.toWishListResponseList(wishes);
 
-        // 전체 위시 합산 갯수 계산
-        long total = Optional.ofNullable(
-                queryFactory
-                        .select(wish.count())
-                        .from(wish)
-                        .where(wish.user.id.eq(userId))
-                        .fetchOne()
-        ).orElse(0L);
-
-        // 응답 DTO 형태로 매핑
-        List<WishListResponse> responseList = wishMapper.toWishListResponseList(content);
-
-        // 페이징 객체로 변환
-        PageImpl<WishListResponse> page = new PageImpl<>(responseList, pageable, total);
-
-        // 커스텀 페이징 객체로 응답
-        return PagedResponse.<WishListResponse>builder()
-                .content(page.getContent())
-                .page(page.getNumber())
-                .size(page.getSize())
-                .totalElements(page.getTotalElements())
-                .totalPages(page.getTotalPages())
-                .last(page.isLast())
-                .build();
+        // 3.  커스텀 페이징 응답 생성
+        return buildPagedResponse(responseList, pageable, total);
     }
 
     @Transactional
@@ -364,5 +336,45 @@ public class WishService {
                 .rank(currentStarCount + 1)
                 .build();
         starRepository.save(star);
+    }
+
+    // 1. 사용자 위시 목록 조회 (페이지 적용)
+    private List<Wish> getWishesByUser(Long userId, Pageable pageable) {
+        QWish wish = QWish.wish;
+        List<OrderSpecifier<?>> orderSpecifiers = getOrderSpecifiers(pageable);
+
+        return queryFactory
+                .selectFrom(wish)
+                .where(wish.user.id.eq(userId))
+                .orderBy(orderSpecifiers.toArray(OrderSpecifier[]::new))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+    }
+
+    // 2. 사용자 전체 위시 수 조회
+    private long getTotalWishesByUser(Long userId) {
+        QWish wish = QWish.wish;
+        return Optional.ofNullable(
+                queryFactory
+                        .select(wish.count())
+                        .from(wish)
+                        .where(wish.user.id.eq(userId))
+                        .fetchOne()
+        ).orElse(0L);
+    }
+
+    // 3. 커스텀 페이징 응답 생성
+    private <T> PagedResponse<T> buildPagedResponse(List<T> content, Pageable pageable, long total) {
+        PageImpl<T> page = new PageImpl<>(content, pageable, total);
+
+        return PagedResponse.<T>builder()
+                .content(page.getContent())
+                .page(page.getNumber())
+                .size(page.getSize())
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .last(page.isLast())
+                .build();
     }
 }
