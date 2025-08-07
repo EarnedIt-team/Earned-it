@@ -151,34 +151,14 @@ public class WishService {
         // 전체 개수만 카운트 쿼리로 조회
         int currentWishCount = wishRepository.countByUser(user);
 
-        // WishHighlightResponse.WishDetailResponse 생성
-        List<WishDetailResponse> wishDetailResponses = wishList.stream()
-                .limit(3) // 3개만 조회
-                .map(wish -> WishDetailResponse.builder()
-                        .wishId(wish.getId())
-                        .userId(wish.getUser().getId())
-                        .name(wish.getName())
-                        .price(wish.getPrice())
-                        .itemImage(wish.getItemImage())
-                        .isBought(wish.isBought())
-                        .vendor(wish.getVendor())
-                        .createdAt(wish.getCreatedAt())
-                        .isStarred(wish.isStarred())
-                        .build())
-                .toList();
+        // WishDetailResponse 생성
+        List<WishDetailResponse> wishDetailResponses = getWishDetailResponses(wishList);
 
-        // WishHighlightResponse.wishInfo 객체 생성
-        WishHighlightResponse.WishInfo wishInfo = WishHighlightResponse.WishInfo.builder()
-                .currentWishCount(currentWishCount)
-                .limitWishCount(MAX_WISH_COUNT)
-                .build();
-
+        // wishInfo 객체 생성
+        WishHighlightResponse.WishInfo wishInfo = getWishInfo(currentWishCount);
 
         // WishHighlightResponse 리턴
-        return WishHighlightResponse.builder()
-                .wishHighlight(wishDetailResponses)
-                .wishInfo(wishInfo)
-                .build();
+        return getResponse(wishDetailResponses, wishInfo);
     }
 
     @Transactional(readOnly = true)
@@ -370,5 +350,29 @@ public class WishService {
     private void deleteWishWithStar(Long wishId) {
         starRepository.deleteByWishId(wishId);
         wishRepository.deleteById(wishId);
+    }
+
+    // WishHighlightResponse.WishDetailResponse 생성
+    private List<WishDetailResponse> getWishDetailResponses(List<Wish> wishList) {
+        return wishList.stream()
+                .limit(3) // 3개만 조회
+                .map(wishMapper::toWishDetailResponse)
+                .toList();
+    }
+
+    // WishHighlightResponse 리턴
+    private WishHighlightResponse getResponse(List<WishDetailResponse> wishDetailResponses, WishHighlightResponse.WishInfo wishInfo) {
+        return WishHighlightResponse.builder()
+                .wishHighlight(wishDetailResponses)
+                .wishInfo(wishInfo)
+                .build();
+    }
+
+    // wishInfo 객체 생성
+    private WishHighlightResponse.WishInfo getWishInfo(int currentWishCount) {
+        return WishHighlightResponse.WishInfo.builder()
+                .currentWishCount(currentWishCount)
+                .limitWishCount(MAX_WISH_COUNT)
+                .build();
     }
 }
