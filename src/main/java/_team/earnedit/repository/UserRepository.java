@@ -24,4 +24,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByStatusAndDeletedAtBeforeAndEmailNotContaining(User.Status status, LocalDateTime threshold, String deleted);
 
     Optional<User> findByProviderAndProviderIdAndStatus(User.Provider provider, String kakaoId, User.Status status);
+
+    List<User> findByIsCheckedInTrue();
 }
