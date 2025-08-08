@@ -18,7 +18,7 @@ public class CheckInResetScheduler {
     private final UserRepository userRepository;
 
     @Transactional
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
     public void resetDailyCheckIn() {
         List<User> checkedInUsers = userRepository.findByIsCheckedInTrue();
         checkedInUsers.forEach(User::resetCheckIn);
