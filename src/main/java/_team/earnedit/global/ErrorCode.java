@@ -29,8 +29,7 @@ public enum ErrorCode {
 
     NOT_FOUND_SEARCH_RESULT(HttpStatus.NOT_FOUND, "검색 결과가 존재하지 않습니다."),
     WISH_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 위시입니다."),
-    WISH_UPDATE_FORBIDDEN(HttpStatus.FORBIDDEN, "다른 사용자의 위시 수정 시도입니다."),
-    WISH_DELETE_FORBIDDEN(HttpStatus.FORBIDDEN, "다른 사용자의 위시 삭제 시도입니다."),
+    WISH_FORBIDDEN_ACCESS(HttpStatus.FORBIDDEN, "다른 사용자의 접근 시도입니다."),
     WISH_LIMIT_EXCEEDED(HttpStatus.CONFLICT, "위시는 100개까지만 추가할 수 있습니다."),
 
     // Star
