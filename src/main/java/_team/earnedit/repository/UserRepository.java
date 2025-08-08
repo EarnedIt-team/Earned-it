@@ -2,6 +2,9 @@ package _team.earnedit.repository;
 
 import _team.earnedit.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,5 +28,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByProviderAndProviderIdAndStatus(User.Provider provider, String kakaoId, User.Status status);
 
-    List<User> findByIsCheckedInTrue();
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Transactional
+    @Query("update User u set u.isCheckedIn = false where u.isCheckedIn = true")
+    int resetAllCheckedIn();
 }
