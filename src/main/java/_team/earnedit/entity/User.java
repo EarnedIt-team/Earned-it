@@ -74,6 +74,10 @@ public class User {
     @Column(nullable = false)
     private Boolean isPublic = false;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean isCheckedIn = false;
+
     public void softDeleted() {
         this.status = Status.DELETED;
         this.deletedAt = LocalDateTime.now();
