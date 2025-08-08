@@ -20,9 +20,8 @@ public class CheckInResetScheduler {
     @Transactional
     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
     public void resetDailyCheckIn() {
-        List<User> checkedInUsers = userRepository.findByIsCheckedInTrue();
-        checkedInUsers.forEach(User::resetCheckIn);
+        int updated = userRepository.resetAllCheckedIn();
 
-        log.info("[CheckInResetScheduler] {}명의 출석체크 상태를 초기화했습니다.", checkedInUsers.size());
+        log.info("[CheckInResetScheduler] {}명의 출석체크 상태를 초기화했습니다.", updated);
     }
 }
