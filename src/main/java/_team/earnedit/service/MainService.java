@@ -9,6 +9,7 @@ import _team.earnedit.entity.Star;
 import _team.earnedit.entity.Wish;
 import _team.earnedit.global.ErrorCode;
 import _team.earnedit.global.exception.user.UserException;
+import _team.earnedit.global.util.EntityFinder;
 import _team.earnedit.repository.PieceRepository;
 import _team.earnedit.repository.SalaryRepository;
 import _team.earnedit.repository.StarRepository;
@@ -24,18 +25,14 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MainService {
 
-    private final UserRepository userRepository;
     private final SalaryRepository salaryRepository;
     private final StarRepository starRepository;
     private final PieceRepository pieceRepository;
+    private final EntityFinder entityFinder;
 
     @Transactional(readOnly = true)
     public MainPageResponse getInfo(Long userId) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
-//
-//        Salary salary = salaryRepository.findByUserId(userId)
-//                .orElseThrow(() -> new SalaryException(ErrorCode.SALARY_NOT_FOUND));
+        entityFinder.getUserOrThrow(userId);
 
         Optional<Salary> salary = salaryRepository.findByUserId(userId);
 
@@ -58,10 +55,6 @@ public class MainService {
                     return WishListResponse.from(wish);  // 또는 WishListResponse 생성자 활용
                 })
                 .toList();
-
-        // 가장 최근 조각 1개 조회하여 삽입
-        // Piece recentPiece = pieceRepository.findTopByUserIdOrderByCollectedAtDesc(userId)
-        //.orElseThrow(() -> new PieceException(ErrorCode.PIECE_NOT_FOUND));
 
         // 프론트 측 요청으로 예외를 던지지 않고, null 또는 빈값으로 응답
         Optional<Piece> recentPiece = pieceRepository.findTopByUserIdOrderByCollectedAtDesc(userId);

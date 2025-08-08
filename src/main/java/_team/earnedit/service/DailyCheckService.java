@@ -10,6 +10,7 @@ import _team.earnedit.entity.User;
 import _team.earnedit.global.ErrorCode;
 import _team.earnedit.global.exception.item.ItemException;
 import _team.earnedit.global.exception.user.UserException;
+import _team.earnedit.global.util.EntityFinder;
 import _team.earnedit.repository.ItemRepository;
 import _team.earnedit.repository.PieceRepository;
 import _team.earnedit.repository.UserRepository;
@@ -31,20 +32,17 @@ public class DailyCheckService {
 
     private final ObjectMapper objectMapper;
 
-    private final UserRepository userRepository;
     private final ItemRepository itemRepository;
     private final PieceRepository pieceRepository;
     private final RedisTemplate<String, String> redisTemplate;
+    private final EntityFinder entityFinder;
 
     private static final Duration REWARD_TTL = Duration.ofMinutes(10); // 10분만 유효
 
     @Transactional
     public PieceResponse addPieceToPuzzle(Long userId, long itemId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
-
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new ItemException(ErrorCode.ITEM_NOT_FOUND));
+        User user = entityFinder.getUserOrThrow(userId);
+        Item item = entityFinder.getItemOrThrow(itemId);
 
         List<Piece> pieceList = pieceRepository.findByItemAndUser(item, user);
 
@@ -74,9 +72,7 @@ public class DailyCheckService {
 
     @Transactional
     public RewardCandidate generateRewardCandidates(Long userId) {
-
-        userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        entityFinder.getUserOrThrow(userId);
 
         List<Item> randomItems = itemRepository.findRandomItems(3);
         UUID rewardToken = UUID.randomUUID();
@@ -122,11 +118,8 @@ public class DailyCheckService {
             throw new IllegalArgumentException("유효하지 않은 보상 선택입니다.");
         }
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
-
-        Item item = itemRepository.findById(request.getSelectedItemId())
-                .orElseThrow(() -> new ItemException(ErrorCode.ITEM_NOT_FOUND));
+        User user = entityFinder.getUserOrThrow(userId);
+        Item item = entityFinder.getItemOrThrow(request.getSelectedItemId());
 
         pieceRepository.save(Piece.builder()
                 .user(user)

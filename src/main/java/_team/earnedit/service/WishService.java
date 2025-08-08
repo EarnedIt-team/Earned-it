@@ -10,6 +10,7 @@ import _team.earnedit.global.ErrorCode;
 import _team.earnedit.global.exception.star.StarException;
 import _team.earnedit.global.exception.user.UserException;
 import _team.earnedit.global.exception.wish.WishException;
+import _team.earnedit.global.util.EntityFinder;
 import _team.earnedit.repository.StarRepository;
 import _team.earnedit.repository.UserRepository;
 import _team.earnedit.repository.WishRepository;
@@ -36,15 +37,14 @@ public class WishService {
 
     public static final int MAX_WISH_COUNT = 100;
     private final WishRepository wishRepository;
-    private final UserRepository userRepository;
     private final StarRepository starRepository;
     private final FileUploadService fileUploadService;
     private final JPAQueryFactory queryFactory;
+    private final EntityFinder entityFinder;
 
     @Transactional
     public WishAddResponse addWish(WishAddRequest wishAddRequest, Long userId, MultipartFile itemImage) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        User user = entityFinder.getUserOrThrow(userId);
 
         // 위시 개수 제한 확인
         int currentWishCount = wishRepository.countByUser(user);
@@ -137,10 +137,8 @@ public class WishService {
 
     @Transactional
     public WishUpdateResponse updateWish(WishUpdateRequest wishUpdateRequest, Long userId, Long wishId, MultipartFile itemImage) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
-
-        Wish wish = wishRepository.findById(wishId).orElseThrow(() -> new WishException(ErrorCode.WISH_NOT_FOUND));
+        User user = entityFinder.getUserOrThrow(userId);
+        Wish wish = entityFinder.getWishOrThrow(wishId);
 
         // 이미지 업로드 처리
         String imageUrl = fileUploadService.uploadFile(itemImage);
@@ -189,11 +187,8 @@ public class WishService {
 
     @Transactional
     public void deleteWish(Long wishId, Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
-
-        Wish wish = wishRepository.findById(wishId)
-                .orElseThrow(() -> new WishException(ErrorCode.WISH_NOT_FOUND));
+        entityFinder.getUserOrThrow(userId);
+        Wish wish = entityFinder.getWishOrThrow(wishId);
 
         // 다른 사용자의 삭제 시도에 대한 예외처리
         if (!wish.getUser().getId().equals(userId)) {
@@ -206,11 +201,8 @@ public class WishService {
 
     @Transactional(readOnly = true)
     public WishDetailResponse getWish(Long wishId, Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
-
-        Wish wish = wishRepository.findById(wishId)
-                .orElseThrow(() -> new WishException(ErrorCode.WISH_NOT_FOUND));
+        entityFinder.getUserOrThrow(userId);
+        Wish wish = entityFinder.getWishOrThrow(wishId);
 
         return WishDetailResponse.builder()
                 .wishId(wish.getId())
@@ -229,11 +221,8 @@ public class WishService {
 
     @Transactional
     public boolean toggleBoughtStatus(Long wishId, Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
-
-        Wish wish = wishRepository.findById(wishId)
-                .orElseThrow(() -> new WishException(ErrorCode.WISH_NOT_FOUND));
+        entityFinder.getUserOrThrow(userId);
+        Wish wish = entityFinder.getWishOrThrow(wishId);
 
         wish.setBought(!wish.isBought());
 
@@ -242,8 +231,7 @@ public class WishService {
 
     @Transactional(readOnly = true)
     public WishHighlightResponse highlightWish(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        User user = entityFinder.getUserOrThrow(userId);
 
         List<Wish> wishList = wishRepository.findByUserIdOrderByNameAsc(userId);
 
