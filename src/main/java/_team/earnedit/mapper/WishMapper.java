@@ -42,6 +42,8 @@ public interface WishMapper {
 
     @Mapping(target = "userId", source = "user.id")
     @Mapping(target = "wishId", source = "wish.id")
+    @Mapping(target = "isStarred", source = "starred")
+    @Mapping(target = "isBought", source = "bought")
     WishDetailResponse toWishDetailResponse(Wish wish);
 
 }
