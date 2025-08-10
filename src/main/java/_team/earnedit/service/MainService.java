@@ -3,17 +3,11 @@ package _team.earnedit.service;
 import _team.earnedit.dto.main.MainPageResponse;
 import _team.earnedit.dto.puzzle.PieceResponse;
 import _team.earnedit.dto.wish.WishListResponse;
-import _team.earnedit.entity.Piece;
-import _team.earnedit.entity.Salary;
-import _team.earnedit.entity.Star;
-import _team.earnedit.entity.Wish;
-import _team.earnedit.global.ErrorCode;
-import _team.earnedit.global.exception.user.UserException;
+import _team.earnedit.entity.*;
 import _team.earnedit.global.util.EntityFinder;
 import _team.earnedit.repository.PieceRepository;
 import _team.earnedit.repository.SalaryRepository;
 import _team.earnedit.repository.StarRepository;
-import _team.earnedit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +26,7 @@ public class MainService {
 
     @Transactional(readOnly = true)
     public MainPageResponse getInfo(Long userId) {
-        entityFinder.getUserOrThrow(userId);
+        User user = entityFinder.getUserOrThrow(userId);
 
         Optional<Salary> salary = salaryRepository.findByUserId(userId);
 
@@ -44,6 +38,7 @@ public class MainService {
                 .amountPerSec(salary.map(Salary::getAmountPerSec).orElse(0.0))
                 .payday(salary.map(Salary::getPayday).orElse(0))
                 .hasSalary(hasSalary)
+                .isCheckedIn(user.getIsCheckedIn())
                 .build();
 
         // Top5 정보 조회

@@ -38,5 +38,8 @@ public class MainPageResponse {
 
         @Schema(description = "급여일 (일자)", example = "25")
         private int payday;
+
+        @Schema(description = "출석체크 여부")
+        private boolean isCheckedIn;
     }
 }
