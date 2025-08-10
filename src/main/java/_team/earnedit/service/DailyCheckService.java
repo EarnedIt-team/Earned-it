@@ -38,6 +38,7 @@ public class DailyCheckService {
     private final EntityFinder entityFinder;
 
     private static final Duration REWARD_TTL = Duration.ofMinutes(10); // 10분만 유효
+    private final UserRepository userRepository;
 
     @Transactional
     public PieceResponse addPieceToPuzzle(Long userId, long itemId) {
@@ -57,6 +58,9 @@ public class DailyCheckService {
                 .isCollected(true)
                 .build();
         pieceRepository.save(piece);
+
+        // 출석 체크 여부 업데이트
+        user.checkIn();
 
         return PieceResponse.builder()
                 .pieceId(piece.getId())
