@@ -59,9 +59,6 @@ public class DailyCheckService {
                 .build();
         pieceRepository.save(piece);
 
-        // 출석 체크 여부 업데이트
-        user.checkIn();
-
         return PieceResponse.builder()
                 .pieceId(piece.getId())
                 .name(piece.getItem().getName())
@@ -107,6 +104,14 @@ public class DailyCheckService {
 
     @Transactional
     public void selectReward(Long userId, RewardSelectionRequest request) {
+        User user = entityFinder.getUserOrThrow(userId);
+        Item item = entityFinder.getItemOrThrow(request.getSelectedItemId());
+
+        // 이미 보상이 지급된 회원 예외
+        if (user.getIsCheckedIn()) {
+            throw new UserException(ErrorCode.ALREADY_REWARDED);
+        }
+
         String key = "reward:" + request.getRewardToken();
 
         List<Long> candidateIds;
@@ -122,9 +127,6 @@ public class DailyCheckService {
             throw new IllegalArgumentException("유효하지 않은 보상 선택입니다.");
         }
 
-        User user = entityFinder.getUserOrThrow(userId);
-        Item item = entityFinder.getItemOrThrow(request.getSelectedItemId());
-
         pieceRepository.save(Piece.builder()
                 .user(user)
                 .item(item)
@@ -133,5 +135,8 @@ public class DailyCheckService {
                 .build());
 
         redisTemplate.delete(key);
+
+        // 출석 체크 여부 업데이트
+        user.checkIn();
     }
 }
