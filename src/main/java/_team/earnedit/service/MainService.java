@@ -36,15 +36,10 @@ public class MainService {
         MainPageResponse.UserInfo userInfo = mainPageMapper.toUserInfo(user, salary);
 
         // Top5 위시
-        List<WishListResponse> starWishList = starRepository.findByUserIdOrderByRankAsc(userId)
-                .stream()
-                .map(star -> mainPageMapper.toWishListResponse(star.getWish()))
-                .toList();
+        List<WishListResponse> starWishList = getStarWishList(userId);
 
         // 가장 최근 획득한 조각
-        PieceResponse recentPiece = pieceRepository.findTopByUserIdOrderByCollectedAtDesc(userId)
-                .map(mainPageMapper::toPieceResponse)
-                .orElse(null);
+        PieceResponse recentPiece = getRecentPiece(userId);
 
         // 응답 객체 생성
         return MainPageResponse.builder()
@@ -52,5 +47,20 @@ public class MainService {
                 .userInfo(userInfo)
                 .pieceInfo(recentPiece)
                 .build();
+    }
+
+    // 해당 유저의 Star 리스트 랭크 순서대로 조회
+    private List<WishListResponse> getStarWishList(Long userId) {
+        return starRepository.findByUserIdOrderByRankAsc(userId)
+                .stream()
+                .map(star -> mainPageMapper.toWishListResponse(star.getWish()))
+                .toList();
+    }
+
+    // 가장 최근 획득한 조각
+    private PieceResponse getRecentPiece(Long userId) {
+        return pieceRepository.findTopByUserIdOrderByCollectedAtDesc(userId)
+                .map(mainPageMapper::toPieceResponse)
+                .orElse(null);
     }
 }
