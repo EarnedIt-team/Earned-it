@@ -7,6 +7,7 @@ import _team.earnedit.entity.Wish;
 import _team.earnedit.global.ErrorCode;
 import _team.earnedit.global.exception.star.StarException;
 import _team.earnedit.global.util.EntityFinder;
+import _team.earnedit.mapper.StarMapper;
 import _team.earnedit.repository.StarRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 public class StarService {
     private final StarRepository starRepository;
     private final EntityFinder entityFinder;
+    private final StarMapper starMapper;
 
     @Transactional
     public boolean updateStar(Long userId, long wishId) {
@@ -49,25 +51,7 @@ public class StarService {
         // 정렬된 순서로
         List<Star> stars = starRepository.findByUserIdOrderByRankAsc(userId);
 
-        return stars.stream()
-                .map(star -> {
-                    Wish wish = star.getWish();
-                    return StarListResponse.builder()
-                            .starId(star.getId())
-                            .wishId(wish.getId())
-                            .userId(star.getUser().getId())
-                            .name(wish.getName())
-                            .rank(star.getRank())
-                            .itemImage(wish.getItemImage())
-                            .vendor(wish.getVendor())
-                            .price(wish.getPrice())
-                            .rank(star.getRank())
-                            .isBought(wish.isBought())
-                            .starred(wish.isStarred())
-                            .url(wish.getUrl())
-                            .build();
-                })
-                .collect(Collectors.toList());
+        return getStarListResponses(stars);
     }
 
     @Transactional
@@ -127,6 +111,16 @@ public class StarService {
         for (int i = 0; i < stars.size(); i++) {
             stars.get(i).setRank(i + 1);
         }
+    }
+
+    // Star 목록 응답 객체 생성
+    private List<StarListResponse> getStarListResponses(List<Star> stars) {
+        return stars.stream()
+                .map(star -> {
+                    Wish wish = star.getWish();
+                    return starMapper.toStarListResponse(star, wish);
+                })
+                .collect(Collectors.toList());
     }
 
 }

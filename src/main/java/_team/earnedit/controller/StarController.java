@@ -54,8 +54,4 @@ public class StarController {
 
         return ResponseEntity.ok(ApiResponse.success("Star의 순서를 성공적으로 변경하였습니다."));
     }
-
-
-
-
 }
