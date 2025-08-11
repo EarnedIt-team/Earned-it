@@ -8,11 +8,9 @@ import _team.earnedit.entity.PuzzleSlot;
 import _team.earnedit.entity.Theme;
 import _team.earnedit.global.ErrorCode;
 import _team.earnedit.global.exception.piece.PieceException;
-import _team.earnedit.global.exception.user.UserException;
 import _team.earnedit.global.util.EntityFinder;
 import _team.earnedit.repository.PieceRepository;
 import _team.earnedit.repository.PuzzleSlotRepository;
-import _team.earnedit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -67,6 +65,42 @@ public class PuzzleService {
             totalValueMap.merge(theme, isCollected ? item.getPrice() : 0, Long::sum);
         }
 
+        // 1) 전체 테마 개수 (중복 제거)
+        long themeCount = slots.stream()
+                .map(PuzzleSlot::getTheme) // Theme Enum 또는 String
+                .distinct()
+                .count();
+
+        int totalPieceCount = slots.size(); // 2) 전체 조각 개수
+        int completedPieceCount = (int) pieces.stream()          // 3) 완성한 조각 개수
+                .filter(Piece::isCollected)                      // pieces가 이미 수집된 것만 리턴한다면 .size()로 대체 가능
+                .count();
+
+        // 4) 전체 누적 금액 (수집된 아이템 가격 합)
+        long totalAccumulatedValue = totalValueMap.values().stream()
+                .mapToLong(Long::longValue)
+                .sum();
+
+        // 5) 현재 완성한 테마 개수 (그 테마의 모든 슬롯이 수집됨)
+        int completedThemeCount = (int) themeSlotMap.entrySet().stream()
+                .filter(e -> {
+                    Theme t = e.getKey();
+                    int total = e.getValue().size();
+                    int collected = collectedCountMap.getOrDefault(t, 0);
+                    return total > 0 && collected == total;
+                })
+                .count();
+
+        // 퍼즐 요약 정보
+        PuzzleResponse.PuzzleInfo puzzleInfo = PuzzleResponse.PuzzleInfo.builder()
+                .themeCount((int) themeCount)
+                .completedThemeCount(completedThemeCount)
+                .totalPieceCount(totalPieceCount)
+                .completedPieceCount(completedPieceCount)
+                .totalAccumulatedValue(totalAccumulatedValue)
+                .build();
+
+
         Map<String, PuzzleResponse.PuzzleThemeData> responseMap = new HashMap<>();
         for (Map.Entry<Theme, List<PuzzleResponse.SlotInfo>> entry : themeSlotMap.entrySet()) {
             Theme theme = entry.getKey();
@@ -84,6 +118,7 @@ public class PuzzleService {
         }
 
         return PuzzleResponse.builder()
+                .puzzleInfo(puzzleInfo)
                 .themes(responseMap)
                 .build();
     }

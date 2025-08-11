@@ -73,19 +73,19 @@ public class PuzzleResponse {
     public static class PuzzleInfo {
 
         @Schema(description = "전체 테마 개수", example = "2")
-        private int themeCount;
+        private long themeCount;
 
         @Schema(description = "현재 완성한 테마 개수", example = "1")
-        private int completedThemeCount;
+        private long completedThemeCount;
 
         @Schema(description = "전체 조각 개수", example = "12")
-        private int totalPieceCount;
+        private long totalPieceCount;
 
         @Schema(description = "현재 완성한 조각 개수", example = "3")
-        private int completedPieceCount;
+        private long completedPieceCount;
 
         @Schema(description = "전체 누적 금액(원)", example = "33330")
-        private Long totalAccumulatedValue;
+        private long totalAccumulatedValue;
 
     }
 }
