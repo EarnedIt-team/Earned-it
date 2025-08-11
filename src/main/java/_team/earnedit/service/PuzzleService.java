@@ -10,6 +10,7 @@ import _team.earnedit.global.ErrorCode;
 import _team.earnedit.global.exception.piece.PieceException;
 import _team.earnedit.global.util.EntityFinder;
 import _team.earnedit.mapper.PieceMapper;
+import _team.earnedit.mapper.PuzzleMapper;
 import _team.earnedit.repository.PieceRepository;
 import _team.earnedit.repository.PuzzleSlotRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,10 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -33,15 +31,15 @@ public class PuzzleService {
     private final PieceRepository pieceRepository;
     private final EntityFinder entityFinder;
     private final PieceMapper pieceMapper;
+    private final PuzzleMapper puzzleMapper;
 
     @Transactional(readOnly = true)
     public PuzzleResponse getPuzzle(Long userId) {
         List<PuzzleSlot> slots = puzzleSlotRepository.findAll();
         List<Piece> pieces = pieceRepository.findByUserId(userId);
+        Map<Long, Piece> pieceMap = buildPieceMap(pieces);
 
-        Map<Long, Piece> pieceMap = pieces.stream()
-                .collect(Collectors.toMap(p -> p.getItem().getId(), Function.identity()));
-
+        // 1. 테마 별 슬롯/카운트/금액 집계
         Map<Theme, List<PuzzleResponse.SlotInfo>> themeSlotMap = new HashMap<>();
         Map<Theme, Integer> collectedCountMap = new HashMap<>();
         Map<Theme, Long> totalValueMap = new HashMap<>();
@@ -49,82 +47,42 @@ public class PuzzleService {
         for (PuzzleSlot slot : slots) {
             Item item = slot.getItem();
             Piece piece = pieceMap.get(item.getId());
-            boolean isCollected = piece != null && piece.isCollected();
 
-            PuzzleResponse.SlotInfo slotInfo = PuzzleResponse.SlotInfo.builder()
-                    .slotIndex(slot.getSlotIndex())
-                    .isCollected(isCollected)
-                    .pieceId(isCollected ? piece.getId() : null)
-                    .itemId(isCollected ? item.getId() : null)
-                    .itemName(isCollected ? item.getName() : null)
-                    .image(isCollected ? item.getImage() : null)
-                    .value(isCollected ? item.getPrice() : null)
-                    .collectedAt(isCollected ? piece.getCollectedAt() : null)
-                    .build();
-
+            PuzzleResponse.SlotInfo slotInfo = puzzleMapper.toSlotInfo(slot, piece);
             Theme theme = slot.getTheme();
+
             themeSlotMap.computeIfAbsent(theme, t -> new ArrayList<>()).add(slotInfo);
+            boolean isCollected = piece != null && piece.isCollected();
             collectedCountMap.merge(theme, isCollected ? 1 : 0, Integer::sum);
             totalValueMap.merge(theme, isCollected ? item.getPrice() : 0, Long::sum);
         }
 
-        // 1) 전체 테마 개수 (중복 제거)
-        long themeCount = slots.stream()
-                .map(PuzzleSlot::getTheme) // Theme Enum 또는 String
-                .distinct()
-                .count();
+        // 2. 요약값 계산
+        Summary summary = computeSummary(slots, pieces, themeSlotMap, collectedCountMap, totalValueMap);
 
-        int totalPieceCount = slots.size(); // 2) 전체 조각 개수
-        int completedPieceCount = (int) pieces.stream()          // 3) 완성한 조각 개수
-                .filter(Piece::isCollected)                      // pieces가 이미 수집된 것만 리턴한다면 .size()로 대체 가능
-                .count();
+        // 3. 퍼즐 요약 정보
+        PuzzleResponse.PuzzleInfo puzzleInfo = getPuzzleInfo(summary);
 
-        // 4) 전체 누적 금액 (수집된 아이템 가격 합)
-        long totalAccumulatedValue = totalValueMap.values().stream()
-                .mapToLong(Long::longValue)
-                .sum();
-
-        // 5) 현재 완성한 테마 개수 (그 테마의 모든 슬롯이 수집됨)
-        int completedThemeCount = (int) themeSlotMap.entrySet().stream()
-                .filter(e -> {
-                    Theme t = e.getKey();
-                    int total = e.getValue().size();
-                    int collected = collectedCountMap.getOrDefault(t, 0);
-                    return total > 0 && collected == total;
-                })
-                .count();
-
-        // 퍼즐 요약 정보
-        PuzzleResponse.PuzzleInfo puzzleInfo = PuzzleResponse.PuzzleInfo.builder()
-                .themeCount((int) themeCount)
-                .completedThemeCount(completedThemeCount)
-                .totalPieceCount(totalPieceCount)
-                .completedPieceCount(completedPieceCount)
-                .totalAccumulatedValue(totalAccumulatedValue)
-                .build();
-
-
-        Map<String, PuzzleResponse.PuzzleThemeData> responseMap = new HashMap<>();
-        for (Map.Entry<Theme, List<PuzzleResponse.SlotInfo>> entry : themeSlotMap.entrySet()) {
-            Theme theme = entry.getKey();
-            List<PuzzleResponse.SlotInfo> themeSlots = entry.getValue();
-
-            PuzzleResponse.PuzzleThemeData themeData = PuzzleResponse.PuzzleThemeData.builder()
-                    .themeName(theme.getDisplayName())
-                    .collectedCount(collectedCountMap.getOrDefault(theme, 0))
-                    .totalCount(themeSlots.size())
-                    .totalValue(totalValueMap.getOrDefault(theme, 0L))
-                    .slots(themeSlots)
-                    .build();
-
-            responseMap.put(theme.name(), themeData);
-        }
+        // 4. 테마 응답 변환
+        Map<String, PuzzleResponse.PuzzleThemeData> themes = buildThemes(themeSlotMap, collectedCountMap, totalValueMap);
 
         return PuzzleResponse.builder()
                 .puzzleInfo(puzzleInfo)
-                .themes(responseMap)
+                .themes(themes)
                 .build();
     }
+
+    // 퍼즐 요약 정보
+    private PuzzleResponse.PuzzleInfo getPuzzleInfo(Summary summary) {
+        return PuzzleResponse.PuzzleInfo.builder()
+                .themeCount(summary.themeCount)
+                .completedThemeCount(summary.completedThemeCount)
+                .totalPieceCount(summary.totalPieceCount)
+                .completedPieceCount(summary.completedPieceCount)
+                .totalAccumulatedValue(summary.totalAccumulatedValue)
+                .build();
+    }
+
 
     @Transactional(readOnly = true)
     public PieceResponse getPieceInfo(Long userId, Long pieceId) {
@@ -144,5 +102,73 @@ public class PuzzleService {
         return pieceMapper.toPieceResponse(piece);
     }
 
+    // 요약 정보 생성 메서드
+    private Summary computeSummary(
+            List<PuzzleSlot> slots,
+            List<Piece> pieces,
+            Map<Theme, List<PuzzleResponse.SlotInfo>> themeSlotMap,
+            Map<Theme, Integer> collectedCountMap,
+            Map<Theme, Long> totalValueMap
+    ) {
+        int totalPieceCount = slots.size();
+        int completedPieceCount = (int) pieces.stream().filter(Piece::isCollected).count();
+
+        long themeCount = slots.stream()
+                .map(PuzzleSlot::getTheme)
+                .distinct()
+                .count();
+
+        long totalAccumulatedValue = totalValueMap.values().stream()
+                .mapToLong(Long::longValue)
+                .sum();
+
+        int completedThemeCount = (int) themeSlotMap.entrySet().stream()
+                .filter(e -> {
+                    int total = e.getValue().size();
+                    int collected = collectedCountMap.getOrDefault(e.getKey(), 0);
+                    return total > 0 && collected == total;
+                }).count();
+
+        return new Summary(
+                (int) themeCount,
+                completedThemeCount,
+                totalPieceCount,
+                completedPieceCount,
+                totalAccumulatedValue
+        );
+    }
+
+    private Map<Long, Piece> buildPieceMap(List<Piece> pieces) {
+        return pieces.stream().collect(Collectors.toMap(p -> p.getItem().getId(), Function.identity()));
+    }
+
+    private Map<String, PuzzleResponse.PuzzleThemeData> buildThemes(
+            Map<Theme, List<PuzzleResponse.SlotInfo>> themeSlotMap,
+            Map<Theme, Integer> collectedCountMap,
+            Map<Theme, Long> totalValueMap
+    ) {
+        return themeSlotMap.entrySet().stream()
+                .collect(Collectors.toMap(
+                        e -> e.getKey().name(),
+                        e -> PuzzleResponse.PuzzleThemeData.builder()
+                                .themeName(e.getKey().getDisplayName())
+                                .collectedCount(collectedCountMap.getOrDefault(e.getKey(), 0))
+                                .totalCount(e.getValue().size())
+                                .totalValue(totalValueMap.getOrDefault(e.getKey(), 0L))
+                                .slots(e.getValue())
+                                .build(),
+                        (a, b) -> a,
+                        LinkedHashMap::new
+                ));
+    }
+
+    // 요약값 레코드
+    private record Summary (
+            int themeCount,
+            int completedThemeCount,
+            int totalPieceCount,
+            int completedPieceCount,
+            long totalAccumulatedValue
+    ) {}
 
 }
