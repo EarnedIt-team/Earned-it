@@ -10,7 +10,7 @@ import org.mapstruct.Mapping;
 public interface StarMapper {
     @Mapping(target = "starId", source = "star.id")
     @Mapping(target = "wishId", source = "wish.id")
-    @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "userId", source = "star.user.id")
     @Mapping(target = "name", source = "wish.name")
     @Mapping(target = "rank", source = "star.rank")
     @Mapping(target = "itemImage", source = "wish.itemImage")
