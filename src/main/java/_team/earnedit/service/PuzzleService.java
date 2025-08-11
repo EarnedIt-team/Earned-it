@@ -129,19 +129,9 @@ public class PuzzleService {
     @Transactional(readOnly = true)
     public PieceResponse getPieceInfo(Long userId, Long pieceId) {
         entityFinder.getUserOrThrow(userId);
-
         Piece piece = entityFinder.getPieceOrThrow(pieceId);
 
-        return PieceResponse.builder()
-                .pieceId(piece.getId())
-                .collectedAt(piece.getCollectedAt())
-                .price(piece.getItem().getPrice())
-                .description(piece.getItem().getDescription())
-                .image(piece.getItem().getImage())
-                .vendor(piece.getItem().getVendor())
-                .rarity(piece.getItem().getRarity())
-                .name(piece.getItem().getName())
-                .build();
+        return pieceMapper.toPieceResponse(piece);
     }
 
     @Transactional(readOnly = true)
