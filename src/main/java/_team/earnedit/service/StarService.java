@@ -56,27 +56,14 @@ public class StarService {
 
     @Transactional
     public void updateStarOrder(Long userId, List<Long> orderedWishIds) {
+        validateUserExists(userId); // 유저 존재 여부 검증
 
-        entityFinder.getUserOrThrow(userId);
+        Map<Long, Star> wishIdToStarMap = getStarMap(userId);  // 유저의 Star 목록을 WishId → Star 맵으로 변환
 
-        List<Star> stars = starRepository.findByUserId(userId);
-
-        // WishId → Star 매핑
-        Map<Long, Star> wishIdToStarMap = stars.stream()
-                .collect(Collectors.toMap(star -> star.getWish().getId(), Function.identity()));
-
-        // 순서대로 rank 갱신
-        for (int i = 0; i < orderedWishIds.size(); i++) {
-            Long wishId = orderedWishIds.get(i);
-            Star star = wishIdToStarMap.get(wishId);
-            if (star != null) {
-                star.updateRank(i + 1); // 1부터 시작
-            } else {
-                throw new StarException(ErrorCode.STAR_NOT_FOUND);
-            }
-        }
+        updateRanks(orderedWishIds, wishIdToStarMap); // 순서대로 Ranking 정렬
     }
 
+    // ---------------------------------------------------------------------------------------------------------------- //
     // 최대 5개 제한 검증
     private void validateStarAddLimit(Long userId) {
         int currentCount = starRepository.countByUserId(userId);
@@ -121,6 +108,30 @@ public class StarService {
                     return starMapper.toStarListResponse(star, wish);
                 })
                 .collect(Collectors.toList());
+    }
+
+    // 유저 존재 여부 검증
+    private void validateUserExists(Long userId) {
+        entityFinder.getUserOrThrow(userId);
+    }
+
+    // 유저의 Star 목록을 WishId → Star 맵으로 변환
+    private Map<Long, Star> getStarMap(Long userId) {
+        return starRepository.findByUserId(userId)
+                .stream()
+                .collect(Collectors.toMap(star -> star.getWish().getId(), Function.identity()));
+    }
+
+    // 순서대로 rank 갱신
+    private void updateRanks(List<Long> orderedWishIds, Map<Long, Star> starMap) {
+        for (int i = 0; i < orderedWishIds.size(); i++) {
+            Long wishId = orderedWishIds.get(i);
+            Star star = starMap.get(wishId);
+            if (star == null) {
+                throw new StarException(ErrorCode.STAR_NOT_FOUND);
+            }
+            star.updateRank(i + 1); // rank는 1부터 시작
+        }
     }
 
 }
