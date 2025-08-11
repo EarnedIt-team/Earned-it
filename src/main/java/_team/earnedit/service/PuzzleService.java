@@ -9,6 +9,7 @@ import _team.earnedit.entity.Theme;
 import _team.earnedit.global.ErrorCode;
 import _team.earnedit.global.exception.piece.PieceException;
 import _team.earnedit.global.util.EntityFinder;
+import _team.earnedit.mapper.PieceMapper;
 import _team.earnedit.repository.PieceRepository;
 import _team.earnedit.repository.PuzzleSlotRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class PuzzleService {
     private final PuzzleSlotRepository puzzleSlotRepository;
     private final PieceRepository pieceRepository;
     private final EntityFinder entityFinder;
+    private final PieceMapper pieceMapper;
 
     @Transactional(readOnly = true)
     public PuzzleResponse getPuzzle(Long userId) {
@@ -140,7 +142,6 @@ public class PuzzleService {
                 .rarity(piece.getItem().getRarity())
                 .name(piece.getItem().getName())
                 .build();
-
     }
 
     @Transactional(readOnly = true)
@@ -150,15 +151,8 @@ public class PuzzleService {
         Piece piece = pieceRepository.findTopByUserIdOrderByCollectedAtDesc(userId)
                 .orElseThrow(() -> new PieceException(ErrorCode.PIECE_NOT_FOUND));
 
-        return PieceResponse.builder()
-                .pieceId(piece.getId())
-                .collectedAt(piece.getCollectedAt())
-                .price(piece.getItem().getPrice())
-                .description(piece.getItem().getDescription())
-                .image(piece.getItem().getImage())
-                .vendor(piece.getItem().getVendor())
-                .rarity(piece.getItem().getRarity())
-                .name(piece.getItem().getName())
-                .build();
+        return pieceMapper.toPieceResponse(piece);
     }
+
+
 }
