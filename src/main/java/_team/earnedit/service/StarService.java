@@ -1,18 +1,13 @@
 package _team.earnedit.service;
 
 import _team.earnedit.dto.star.StarListResponse;
-import _team.earnedit.dto.star.StarOrderUpdateRequest;
 import _team.earnedit.entity.Star;
 import _team.earnedit.entity.User;
 import _team.earnedit.entity.Wish;
 import _team.earnedit.global.ErrorCode;
 import _team.earnedit.global.exception.star.StarException;
-import _team.earnedit.global.exception.user.UserException;
-import _team.earnedit.global.exception.wish.WishException;
 import _team.earnedit.global.util.EntityFinder;
 import _team.earnedit.repository.StarRepository;
-import _team.earnedit.repository.UserRepository;
-import _team.earnedit.repository.WishRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,39 +28,17 @@ public class StarService {
     @Transactional
     public boolean updateStar(Long userId, long wishId) {
         User user = entityFinder.getUserOrThrow(userId);
-
         Wish wish = entityFinder.getWishOrThrow(wishId);
 
-        boolean isStarred = wish.isStarred();
-
-        if (!isStarred) {
-            // Star 추가 시 검증
-            int currentStarCount = starRepository.countByUserId(userId);
-            if (currentStarCount >= 5) {
-                throw new StarException(ErrorCode.TOP_WISH_LIMIT_EXCEEDED);
-            }
-
-            // Star 순위는 현재 별표 개수 + 1
-            Star star = Star.builder()
-                    .user(user)
-                    .wish(wish)
-                    .rank(currentStarCount + 1)
-                    .build();
-
-            starRepository.save(star);
-            wish.setStarred(true);
-            return true;
+        // 위시가 star가 아닐때
+        if (!wish.isStarred()) {
+            validateStarAddLimit(userId);
+            addStar(user, wish);
+            return true; // star 상태로 변경
         } else {
-            // Star 제거
-            starRepository.deleteByUserIdAndWishId(userId, wishId);
-            wish.setStarred(false);
-
-            // Stra 삭제된 이후의 rank 재정렬
-            List<Star> stars = starRepository.findByUserIdOrderByRankAsc(userId);
-            for (int i = 0; i < stars.size(); i++) {
-                stars.get(i).setRank(i + 1); // 순위 재정렬
-            }
-            return false;
+            deleteStar(userId, wishId, wish); // Star 제거
+            reorderRanks(userId); // Star 삭제된 이후의 rank 재정렬
+            return false; // star 상태 x로 변경
         }
     }
 
@@ -119,4 +92,41 @@ public class StarService {
             }
         }
     }
+
+    // 최대 5개 제한 검증
+    private void validateStarAddLimit(Long userId) {
+        int currentCount = starRepository.countByUserId(userId);
+        if (currentCount >= 5) {
+            throw new StarException(ErrorCode.TOP_WISH_LIMIT_EXCEEDED);
+        }
+    }
+
+    // Star 추가 (+ wish 표시)
+    private void addStar(User user, Wish wish) {
+        int nextRank = starRepository.countByUserId(user.getId()) + 1;
+
+        Star star = Star.builder()
+                .user(user)
+                .wish(wish)
+                .rank(nextRank)
+                .build();
+
+        starRepository.save(star);
+        wish.setStarred(true);
+    }
+
+    private void deleteStar(Long userId, long wishId, Wish wish) {
+        starRepository.deleteByUserIdAndWishId(userId, wishId);
+        wish.setStarred(false);
+    }
+
+
+    // 순위 재정렬(1부터 연속)
+    private void reorderRanks(Long userId) {
+        List<Star> stars = starRepository.findByUserIdOrderByRankAsc(userId);
+        for (int i = 0; i < stars.size(); i++) {
+            stars.get(i).setRank(i + 1);
+        }
+    }
+
 }
