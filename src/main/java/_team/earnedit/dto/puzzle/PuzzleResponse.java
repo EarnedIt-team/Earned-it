@@ -13,6 +13,9 @@ import java.util.Map;
 @Schema(description = "퍼즐 도감 전체 응답")
 public class PuzzleResponse {
 
+    @Schema(description = "퍼즐 정보 요약")
+    private PuzzleInfo puzzleInfo;
+
     @Schema(description = "테마별 퍼즐 정보", example = "{\"SWEET_AND_SOUR\": {...}, \"CS_MUST_HAVE\": {...}}")
     private Map<String, PuzzleThemeData> themes;
 
@@ -62,5 +65,27 @@ public class PuzzleResponse {
 
         @Schema(description = "수집한 시각", example = "2025-07-31T12:00:00")
         private LocalDateTime collectedAt;
+    }
+
+    @Getter
+    @Builder
+    @Schema(description = "퍼즐 정보 요약")
+    public static class PuzzleInfo {
+
+        @Schema(description = "전체 테마 개수", example = "2")
+        private int themeCount;
+
+        @Schema(description = "현재 완성한 테마 개수", example = "1")
+        private int completedThemeCount;
+
+        @Schema(description = "전체 조각 개수", example = "12")
+        private int totalPieceCount;
+
+        @Schema(description = "현재 완성한 조각 개수", example = "3")
+        private int completedPieceCount;
+
+        @Schema(description = "전체 누적 금액(원)", example = "33330")
+        private Long totalAccumulatedValue;
+
     }
 }
