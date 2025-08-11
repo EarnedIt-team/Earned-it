@@ -30,12 +30,14 @@ public class PasswordResetService {
         EmailUtils.validateEmailFormat(email);
 
         // 가입 이력 아예 없는 이메일인 경우
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
-        // 가입한 이메일이 로컬이 아닌 경우
-        if (user.getProvider() != User.Provider.LOCAL) {
-            throw new UserException(ErrorCode.INVALID_LOGIN_PROVIDER);
-        }
+        User user = userRepository.findByEmailAndProvider(email, User.Provider.LOCAL)
+                .orElseThrow(() -> {
+                    boolean existsAny = userRepository.existsByEmail(email);
+                    if (existsAny) {
+                        return new UserException(ErrorCode.INVALID_LOGIN_PROVIDER);
+                    }
+                    return new UserException(ErrorCode.USER_NOT_FOUND);
+                });
 
         // 기존 토큰 삭제 (이메일당 하나만 존재하도록)
         tokenRepository.deleteByEmail(email);
@@ -80,12 +82,14 @@ public class PasswordResetService {
     // 비밀번호 변경
     @Transactional
     public void resetPassword(String email, String newPassword) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
-
-        if (user.getProvider() != User.Provider.LOCAL) {
-            throw new UserException(ErrorCode.INVALID_LOGIN_PROVIDER);
-        }
+        User user = userRepository.findByEmailAndProvider(email, User.Provider.LOCAL)
+                .orElseThrow(() -> {
+                    boolean existsAny = userRepository.existsByEmail(email);
+                    if (existsAny) {
+                        return new UserException(ErrorCode.INVALID_LOGIN_PROVIDER);
+                    }
+                    return new UserException(ErrorCode.USER_NOT_FOUND);
+                });
 
         PasswordResetToken token = tokenRepository.findByEmail(email)
                 .orElseThrow(() -> new UserException(ErrorCode.EMAIL_TOKEN_NOT_FOUND));
