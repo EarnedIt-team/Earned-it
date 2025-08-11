@@ -28,6 +28,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByProviderAndProviderIdAndStatus(User.Provider provider, String kakaoId, User.Status status);
 
+    boolean existsByEmail(String email);
+
+
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Transactional
     @Query("update User u set u.isCheckedIn = false where u.isCheckedIn = true")
