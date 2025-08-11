@@ -51,6 +51,9 @@ public class PuzzleResponse {
         @Schema(description = "수집 여부", example = "true")
         private boolean isCollected;
 
+        @Schema(description = "조각 ID (수집된 경우에만 존재)", example = "101")
+        private Long pieceId;
+
         @Schema(description = "아이템 ID (수집된 경우에만 존재)", example = "10")
         private Long itemId;
 

@@ -52,6 +52,7 @@ public class PuzzleService {
             PuzzleResponse.SlotInfo slotInfo = PuzzleResponse.SlotInfo.builder()
                     .slotIndex(slot.getSlotIndex())
                     .isCollected(isCollected)
+                    .pieceId(isCollected ? piece.getId() : null)
                     .itemId(isCollected ? item.getId() : null)
                     .itemName(isCollected ? item.getName() : null)
                     .image(isCollected ? item.getImage() : null)
