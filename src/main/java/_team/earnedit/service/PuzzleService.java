@@ -102,6 +102,7 @@ public class PuzzleService {
         return pieceMapper.toPieceResponse(piece);
     }
 
+    // ------------------------------------------ 아래는 메서드 ------------------------------------------ //
     // 요약 정보 생성 메서드
     private Summary computeSummary(
             List<PuzzleSlot> slots,

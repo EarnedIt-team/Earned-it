@@ -190,6 +190,7 @@ public class WishService {
         return getPagedResponse(page);
     }
 
+    // ------------------------------------------ 아래는 메서드 ------------------------------------------ //
     // 페이지 결과 조회
     private List<Wish> getWishes(Pageable pageable, QWish wish, BooleanBuilder builder, List<OrderSpecifier<?>> orderSpecifiers) {
         return queryFactory

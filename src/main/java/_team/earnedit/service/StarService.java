@@ -63,7 +63,7 @@ public class StarService {
         updateRanks(orderedWishIds, wishIdToStarMap); // 순서대로 Ranking 정렬
     }
 
-    // ---------------------------------------------------------------------------------------------------------------- //
+    // ------------------------------------------ 아래는 메서드 ------------------------------------------ //
     // 최대 5개 제한 검증
     private void validateStarAddLimit(Long userId) {
         int currentCount = starRepository.countByUserId(userId);

@@ -49,6 +49,8 @@ public class MainService {
                 .build();
     }
 
+    // ------------------------------------------ 아래는 메서드 ------------------------------------------ //
+
     // 해당 유저의 Star 리스트 랭크 순서대로 조회
     private List<WishListResponse> getStarWishList(Long userId) {
         return starRepository.findByUserIdOrderByRankAsc(userId)
