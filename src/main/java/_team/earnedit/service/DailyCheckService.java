@@ -9,6 +9,7 @@ import _team.earnedit.entity.Piece;
 import _team.earnedit.entity.User;
 import _team.earnedit.global.ErrorCode;
 import _team.earnedit.global.exception.item.ItemException;
+import _team.earnedit.global.exception.piece.PieceException;
 import _team.earnedit.global.exception.user.UserException;
 import _team.earnedit.global.util.EntityFinder;
 import _team.earnedit.repository.ItemRepository;
@@ -125,6 +126,12 @@ public class DailyCheckService {
 
         if (!candidateIds.contains(request.getSelectedItemId())) {
             throw new IllegalArgumentException("유효하지 않은 보상 선택입니다.");
+        }
+
+        List<Piece> pieceList = pieceRepository.findByItemAndUser(item, user);
+        // 이미 해당 아이템이 퍼즐에 추가되어있는지 검증
+        if (!pieceList.isEmpty()) {
+            throw new PieceException(ErrorCode.PIECE_ALREADY_ADD); // 이미 추가된 조각이라고 예외 던짐
         }
 
         pieceRepository.save(Piece.builder()

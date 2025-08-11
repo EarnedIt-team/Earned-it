@@ -3,7 +3,6 @@ package _team.earnedit.controller;
 import _team.earnedit.dto.jwt.JwtUserInfoDto;
 import _team.earnedit.dto.puzzle.PieceResponse;
 import _team.earnedit.dto.puzzle.PuzzleResponse;
-import _team.earnedit.entity.Piece;
 import _team.earnedit.global.ApiResponse;
 import _team.earnedit.service.PuzzleService;
 import io.swagger.v3.oas.annotations.Operation;

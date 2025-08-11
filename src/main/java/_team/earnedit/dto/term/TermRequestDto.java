@@ -10,7 +10,7 @@ import lombok.Getter;
 @Schema(description = "약관 동의 요청 DTO")
 public class TermRequestDto {
 
-    @Schema(description = "약관 유형", example = "REQUIRED")
+    @Schema(description = "약관 유형", example = "SERVICE_REQUIRED")
     private Term.Type type;
 
     @Schema(description = "체크 여부", example = "true")
