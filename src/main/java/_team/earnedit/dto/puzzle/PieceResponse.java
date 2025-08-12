@@ -17,4 +17,5 @@ public class PieceResponse {
     private String name;
     private long price;
     private String description;
+    private boolean isMainPiece;
 }
