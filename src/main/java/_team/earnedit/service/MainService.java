@@ -38,14 +38,14 @@ public class MainService {
         // Top5 위시
         List<WishListResponse> starWishList = getStarWishList(userId);
 
-        // 가장 최근 획득한 조각
-        PieceResponse recentPiece = getRecentPiece(userId);
+        // 설정한 메인 조각 조회
+        PieceResponse mainPiece = getMainPiece(user);
 
         // 응답 객체 생성
         return MainPageResponse.builder()
                 .starWishes(starWishList)
                 .userInfo(userInfo)
-                .pieceInfo(recentPiece)
+                .pieceInfo(mainPiece)
                 .build();
     }
 
@@ -59,10 +59,9 @@ public class MainService {
                 .toList();
     }
 
-    // 가장 최근 획득한 조각
-    private PieceResponse getRecentPiece(Long userId) {
-        return pieceRepository.findTopByUserIdOrderByCollectedAtDesc(userId)
-                .map(mainPageMapper::toPieceResponse)
-                .orElse(null);
+    // isMainPiece = true 인 조각 조회
+    private PieceResponse getMainPiece(User user) {
+        return pieceRepository.findByIsMainAndUser(true, user)
+                .stream().map(mainPageMapper::toPieceResponse).toList().get(0);
     }
 }

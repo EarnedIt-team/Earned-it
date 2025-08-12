@@ -13,4 +13,5 @@ public interface PieceRepository extends JpaRepository<Piece, Long> {
     List<Piece> findByUserId(long userId);
     List<Piece> findByItemAndUser(Item item, User user);
     Optional<Piece> findTopByUserIdOrderByCollectedAtDesc(Long userId);
+    List<Piece> findByIsMainAndUser(boolean isMain, User user);
 }

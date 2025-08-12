@@ -1,10 +1,7 @@
 package _team.earnedit.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -34,4 +31,17 @@ public class Piece {
     @CreationTimestamp
     @Column(nullable = false)
     private LocalDateTime collectedAt;
+
+    @Column(name ="is_main", nullable = false)
+    @Builder.Default
+    private boolean isMain = false;
+
+    public void markAsMain() {
+        this.isMain = true;
+    }
+
+    public void unmarkAsMain() {
+        this.isMain = false;
+    }
+
 }
