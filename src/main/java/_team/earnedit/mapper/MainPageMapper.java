@@ -23,6 +23,7 @@ public interface MainPageMapper {
     @Mapping(target = "image", source = "item.image")
     @Mapping(target = "vendor", source = "item.vendor")
     @Mapping(target = "description", source = "item.description")
+    @Mapping(target = "isMainPiece", source = "main")
     PieceResponse toPieceResponse(Piece piece);
 
     // User → UserInfo
