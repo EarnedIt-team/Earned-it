@@ -59,9 +59,12 @@ public class MainService {
                 .toList();
     }
 
-    // isMainPiece = true 인 조각 조회
+    // isMainPiece = true 인 조각 조회 (없으면 null)
     private PieceResponse getMainPiece(User user) {
         return pieceRepository.findByIsMainAndUser(true, user)
-                .stream().map(mainPageMapper::toPieceResponse).toList().get(0);
+                .stream()
+                .findFirst()                      // 없으면 Optional.empty()
+                .map(mainPageMapper::toPieceResponse)
+                .orElse(null);                    // 없을 때 null 반환
     }
 }
