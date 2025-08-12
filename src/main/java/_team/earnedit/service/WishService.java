@@ -165,6 +165,11 @@ public class WishService {
     public PagedResponse<WishListResponse> searchWish(Long userId, WishSearchCondition cond, Pageable pageable) {
         QWish wish = QWish.wish;
 
+        // keyword 없으면 결과 없음 처리
+        if (cond.getKeyword() == null || cond.getKeyword().isBlank()) {
+            return getPagedResponse(new PageImpl<>(List.of(), pageable, 0));
+        }
+
         // 기본 조건: userId
         BooleanBuilder builder = new BooleanBuilder()
                 .and(wish.user.id.eq(userId));
