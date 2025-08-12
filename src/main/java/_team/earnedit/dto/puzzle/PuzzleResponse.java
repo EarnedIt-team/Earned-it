@@ -70,7 +70,7 @@ public class PuzzleResponse {
         private LocalDateTime collectedAt;
 
         @Schema(description = "메인 조각 여부", example = "true & false")
-        private boolean isMain;
+        private boolean isMainPiece;
     }
 
     @Getter
