@@ -15,5 +15,6 @@ public interface PieceMapper {
     @Mapping(target = "rarity", source = "item.rarity")
     @Mapping(target = "name", source = "item.name")
     @Mapping(target = "vendor", source = "item.vendor")
+    @Mapping(target = "isMain", source = "main")
     PieceResponse toPieceResponse(Piece piece);
 }

@@ -68,6 +68,9 @@ public class PuzzleResponse {
 
         @Schema(description = "수집한 시각", example = "2025-07-31T12:00:00")
         private LocalDateTime collectedAt;
+
+        @Schema(description = "메인 조각 여부", example = "true & false")
+        private boolean isMain;
     }
 
     @Getter
