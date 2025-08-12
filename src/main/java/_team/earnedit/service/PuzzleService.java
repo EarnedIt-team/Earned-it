@@ -111,9 +111,7 @@ public class PuzzleService {
             mainPieces.forEach(Piece::unmarkAsMain);
         }
 
-        // 선택한 piece & isMain 설정
-        Piece piece = entityFinder.getPieceOrThrow(pieceId);
-        piece.markAsMain();
+        Piece piece = setPieceMain(pieceId);
 
         return pieceMapper.toPieceResponse(piece);
     }
@@ -178,6 +176,13 @@ public class PuzzleService {
                         (a, b) -> a,
                         LinkedHashMap::new
                 ));
+    }
+
+    private Piece setPieceMain(long pieceId) {
+        // 선택한 piece & isMain 설정
+        Piece piece = entityFinder.getPieceOrThrow(pieceId);
+        piece.markAsMain();
+        return piece;
     }
 
     // 요약값 레코드
