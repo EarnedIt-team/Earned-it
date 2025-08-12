@@ -11,10 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,6 +35,16 @@ public class PuzzleController {
     ) {
         PieceResponse pieceInfo = puzzleService.getPieceInfo(userInfo.getUserId(), pieceId);
         return ResponseEntity.ok(ApiResponse.success("퍼즐 정보를 불러왔습니다.", pieceInfo));
+    }
+
+    @Operation(summary = "교환 조각 선택", description = "해당 조각을 메인페이지에 보여줄 조각으로 선택한다.", security = {@SecurityRequirement(name = "bearer-key")})
+    @PatchMapping("/piece/{pieceId}/main")
+    public ResponseEntity<ApiResponse<PieceResponse>> setMainPiece(
+            @AuthenticationPrincipal JwtUserInfoDto userInfo,
+            @PathVariable Long pieceId
+    ) {
+        PieceResponse pieceInfo = puzzleService.setMainPiece(userInfo.getUserId(), pieceId);
+        return ResponseEntity.ok(ApiResponse.success("선택한 조각을 메인페이지에 표시할 조각으로 저장하였습니다.", pieceInfo));
     }
 
     @Operation(summary = "가장 최근 조각 조회", description = "가장 최근 조각의 상세 정보를 조회합니다.", security = {@SecurityRequirement(name = "bearer-key")})

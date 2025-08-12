@@ -2,10 +2,7 @@ package _team.earnedit.service;
 
 import _team.earnedit.dto.puzzle.PieceResponse;
 import _team.earnedit.dto.puzzle.PuzzleResponse;
-import _team.earnedit.entity.Item;
-import _team.earnedit.entity.Piece;
-import _team.earnedit.entity.PuzzleSlot;
-import _team.earnedit.entity.Theme;
+import _team.earnedit.entity.*;
 import _team.earnedit.global.ErrorCode;
 import _team.earnedit.global.exception.piece.PieceException;
 import _team.earnedit.global.util.EntityFinder;
@@ -101,6 +98,26 @@ public class PuzzleService {
 
         return pieceMapper.toPieceResponse(piece);
     }
+
+    @Transactional
+    public PieceResponse setMainPiece(Long userId, Long pieceId) {
+        User user = entityFinder.getUserOrThrow(userId);
+
+        // isMark == true 이면서 해당 유저의 조각 조회
+        List<Piece> mainPieces = pieceRepository.findByIsMainAndUser(true, user);
+
+        if (mainPieces.size() > 0) {
+            // 조회된 조각들 모두 isMain false
+            mainPieces.forEach(Piece::unmarkAsMain);
+        }
+
+        // 선택한 piece & isMain 설정
+        Piece piece = entityFinder.getPieceOrThrow(pieceId);
+        piece.markAsMain();
+
+        return pieceMapper.toPieceResponse(piece);
+    }
+
 
     // ------------------------------------------ 아래는 메서드 ------------------------------------------ //
     // 요약 정보 생성 메서드
