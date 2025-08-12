@@ -33,7 +33,8 @@ public class Piece {
     private LocalDateTime collectedAt;
 
     @Column(name ="is_main", nullable = false)
-    private boolean isMain;
+    @Builder.Default
+    private boolean isMain = false;
 
     public void markAsMain() {
         this.isMain = true;
