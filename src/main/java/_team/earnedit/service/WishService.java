@@ -231,9 +231,11 @@ public class WishService {
         if (cond.getKeyword() != null && !cond.getKeyword().isBlank()) {
             builder.and(
                     wish.name.containsIgnoreCase(cond.getKeyword())
-                            .or(wish.vendor.containsIgnoreCase(cond.getKeyword()))
+                    .or(wish.vendor.containsIgnoreCase(cond.getKeyword()))
             );
+
         }
+
         // 구매 여부 필터
         if (cond.getIsBought() != null) {
             builder.and(wish.isBought.eq(cond.getIsBought()));
