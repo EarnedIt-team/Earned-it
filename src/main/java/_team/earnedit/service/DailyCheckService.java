@@ -37,6 +37,7 @@ public class DailyCheckService {
     private final PieceRepository pieceRepository;
     private final RedisTemplate<String, String> redisTemplate;
     private final EntityFinder entityFinder;
+    private final RewardCheckInService rewardCheckInService;
 
     private static final Duration REWARD_TTL = Duration.ofMinutes(10); // 10분만 유효
     private final UserRepository userRepository;
@@ -112,7 +113,6 @@ public class DailyCheckService {
         if (user.getIsCheckedIn()) {
             throw new UserException(ErrorCode.ALREADY_REWARDED);
         }
-
         String key = "reward:" + request.getRewardToken();
 
         List<Long> candidateIds;
@@ -128,7 +128,11 @@ public class DailyCheckService {
             throw new IllegalArgumentException("유효하지 않은 보상 선택입니다.");
         }
 
+        // 출석 상태 즉시 업데이트 & 저장 & 트랜잭션 보장
+        rewardCheckInService.checkInUser(userId);
+
         List<Piece> pieceList = pieceRepository.findByItemAndUser(item, user);
+
         // 이미 해당 아이템이 퍼즐에 추가되어있는지 검증
         if (!pieceList.isEmpty()) {
             throw new PieceException(ErrorCode.PIECE_ALREADY_ADD); // 이미 추가된 조각이라고 예외 던짐
@@ -142,8 +146,5 @@ public class DailyCheckService {
                 .build());
 
         redisTemplate.delete(key);
-
-        // 출석 체크 여부 업데이트
-        user.checkIn();
     }
 }
