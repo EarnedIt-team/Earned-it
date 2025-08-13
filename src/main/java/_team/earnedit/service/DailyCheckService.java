@@ -40,7 +40,6 @@ public class DailyCheckService {
     private final RewardCheckInService rewardCheckInService;
 
     private static final Duration REWARD_TTL = Duration.ofMinutes(10); // 10분만 유효
-    private final UserRepository userRepository;
 
     @Transactional
     public PieceResponse addPieceToPuzzle(Long userId, long itemId) {
@@ -115,14 +114,8 @@ public class DailyCheckService {
         }
         String key = "reward:" + request.getRewardToken();
 
-        List<Long> candidateIds;
-        try {
-            String json = redisTemplate.opsForValue().get(key);
-            if (json == null) throw new IllegalArgumentException("보상 정보가 없습니다.");
-            candidateIds = objectMapper.readValue(json, new TypeReference<>() {});
-        } catch (Exception e) {
-            throw new RuntimeException("Redis 조회 실패", e);
-        }
+        // 리팩토링된 메소드 사용
+        List<Long> candidateIds = getCandidateIdsFromRedis(key);
 
         if (!candidateIds.contains(request.getSelectedItemId())) {
             throw new IllegalArgumentException("유효하지 않은 보상 선택입니다.");
@@ -146,5 +139,33 @@ public class DailyCheckService {
                 .build());
 
         redisTemplate.delete(key);
+    }
+
+    private List<Long> getCandidateIdsFromRedis(String key) {
+        try {
+            String json;
+            try {
+                json = redisTemplate.opsForValue().get(key);
+            } catch (Exception redisEx) {
+                throw new RuntimeException("Redis 조회 실패: 네트워크 또는 연결 문제", redisEx);
+            }
+
+            if (json == null) {
+                throw new IllegalArgumentException("보상 정보가 없습니다. (키: " + key + ")");
+            }
+
+            try {
+                return objectMapper.readValue(json, new TypeReference<>() {});
+            } catch (Exception parseEx) {
+                throw new RuntimeException(
+                        "Redis 데이터 파싱 실패: 잘못된 JSON 형식 (키: " + key + ", 값: " + json + ")", parseEx
+                );
+            }
+
+        } catch (RuntimeException e) {
+            throw e; // 이미 상세 메시지 포함됨
+        } catch (Exception e) {
+            throw new RuntimeException("Redis 조회 처리 중 알 수 없는 오류 발생", e);
+        }
     }
 }
