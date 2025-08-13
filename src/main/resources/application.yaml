@@ -19,6 +19,11 @@ spring:
       max-request-size: 10MB
       enabled: true
 
+# 터미널 로그 컬러 지정
+  output:
+    ansi:
+      enabled: ALWAYS
+
 
   config:
     import: optional:file:.env[.properties]
