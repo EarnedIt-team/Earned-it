@@ -4,3 +4,9 @@ spring:
     username: ${LOCAL_DB_USER}
     password: ${LOCAL_DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
+
+# application-dev.yaml
+logging:
+  level:
+    root: INFO                # 전역 기본 로그는 INFO
+    _team.earnedit: DEBUG     # 우리 코드만 DEBUG 출력

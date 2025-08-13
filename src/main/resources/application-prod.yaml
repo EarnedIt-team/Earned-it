@@ -18,3 +18,9 @@ spring:
     host: ${REDIS_HOST}
     port: ${REDIS_PORT}
     password: ${REDIS_PASSWORD}
+
+# application-prod.yaml
+logging:
+  level:
+    root: INFO
+    _team.earnedit: INFO
