@@ -164,6 +164,11 @@ public class PuzzleService {
             Map<Theme, Long> totalValueMap
     ) {
         return themeSlotMap.entrySet().stream()
+                // collectedCount 내림차순 정렬
+                .sorted((e1, e2) -> Integer.compare(
+                        collectedCountMap.getOrDefault(e2.getKey(), 0),
+                        collectedCountMap.getOrDefault(e1.getKey(), 0)
+                ))
                 .collect(Collectors.toMap(
                         e -> e.getKey().name(),
                         e -> PuzzleResponse.PuzzleThemeData.builder()
@@ -174,7 +179,7 @@ public class PuzzleService {
                                 .slots(e.getValue())
                                 .build(),
                         (a, b) -> a,
-                        LinkedHashMap::new
+                        LinkedHashMap::new // 순서 유지
                 ));
     }
 
