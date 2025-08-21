@@ -13,6 +13,7 @@ import _team.earnedit.entity.User.Status;
 import _team.earnedit.global.ErrorCode;
 import _team.earnedit.global.exception.user.UserException;
 import _team.earnedit.global.jwt.JwtUtil;
+import _team.earnedit.global.util.EntityFinder;
 import _team.earnedit.repository.SalaryRepository;
 import _team.earnedit.repository.TermRepository;
 import _team.earnedit.repository.UserRepository;
@@ -43,6 +44,7 @@ public class AuthService {
     private final AppleOAuthService appleOAuthService;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final EntityFinder entityFinder;
     private final RedisTemplate<String, String> redisTemplate;
 
 
@@ -175,8 +177,7 @@ public class AuthService {
 
         String userId = jwtUtil.getUserIdFromRefreshToken(token);
 
-        User user = userRepository.findById(Long.valueOf(userId))
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        User user = entityFinder.getUserOrThrow(Long.valueOf(userId));
 
         String savedToken = redisTemplate.opsForValue().get("refresh:" + userId);
 
