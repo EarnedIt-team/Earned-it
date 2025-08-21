@@ -50,10 +50,8 @@ public class DailyCheckService {
         User user = entityFinder.getUserOrThrow(userId);
         Item item = entityFinder.getItemOrThrow(itemId);
 
-        List<Piece> pieceList = pieceRepository.findByItemAndUser(item, user);
-
         // 이미 해당 itemId가 퍼즐에 등록되어있을 때
-        checkAlreadyAddedToPuzzle(userId, itemId, pieceList);
+        checkAlreadyAddedToPuzzle(user, item);
 
         // Piece 저장
         Piece piece = savePiece(user, item);
@@ -72,9 +70,11 @@ public class DailyCheckService {
         return piece;
     }
 
-    private void checkAlreadyAddedToPuzzle(Long userId, long itemId, List<Piece> pieceList) {
+    private void checkAlreadyAddedToPuzzle(User user, Item item) {
+        List<Piece> pieceList = pieceRepository.findByItemAndUser(item, user);
+
         if (!pieceList.isEmpty()) {
-            log.warn("[DailyCheckService] 이미 퍼즐에 등록된 아이템 - userId = {}, itemId = {}", userId, itemId);
+            log.warn("[DailyCheckService] 이미 퍼즐에 등록된 아이템 - userId = {}, itemId = {}", user.getId(), item.getId());
             throw new ItemException(ErrorCode.PIECE_ALREADY_ADD);
         }
     }
