@@ -53,7 +53,7 @@ public class StarController {
             @AuthenticationPrincipal JwtUserInfoDto userInfo,
             @RequestBody StarOrderUpdateRequest orderUpdateRequest
             ) {
-        log.info("[StarController] updateStarOrder 요청 - userId={}, orderedWishIds={}",
+        log.info("[StarController] updateStarOrder 요청 - userId = {}, orderedWishIds = {}",
                 userInfo.getUserId(), orderUpdateRequest.getOrderedWishIds());
         starService.updateStarOrder(userInfo.getUserId(), orderUpdateRequest.getOrderedWishIds());
 
