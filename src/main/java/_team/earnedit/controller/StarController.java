@@ -42,7 +42,6 @@ public class StarController {
     public ResponseEntity<ApiResponse<List<StarListResponse>>> getStarsWish(
             @AuthenticationPrincipal JwtUserInfoDto userInfo
     ) {
-        log.info("[StarController] getStarsWish 요청 - userId = {}", userInfo.getUserId());
         List<StarListResponse> starsWish = starService.getStarsWish(userInfo.getUserId());
 
         return ResponseEntity.ok(ApiResponse.success("Star 목록을 조회했습니다.", starsWish));
