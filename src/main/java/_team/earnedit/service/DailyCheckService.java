@@ -12,9 +12,9 @@ import _team.earnedit.global.exception.item.ItemException;
 import _team.earnedit.global.exception.piece.PieceException;
 import _team.earnedit.global.exception.user.UserException;
 import _team.earnedit.global.util.EntityFinder;
+import _team.earnedit.mapper.PieceMapper;
 import _team.earnedit.repository.ItemRepository;
 import _team.earnedit.repository.PieceRepository;
-import _team.earnedit.repository.UserRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +40,7 @@ public class DailyCheckService {
     private final RedisTemplate<String, String> redisTemplate;
     private final EntityFinder entityFinder;
     private final RewardCheckInService rewardCheckInService;
+    private final PieceMapper pieceMapper;
 
     private static final Duration REWARD_TTL = Duration.ofMinutes(10); // 10분만 유효
 
@@ -52,29 +53,30 @@ public class DailyCheckService {
         List<Piece> pieceList = pieceRepository.findByItemAndUser(item, user);
 
         // 이미 해당 itemId가 퍼즐에 등록되어있을 때
-        if (!pieceList.isEmpty()) {
-            log.warn("[DailyCheckService] 이미 퍼즐에 등록된 아이템 - userId = {}, itemId = {}", userId, itemId);
-            throw new ItemException(ErrorCode.PIECE_ALREADY_ADD);
-        }
+        checkAlreadyAddedToPuzzle(userId, itemId, pieceList);
 
+        // Piece 저장
+        Piece piece = savePiece(user, item);
+
+        log.info("[DailyCheckService] 퍼즐에 조각 추가 성공 - userId = {}, itemId = {}", userId, itemId);
+        return pieceMapper.toPieceResponse(piece);
+    }
+
+    private Piece savePiece(User user, Item item) {
         Piece piece = Piece.builder()
                 .user(user)
                 .item(item)
                 .isCollected(true)
                 .build();
         pieceRepository.save(piece);
+        return piece;
+    }
 
-        log.info("[DailyCheckService] 퍼즐에 조각 추가 성공 - userId = {}, itemId = {}", userId, itemId);
-        return PieceResponse.builder()
-                .pieceId(piece.getId())
-                .name(piece.getItem().getName())
-                .vendor(piece.getItem().getVendor())
-                .image(piece.getItem().getImage())
-                .price(piece.getItem().getPrice())
-                .description(piece.getItem().getDescription())
-                .rarity(piece.getItem().getRarity())
-                .collectedAt(piece.getCollectedAt())
-                .build();
+    private void checkAlreadyAddedToPuzzle(Long userId, long itemId, List<Piece> pieceList) {
+        if (!pieceList.isEmpty()) {
+            log.warn("[DailyCheckService] 이미 퍼즐에 등록된 아이템 - userId = {}, itemId = {}", userId, itemId);
+            throw new ItemException(ErrorCode.PIECE_ALREADY_ADD);
+        }
     }
 
     @Transactional
