@@ -26,6 +26,10 @@ public class FileUploadService {
 
     @Transactional
     public String uploadFile(MultipartFile file) {
+
+        log.info("[FileUploadService] 이미지 업로드 요청 - fileName = {}", file.getOriginalFilename());
+        log.debug("[FileUploadService] uploadFile 요청 - fileName = {}, contentType = {}, fileSize = {}",
+                file.getOriginalFilename(), file.getContentType(), file.getSize());
         return uploadFileUrl(file);
     }
 
@@ -35,6 +39,7 @@ public class FileUploadService {
 
             // 실제 접근 가능한 S3 도메인 형식으로 구성
             String fileUrl = "https://" + bucket + ".s3." + s3Client.getRegionName() + ".amazonaws.com/" + fileName;
+            log.debug("[FileUploadService] 생성된 S3 이미지 URL = {}", fileUrl);
 
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(file.getContentType());
@@ -47,6 +52,7 @@ public class FileUploadService {
 
             return fileUrl;
         } catch (IOException e) {
+            log.error("[FileUploadService] 파일 업로드 실패 - fileName = {}", file.getOriginalFilename());
             throw new FileException(ErrorCode.FILE_UPLOAD_FAILED);
         }
     }
