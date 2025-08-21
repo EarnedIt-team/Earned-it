@@ -244,7 +244,7 @@ public class WishService {
         if (cond.getKeyword() != null && !cond.getKeyword().isBlank()) {
             builder.and(
                     wish.name.containsIgnoreCase(cond.getKeyword())
-                    .or(wish.vendor.containsIgnoreCase(cond.getKeyword()))
+                            .or(wish.vendor.containsIgnoreCase(cond.getKeyword()))
             );
         }
 
@@ -349,6 +349,7 @@ public class WishService {
                 .last(page.isLast())
                 .build();
     }
+
     // 별표 처리 로직 분리
     private void updateStarStatus(User user, Wish wish, boolean isStarred) {
         Long userId = user.getId();

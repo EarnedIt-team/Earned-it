@@ -45,7 +45,7 @@ public class DailyCheckService {
 
     @Transactional
     public PieceResponse addPieceToPuzzle(Long userId, long itemId) {
-        log.info("[DailyCheckService] 퍼즐에 조각 추가 요청 - userId: {}, itemId: {}", userId, itemId);
+        log.info("[DailyCheckService] 퍼즐에 조각 추가 요청 - userId = {}, itemId = {}", userId, itemId);
         User user = entityFinder.getUserOrThrow(userId);
         Item item = entityFinder.getItemOrThrow(itemId);
 
@@ -53,7 +53,7 @@ public class DailyCheckService {
 
         // 이미 해당 itemId가 퍼즐에 등록되어있을 때
         if (!pieceList.isEmpty()) {
-            log.warn("[DailyCheckService] 이미 퍼즐에 등록된 아이템 - userId: {}, itemId: {}", userId, itemId);
+            log.warn("[DailyCheckService] 이미 퍼즐에 등록된 아이템 - userId = {}, itemId = {}", userId, itemId);
             throw new ItemException(ErrorCode.PIECE_ALREADY_ADD);
         }
 
@@ -64,7 +64,7 @@ public class DailyCheckService {
                 .build();
         pieceRepository.save(piece);
 
-        log.info("[DailyCheckService] 퍼즐에 조각 추가 성공 - userId: {}, itemId: {}", userId, itemId);
+        log.info("[DailyCheckService] 퍼즐에 조각 추가 성공 - userId = {}, itemId = {}", userId, itemId);
         return PieceResponse.builder()
                 .pieceId(piece.getId())
                 .name(piece.getItem().getName())
@@ -79,7 +79,7 @@ public class DailyCheckService {
 
     @Transactional
     public RewardCandidate generateRewardCandidates(Long userId) {
-        log.info("[DailyCheckService] 출석 보상 목록 생성 요청 - userId: {}", userId);
+        log.info("[DailyCheckService] 출석 보상 목록 생성 요청 - userId = {}", userId);
         entityFinder.getUserOrThrow(userId);
 
         List<Item> randomItems = itemRepository.findRandomItems(3);
@@ -103,7 +103,7 @@ public class DailyCheckService {
                 .toList();
 
 
-        log.info("[DailyCheckService] 출석 보상 목록 생성 성공 - userId: {}", userId);
+        log.info("[DailyCheckService] 출석 보상 목록 생성 성공 - userId = {}", userId);
         return RewardCandidate.builder()
                 .rewardToken(rewardToken)
                 .candidates(candidates)
@@ -113,7 +113,7 @@ public class DailyCheckService {
 
     @Transactional
     public void selectReward(Long userId, RewardSelectionRequest request) {
-        log.info("[DailyCheckService] 출석 보상 요청  - userId: {}", userId);
+        log.info("[DailyCheckService] 출석 보상 요청  - userId = {}", userId);
         User user = entityFinder.getUserOrThrow(userId);
         Item item = entityFinder.getItemOrThrow(request.getSelectedItemId());
 
@@ -127,19 +127,19 @@ public class DailyCheckService {
         List<Long> candidateIds = getCandidateIdsFromRedis(key);
 
         if (!candidateIds.contains(request.getSelectedItemId())) {
-            log.warn("[DailyCheckService] 보상목록에 포함되지 않은 아이템으로 요청 - userId: {}, itemId: {}", userId, request.getSelectedItemId());
+            log.warn("[DailyCheckService] 보상목록에 포함되지 않은 아이템으로 요청 - userId = {}, itemId = {}", userId, request.getSelectedItemId());
             throw new IllegalArgumentException("유효하지 않은 보상 선택입니다.");
         }
 
         // 출석 상태 즉시 업데이트 & 저장 & 트랜잭션 보장
         rewardCheckInService.checkInUser(userId);
-        log.info("[DailyCheckService] 출석 상태 업데이트 - userId: {}", userId);
+        log.info("[DailyCheckService] 출석 상태 업데이트 - userId = {}", userId);
 
         List<Piece> pieceList = pieceRepository.findByItemAndUser(item, user);
 
         // 이미 해당 아이템이 퍼즐에 추가되어있는지 검증
         if (!pieceList.isEmpty()) {
-            log.warn("[DailyCheckService] 이미 퍼즐에 등록된 조각 추가 시도 - userId: {}, itemId: {}", userId, request.getSelectedItemId());
+            log.warn("[DailyCheckService] 이미 퍼즐에 등록된 조각 추가 시도 - userId = {}, itemId = {}", userId, request.getSelectedItemId());
             throw new PieceException(ErrorCode.PIECE_ALREADY_ADD); // 이미 추가된 조각이라고 예외 던짐
         }
 
@@ -149,7 +149,7 @@ public class DailyCheckService {
                 .isCollected(true)
                 .collectedAt(LocalDateTime.now())
                 .build());
-        log.info("[DailyCheckService] 출석 보상 정상 지급  - userId: {}", userId);
+        log.info("[DailyCheckService] 출석 보상 정상 지급  - userId = {}", userId);
 
         redisTemplate.delete(key);
     }

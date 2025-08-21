@@ -29,48 +29,46 @@ public class StarService {
 
     @Transactional
     public boolean updateStar(Long userId, long wishId) {
-        log.debug("[StarService] updateStar 시작 - userId={}, wishId={}", userId, wishId);
+        log.debug("[StarService] updateStar 시작 - userId = {}, wishId = {}", userId, wishId);
 
         User user = entityFinder.getUserOrThrow(userId);
         Wish wish = entityFinder.getWishOrThrow(wishId);
 
         // 위시가 star가 아닐때
         if (!wish.isStarred()) {
-            log.info("[StarService] Star 추가 시도 - userId={}, wishId={}", userId, wishId);
+            log.info("[StarService] Star 추가 시도 - userId = {}, wishId = {}", userId, wishId);
             validateStarAddLimit(userId);
             addStar(user, wish);
-            log.info("[StarService] Star 추가 완료 - userId={}, wishId={}", userId, wishId);
+            log.info("[StarService] Star 추가 완료 - userId = {}, wishId = {}", userId, wishId);
             return true; // star 상태로 변경
         } else {
-            log.info("[StarService] Star 제거 시도 - userId={}, wishId={}", userId, wishId);
+            log.info("[StarService] Star 제거 시도 - userId = {}, wishId = {}", userId, wishId);
             deleteStar(userId, wishId, wish);
             reorderRanks(userId);
-            log.info("[StarService] Star 제거 완료 및 순위 재정렬 - userId={}", userId);
+            log.info("[StarService] Star 제거 완료 및 순위 재정렬 - userId = {}", userId);
             return false;
         }
     }
 
     @Transactional(readOnly = true)
     public List<StarListResponse> getStarsWish(Long userId) {
-        log.debug("[StarService] getStarsWish 시작 - userId={}", userId);
         entityFinder.getUserOrThrow(userId);
 
         // 정렬된 순서로
         List<Star> stars = starRepository.findByUserIdOrderByRankAsc(userId);
 
-        log.info("[StarService] Star 리스트 조회 성공 - userId={}", userId);
         return getStarListResponses(stars);
     }
 
     @Transactional
     public void updateStarOrder(Long userId, List<Long> orderedWishIds) {
-        log.debug("[StarService] updateStarOrder 시작 - userId={}", userId);
+        log.debug("[StarService] updateStarOrder 시작 - userId = {}", userId);
         validateUserExists(userId); // 유저 존재 여부 검증
 
         Map<Long, Star> wishIdToStarMap = getStarMap(userId);  // 유저의 Star 목록을 WishId → Star 맵으로 변환
 
         updateRanks(orderedWishIds, wishIdToStarMap); // 순서대로 Ranking 정렬
-        log.info("[StarService] Star 순서 변경 성공 - userId={}", userId);
+        log.info("[StarService] Star 순서 변경 성공 - userId = {}", userId);
     }
 
     // ------------------------------------------ 아래는 메서드 ------------------------------------------ //
@@ -78,7 +76,7 @@ public class StarService {
     private void validateStarAddLimit(Long userId) {
         int currentCount = starRepository.countByUserId(userId);
         if (currentCount >= 5) {
-            log.warn("[StarService] Star 개수 제한 초과 - userId={}, currentCount={}", userId, currentCount);
+            log.warn("[StarService] Star 개수 제한 초과 - userId = {}, currentCount = {}", userId, currentCount);
             throw new StarException(ErrorCode.TOP_WISH_LIMIT_EXCEEDED);
         }
     }
@@ -139,7 +137,7 @@ public class StarService {
             Long wishId = orderedWishIds.get(i);
             Star star = starMap.get(wishId);
             if (star == null) {
-                log.error("[StarService] 순서 변경 실패 - wishId={}에 해당하는 Star 없음", wishId);
+                log.error("[StarService] 순서 변경 실패 - wishId = {}에 해당하는 Star 없음", wishId);
                 throw new StarException(ErrorCode.STAR_NOT_FOUND);
             }
             star.updateRank(i + 1); // rank는 1부터 시작
