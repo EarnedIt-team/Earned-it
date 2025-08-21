@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/star")
 @RequiredArgsConstructor
@@ -29,6 +31,7 @@ public class StarController {
     public ResponseEntity<ApiResponse<Boolean>> updateStar(
             @AuthenticationPrincipal JwtUserInfoDto userInfo,
             @PathVariable long wishId) {
+        log.info("[StarController] updateStar 요청 - userId = {}, wishId = {}", userInfo.getUserId(), wishId);
         boolean isStar = starService.updateStar(userInfo.getUserId(), wishId);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(String.format("Star 상태를 변경했습니다. %s", isStar)));
@@ -39,6 +42,7 @@ public class StarController {
     public ResponseEntity<ApiResponse<List<StarListResponse>>> getStarsWish(
             @AuthenticationPrincipal JwtUserInfoDto userInfo
     ) {
+        log.info("[StarController] getStarsWish 요청 - userId = {}", userInfo.getUserId());
         List<StarListResponse> starsWish = starService.getStarsWish(userInfo.getUserId());
 
         return ResponseEntity.ok(ApiResponse.success("Star 목록을 조회했습니다.", starsWish));
@@ -50,6 +54,8 @@ public class StarController {
             @AuthenticationPrincipal JwtUserInfoDto userInfo,
             @RequestBody StarOrderUpdateRequest orderUpdateRequest
             ) {
+        log.info("[StarController] updateStarOrder 요청 - userId={}, orderedWishIds={}",
+                userInfo.getUserId(), orderUpdateRequest.getOrderedWishIds());
         starService.updateStarOrder(userInfo.getUserId(), orderUpdateRequest.getOrderedWishIds());
 
         return ResponseEntity.ok(ApiResponse.success("Star의 순서를 성공적으로 변경하였습니다."));

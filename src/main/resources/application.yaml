@@ -1,7 +1,3 @@
-logging:
-  level:
-    root: INFO
-
 spring:
   application:
     name: earnedit
@@ -19,6 +15,11 @@ spring:
       max-request-size: 10MB
       enabled: true
 
+# 터미널 로그 컬러 지정
+  output:
+    ansi:
+      enabled: ALWAYS
+
 
   config:
     import: optional:file:.env[.properties]
@@ -28,7 +29,7 @@ spring:
       ddl-auto: update
       naming: # snake -> Camel 자동변환
         physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect

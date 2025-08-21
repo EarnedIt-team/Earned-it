@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -30,6 +31,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/wish")
 @Tag(name = "Wish API", description = "위시 관련 기능 (조회, 수정, 삭제 등)")
+@Slf4j
 public class WishController {
     private final WishService wishService;
     private final ObjectMapper objectMapper;
@@ -46,6 +48,7 @@ public class WishController {
             @RequestPart("wish") String wishJson,
             @RequestPart("image") MultipartFile itemImage,
             @AuthenticationPrincipal JwtUserInfoDto userInfo) throws JsonProcessingException {
+        log.info("[WishController] addWish 요청 - userId = {}", userInfo.getUserId());
 
         WishAddRequest wishAddRequest = objectMapper.readValue(wishJson, WishAddRequest.class);
 

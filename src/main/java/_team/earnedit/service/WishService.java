@@ -44,6 +44,7 @@ public class WishService {
 
     @Transactional
     public WishAddResponse addWish(WishAddRequest wishAddRequest, Long userId, MultipartFile itemImage) {
+        log.info("[WishService] 위시 추가 요청 - userId = {}", userId);
         // 1. 사용자 조회
         User user = entityFinder.getUserOrThrow(userId);
 
@@ -69,6 +70,7 @@ public class WishService {
         }
 
         // 7. 응답 객체 반환
+        log.info("[WishService] 위시 추가 완료 - userId = {}", userId);
         return wishMapper.toResponse(wish);
     }
 
@@ -88,6 +90,7 @@ public class WishService {
 
     @Transactional
     public WishUpdateResponse updateWish(WishUpdateRequest wishUpdateRequest, Long userId, Long wishId, MultipartFile itemImage) {
+        log.info("[WishService] 위시 수정 요청 - userId = {}", userId);
         // 사용자, 위시 조회
         User user = entityFinder.getUserOrThrow(userId);
         Wish wish = entityFinder.getWishOrThrow(wishId);
@@ -109,11 +112,13 @@ public class WishService {
         // 별표 처리 로직
         updateStarStatus(user, wish, wishUpdateRequest.isStarred());
 
+        log.info("[WishService] 위시 수정 성공 - userId = {}", userId);
         return wishMapper.toWishUpdateResponse(wish);
     }
 
     @Transactional
     public void deleteWish(Long wishId, Long userId) {
+        log.info("[WishService] 위시 삭제 요청 - userId = {}", userId);
         entityFinder.getUserOrThrow(userId);
         Wish wish = entityFinder.getWishOrThrow(wishId);
 
@@ -122,6 +127,7 @@ public class WishService {
 
         // 위시 및 Star 삭제
         deleteWishWithStar(wishId);
+        log.info("[WishService] 위시 삭제 성공 - userId = {}", userId);
     }
 
     @Transactional(readOnly = true)
@@ -134,11 +140,12 @@ public class WishService {
 
     @Transactional
     public boolean toggleBoughtStatus(Long wishId, Long userId) {
+        log.info("[WishService] 위시 구매 상태 토글 요청 - userId = {}", userId);
         entityFinder.getUserOrThrow(userId);
         Wish wish = entityFinder.getWishOrThrow(wishId);
 
         wish.setBought(!wish.isBought());
-
+        log.info("[WishService] 위시 구매 상태 토글 변경 성공 - userId = {}, 구매 상태 = {}", userId, wish.isBought());
         return wish.isBought();
     }
 
@@ -163,6 +170,7 @@ public class WishService {
 
     @Transactional(readOnly = true)
     public PagedResponse<WishListResponse> searchWish(Long userId, WishSearchCondition cond, Pageable pageable) {
+        log.debug("[WishService] 위시 검색 요청 - userId = {}, keyword = {}", userId, cond.getKeyword());
         QWish wish = QWish.wish;
 
         // keyword 없으면 결과 없음 처리
@@ -238,7 +246,6 @@ public class WishService {
                     wish.name.containsIgnoreCase(cond.getKeyword())
                     .or(wish.vendor.containsIgnoreCase(cond.getKeyword()))
             );
-
         }
 
         // 구매 여부 필터
@@ -278,6 +285,7 @@ public class WishService {
     private void validateWishLimit(User user) {
         int currentWishCount = wishRepository.countByUser(user);
         if (currentWishCount >= 100) {
+            log.warn("[WishService] 위시 개수 100개 초과 - userId = {}", user.getId());
             throw new WishException(ErrorCode.WISH_LIMIT_EXCEEDED);
         }
     }
@@ -286,6 +294,7 @@ public class WishService {
     private void validateStarLimit(Long userId) {
         int currentStarCount = starRepository.countByUserId(userId);
         if (currentStarCount >= 5) {
+            log.warn("[WishService] Star 개수 5개 초과 - userId = {}", userId);
             throw new StarException(ErrorCode.TOP_WISH_LIMIT_EXCEEDED);
         }
     }
@@ -364,6 +373,7 @@ public class WishService {
     // 사용자 위시 소유 검증 분리
     private void validateWishOwnership(Wish wish, Long userId) {
         if (!wish.getUser().getId().equals(userId)) {
+            log.warn("[WishService] 다른 사용자의 위시 수정 접근입니다. userId = {}", userId);
             throw new WishException(ErrorCode.WISH_FORBIDDEN_ACCESS);
         }
     }
