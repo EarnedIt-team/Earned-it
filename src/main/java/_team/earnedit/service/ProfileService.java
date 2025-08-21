@@ -69,8 +69,7 @@ public class ProfileService {
     // 수익 조회
     @Transactional(readOnly = true)
     public SalaryResponseDto getSalary(Long userId) {
-        Salary salary = salaryRepository.findByUserId(userId)
-                .orElseThrow(() -> new SalaryException(ErrorCode.SALARY_NOT_FOUND));
+        Salary salary = entityFinder.getSalaryOrThrow(userId);
 
         return SalaryResponseDto.from(salary);
     }
@@ -84,9 +83,7 @@ public class ProfileService {
     @Transactional(readOnly = true)
     public ProfileInfoResponseDto getProfile(Long userId) {
         User user = entityFinder.getUserOrThrow(userId);
-
-        Salary salary = salaryRepository.findByUserId(userId)
-                .orElseThrow(() -> new UserException(ErrorCode.SALARY_NOT_FOUND));
+        Salary salary = entityFinder.getSalaryOrThrow(userId);
 
         return ProfileInfoResponseDto.builder()
                 .profileImage(user.getProfileImage())
