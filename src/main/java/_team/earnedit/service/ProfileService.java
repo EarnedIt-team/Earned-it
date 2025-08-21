@@ -10,6 +10,7 @@ import _team.earnedit.global.ErrorCode;
 import _team.earnedit.global.exception.profile.ProfileException;
 import _team.earnedit.global.exception.salary.SalaryException;
 import _team.earnedit.global.exception.user.UserException;
+import _team.earnedit.global.util.EntityFinder;
 import _team.earnedit.global.util.SalaryCalculator;
 import _team.earnedit.repository.SalaryRepository;
 import _team.earnedit.repository.UserRepository;
@@ -28,6 +29,7 @@ public class ProfileService {
     private final SalaryRepository salaryRepository;
     private final SalaryCalculator salaryCalculator;
     private final FileUploadService fileUploadService;
+    private final EntityFinder entityFinder;
 
     /*
      ******** 수익 관련 ********
@@ -81,8 +83,7 @@ public class ProfileService {
     // 프로필페이지 기본 정보 조회
     @Transactional(readOnly = true)
     public ProfileInfoResponseDto getProfile(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        User user = entityFinder.getUserOrThrow(userId);
 
         Salary salary = salaryRepository.findByUserId(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.SALARY_NOT_FOUND));
@@ -103,8 +104,7 @@ public class ProfileService {
             throw new ProfileException(ErrorCode.NICKNAME_ALREADY_EXISTS);
         }
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        User user = entityFinder.getUserOrThrow(userId);
 
         user.updateNickname(nickname);
     }
@@ -113,8 +113,7 @@ public class ProfileService {
     // 프로필 사진 변경
     @Transactional
     public void updateProfileImage(Long userId, MultipartFile profileImage) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        User user = entityFinder.getUserOrThrow(userId);
 
         String imageUrl = fileUploadService.uploadFile(profileImage);
 
@@ -124,8 +123,7 @@ public class ProfileService {
     // 프로필 사진 삭제
     @Transactional
     public void deleteProfileImage(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        User user = entityFinder.getUserOrThrow(userId);
 
         user.updateProfileImage(null);
     }
