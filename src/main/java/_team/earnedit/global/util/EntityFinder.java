@@ -1,18 +1,12 @@
 package _team.earnedit.global.util;
 
-import _team.earnedit.entity.Item;
-import _team.earnedit.entity.Piece;
-import _team.earnedit.entity.User;
-import _team.earnedit.entity.Wish;
+import _team.earnedit.entity.*;
 import _team.earnedit.global.ErrorCode;
 import _team.earnedit.global.exception.item.ItemException;
 import _team.earnedit.global.exception.piece.PieceException;
 import _team.earnedit.global.exception.user.UserException;
 import _team.earnedit.global.exception.wish.WishException;
-import _team.earnedit.repository.ItemRepository;
-import _team.earnedit.repository.PieceRepository;
-import _team.earnedit.repository.UserRepository;
-import _team.earnedit.repository.WishRepository;
+import _team.earnedit.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +15,7 @@ import org.springframework.stereotype.Component;
 public class EntityFinder {
 
     private final UserRepository userRepository;
+    private final SalaryRepository salaryRepository;
     private final WishRepository wishRepository;
     private final PieceRepository pieceRepository;
     private final ItemRepository itemRepository;
@@ -28,6 +23,11 @@ public class EntityFinder {
     public User getUserOrThrow(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    public Salary getSalaryOrThrow(Long userId) {
+        return salaryRepository.findByUserId(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.SALARY_NOT_FOUND));
     }
 
     public Wish getWishOrThrow(Long wishId) {
