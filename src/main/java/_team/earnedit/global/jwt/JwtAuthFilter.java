@@ -97,7 +97,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) return true;
         return path.equals("/health")
-                || path.startsWith("/api/auth/")     // 로그인/회원가입/리프레시 등
+                || path.equals("/api/auth/refresh")
                 || path.startsWith("/swagger-ui")
                 || path.startsWith("/swagger")
                 || path.startsWith("/v3/api-docs")
