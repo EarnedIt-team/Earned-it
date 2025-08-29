@@ -206,8 +206,7 @@ public class AuthService {
 
         // access token 블랙리스트 등록
         Date expiration = jwtUtil.getAccessTokenExpiration(accessToken);
-        long now = System.currentTimeMillis();
-        long ttl = expiration.getTime() - now;
+        long ttl = Math.max(1000L, expiration.getTime() - System.currentTimeMillis());
 
         redisTemplate.opsForValue()
                 .set("BL:" + accessToken, "logout", ttl, TimeUnit.MILLISECONDS);
