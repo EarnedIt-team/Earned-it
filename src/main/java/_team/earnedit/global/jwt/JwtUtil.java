@@ -20,10 +20,6 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    private static final long MINUTE = 60 * 1000L;
-    private static final long HOUR = 60 * MINUTE;
-    private static final long DAY = 24 * HOUR;
-
     private final Key accessKey;
     private final Key refreshKey;
     private final long accessTokenExpireTime;
@@ -35,8 +31,11 @@ public class JwtUtil {
                    @Value("${jwt.refresh_secret}") String refreshSecretKey,
                    @Value("${jwt.access_expire_time}") long accessTokenExpireTime,
                    @Value("${jwt.refresh_expire_time}") long refreshTokenExpireTime) {
-        this.accessKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(accessSecretKey));
-        this.refreshKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(refreshSecretKey));
+
+        // base64가 확실하다면 아래 유지, 아니라면 getBytes(...)로 교체
+        this.accessKey  = Keys.hmacShaKeyFor(java.util.Base64.getDecoder().decode(accessSecretKey));
+        this.refreshKey = Keys.hmacShaKeyFor(java.util.Base64.getDecoder().decode(refreshSecretKey));
+
         this.accessTokenExpireTime = accessTokenExpireTime;
         this.refreshTokenExpireTime = refreshTokenExpireTime;
     }
@@ -50,10 +49,11 @@ public class JwtUtil {
 
     // JWT 생성
     private String generateToken(JwtUserInfoDto user, Key key, long expireTime) {
+        long now = System.currentTimeMillis();
         return Jwts.builder()
                 .setSubject(String.valueOf(user.getUserId()))
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expireTime))
+                .setIssuedAt(new Date(now))
+                .setExpiration(new Date(now + expireTime))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -81,9 +81,13 @@ public class JwtUtil {
     // 토큰 검증
     private boolean validateToken(String token, Key key) {
         try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .setAllowedClockSkewSeconds(60) // 시계오차 허용
+                    .build()
+                    .parseClaimsJws(token);
             return true;
-        } catch (JwtException e) {
+        } catch (io.jsonwebtoken.JwtException e) {
             return false;
         }
     }
@@ -91,10 +95,14 @@ public class JwtUtil {
     // JWT에서 Claims 추출
     // 내부용
     private Claims parseClaims(String token, Key key) {
-        return Jwts.parserBuilder().setSigningKey(key).build()
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .setAllowedClockSkewSeconds(60)
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
     }
+
     // 외부 파싱용
     public Claims parseClaims(String token) {
         return parseClaims(token, accessKey);
@@ -118,7 +126,7 @@ public class JwtUtil {
         }
         return null;
     }
-    // 문자열로 토큰 받았을 때 정제용
+
     public String extractBearerPrefix(String token) {
         if (token != null && token.startsWith("Bearer ")) {
             return token.substring(7).trim();
@@ -129,7 +137,7 @@ public class JwtUtil {
     // 쿠키에서 access_token 꺼내기
     public String extractTokenFromCookies(HttpServletRequest request) {
         if (request.getCookies() != null) {
-            for (Cookie cookie : request.getCookies()) {
+            for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
                 if ("access_token".equals(cookie.getName())) {
                     return cookie.getValue();
                 }
@@ -142,6 +150,7 @@ public class JwtUtil {
     public Date getAccessTokenExpiration(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(accessKey)
+                .setAllowedClockSkewSeconds(60)
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
