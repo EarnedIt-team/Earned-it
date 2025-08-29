@@ -59,11 +59,10 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/webjars/**",
                                 "/images/**",
-                                "/api/auth/**"   // 로그인/회원가입 등 공개
+                                "/api/auth/**",// 로그인/회원가입 등 공개
+                                "/admin/**"// 관리자페이지 오픈
                         ).permitAll()
 
-                        ////////// 관리자페이지 막아놓기 (임시, 관리자페이지 보안설계 후 풀 것임)
-                        .requestMatchers("/admin/**").denyAll()
                         // 그 외 인증 필요
                         .anyRequest().authenticated()
                 )
