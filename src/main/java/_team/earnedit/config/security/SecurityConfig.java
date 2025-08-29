@@ -59,8 +59,17 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/webjars/**",
                                 "/images/**",
-                                "/api/auth/**",// 로그인/회원가입 등 공개
-                                "/admin/**"// 관리자페이지 오픈
+                                "/admin/**",// 관리자페이지 오픈
+
+                                "/api/auth/signup",
+                                "/api/auth/signin",
+                                "/api/auth/signin/kakao",
+                                "/api/auth/signin/apple",
+                                "/api/auth/refresh",
+                                "/api/auth/email/**",
+                                "/api/auth/password/**",
+
+                                "/api/upload"
                         ).permitAll()
 
                         // 그 외 인증 필요
