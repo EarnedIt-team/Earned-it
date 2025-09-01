@@ -5,8 +5,6 @@ import _team.earnedit.entity.Salary;
 import _team.earnedit.entity.User;
 import _team.earnedit.global.ErrorCode;
 import _team.earnedit.global.exception.profile.ProfileException;
-import _team.earnedit.global.exception.salary.SalaryException;
-import _team.earnedit.global.exception.user.UserException;
 import _team.earnedit.global.util.EntityFinder;
 import _team.earnedit.global.util.SalaryCalculator;
 import _team.earnedit.repository.SalaryRepository;
@@ -84,6 +82,7 @@ public class ProfileService {
         Salary salary = entityFinder.getSalaryOrThrow(userId);
 
         return ProfileInfoResponseDto.builder()
+                .userId(user.getId())
                 .profileImage(user.getProfileImage())
                 .nickname(user.getNickname())
                 .monthlySalary(salary.getAmount())
@@ -139,4 +138,9 @@ public class ProfileService {
                 .toList();
     }
 
+    public ProfileWithStarResponse getProfileWithStarList(Long userId, long userId1) {
+        entityFinder.getUserOrThrow(userId);
+
+
+    }
 }
