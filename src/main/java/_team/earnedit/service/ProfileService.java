@@ -1,13 +1,16 @@
 package _team.earnedit.service;
 
 import _team.earnedit.dto.profile.*;
+import _team.earnedit.dto.star.StarSummaryResponse;
 import _team.earnedit.entity.Salary;
+import _team.earnedit.entity.Star;
 import _team.earnedit.entity.User;
 import _team.earnedit.global.ErrorCode;
 import _team.earnedit.global.exception.profile.ProfileException;
 import _team.earnedit.global.util.EntityFinder;
 import _team.earnedit.global.util.SalaryCalculator;
 import _team.earnedit.repository.SalaryRepository;
+import _team.earnedit.repository.StarRepository;
 import _team.earnedit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,6 +29,7 @@ public class ProfileService {
     private final SalaryCalculator salaryCalculator;
     private final FileUploadService fileUploadService;
     private final EntityFinder entityFinder;
+    private final StarRepository starRepository;
 
     /*
      ******** 수익 관련 ********
@@ -138,9 +142,36 @@ public class ProfileService {
                 .toList();
     }
 
-    public ProfileWithStarResponse getProfileWithStarList(Long userId, long userId1) {
-        entityFinder.getUserOrThrow(userId);
+    @Transactional(readOnly = true)
+    public ProfileWithStarResponse getProfileWithStarList(Long loggedInUserId, long userId) {
+        entityFinder.getUserOrThrow(loggedInUserId);
 
+        List<Star> starList = starRepository.findByUserId(userId);
+        User findUser = entityFinder.getUserOrThrow(userId);
 
+        ProfileInfoResponseDto userInfo = ProfileInfoResponseDto.builder()
+                .userId(findUser.getId())
+                .nickname(findUser.getNickname())
+                .profileImage(findUser.getProfileImage())
+                .build();
+
+        List<StarSummaryResponse> starSummaryList = starList.stream()
+                .map(star -> StarSummaryResponse.builder()
+                        .starId(star.getId())
+                        .userId(star.getUser().getId())
+                        .name(star.getWish().getName())
+                        .vendor(star.getWish().getVendor())
+                        .price(star.getWish().getPrice())
+                        .itemImage(star.getWish().getItemImage())
+                        .starred(star.getWish().isStarred())
+                        .isBought(star.getWish().isBought())
+                        .rank(star.getRank())
+                        .build())
+                .toList();
+
+        return ProfileWithStarResponse.builder()
+                .userInfo(userInfo)
+                .starList(starSummaryList)
+                .build();
     }
 }

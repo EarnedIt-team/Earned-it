@@ -147,4 +147,19 @@ public class ProfileController {
 
     }
 
+    @Operation(
+            summary = "타 유저 프로필 조회",
+            description = "해당 유저의 프로필을 조회합니다. \n" +
+                    "StarList, UserInfo 정보만 제공합니다.",
+            security = {@SecurityRequirement(name = "bearer-key")}
+    )
+    @GetMapping("/{userId}")
+    public ResponseEntity<ApiResponse<ProfileWithStarResponse>> getProfileWithStarList(
+            @AuthenticationPrincipal JwtUserInfoDto userInfoDto,
+            @PathVariable long userId)
+    {
+        ProfileWithStarResponse response = profileService.getProfileWithStarList(userInfoDto.getUserId(), userId);
+        return ResponseEntity.ok(ApiResponse.success(String.format("유저의 프로필 조회 성공, userId = %s", userId), response));
+    }
+
 }
