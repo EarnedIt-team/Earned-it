@@ -2,6 +2,7 @@ package _team.earnedit.controller;
 
 import _team.earnedit.dto.PagedResponse;
 import _team.earnedit.dto.jwt.JwtUserInfoDto;
+import _team.earnedit.dto.profile.PublicUserInfoResponse;
 import _team.earnedit.dto.wish.*;
 import _team.earnedit.global.ApiResponse;
 import _team.earnedit.service.WishService;
@@ -180,5 +181,25 @@ public class WishController {
 
         return ResponseEntity.ok(ApiResponse.success("검색 결과입니다.", result));
     }
+
+
+    @GetMapping("/random-users")
+    @Operation(
+            summary = "공개 유저 조회",
+            description = "is_public이 공개인 유저를 랜덤 조회한다.",
+            security = {@SecurityRequirement(name = "bearer-key")}
+    )
+    public ResponseEntity<ApiResponse<List<PublicUserInfoResponse>>> randomUsers(
+            @AuthenticationPrincipal JwtUserInfoDto userInfo,
+            @RequestParam(defaultValue = "5") long count
+    ) {
+        List<PublicUserInfoResponse> userInfos = wishService.randomUsers(userInfo.getUserId(), count);
+
+        return ResponseEntity.ok(ApiResponse.success("공개 프로필 유저를 랜덤 조회했습니다.", userInfos));
+
+    }
+
+
+
 
 }

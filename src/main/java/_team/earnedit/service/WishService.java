@@ -1,6 +1,7 @@
 package _team.earnedit.service;
 
 import _team.earnedit.dto.PagedResponse;
+import _team.earnedit.dto.profile.PublicUserInfoResponse;
 import _team.earnedit.dto.wish.*;
 import _team.earnedit.entity.QWish;
 import _team.earnedit.entity.Star;
@@ -12,6 +13,7 @@ import _team.earnedit.global.exception.wish.WishException;
 import _team.earnedit.global.util.EntityFinder;
 import _team.earnedit.mapper.WishMapper;
 import _team.earnedit.repository.StarRepository;
+import _team.earnedit.repository.UserRepository;
 import _team.earnedit.repository.WishRepository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
@@ -41,6 +43,7 @@ public class WishService {
     private final JPAQueryFactory queryFactory;
     private final EntityFinder entityFinder;
     private final WishMapper wishMapper;
+    private final UserRepository userRepository;
 
     @Transactional
     public WishAddResponse addWish(WishAddRequest wishAddRequest, Long userId, MultipartFile itemImage) {
@@ -201,6 +204,26 @@ public class WishService {
 
         // 커스텀 페이징 응답 생성
         return getPagedResponse(page);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PublicUserInfoResponse> randomUsers(Long userId, long count) {
+        entityFinder.getUserOrThrow(userId);
+
+        List<PublicUserInfoResponse> publicUserList = new ArrayList<>();
+
+        // 프로필 공개 상태인 유저 리스트 조회
+        List<User> userList = userRepository.findByIsPublic(true);
+
+        userList.forEach(user -> {
+            publicUserList.add(PublicUserInfoResponse.builder()
+                    .userId(user.getId())
+                    .nickname(user.getNickname())
+                    .profileImage(user.getProfileImage())
+                    .build());
+        });
+
+        return publicUserList;
     }
 
     // ------------------------------------------ 아래는 메서드 ------------------------------------------ //
@@ -408,4 +431,6 @@ public class WishService {
                 .limitWishCount(MAX_WISH_COUNT)
                 .build();
     }
+
+
 }

@@ -35,4 +35,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Transactional
     @Query("update User u set u.isCheckedIn = false where u.isCheckedIn = true")
     int resetAllCheckedIn();
+
+    List<User> findByIsPublic(Boolean isPublic);
 }
