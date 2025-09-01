@@ -195,7 +195,7 @@ public class WishController {
     ) {
         List<PublicUserInfoResponse> userInfos = wishService.randomUsers(userInfo.getUserId(), count);
 
-        return ResponseEntity.ok(ApiResponse.success("공개 프로필 유저를 랜덤 조회했습니다.", userInfos));
+        return ResponseEntity.ok(ApiResponse.success("공개 프로필 유저를 조회했습니다.", userInfos));
 
     }
 

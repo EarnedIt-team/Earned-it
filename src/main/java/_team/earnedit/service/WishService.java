@@ -210,20 +210,16 @@ public class WishService {
     public List<PublicUserInfoResponse> randomUsers(Long userId, long count) {
         entityFinder.getUserOrThrow(userId);
 
-        List<PublicUserInfoResponse> publicUserList = new ArrayList<>();
+        // 프로필 공개 상태인 유저 count 명 조회
+        List<User> randomPublicUsers = userRepository.findRandomPublicUsers(count);
 
-        // 프로필 공개 상태인 유저 리스트 조회
-        List<User> userList = userRepository.findByIsPublic(true);
-
-        userList.forEach(user -> {
-            publicUserList.add(PublicUserInfoResponse.builder()
-                    .userId(user.getId())
-                    .nickname(user.getNickname())
-                    .profileImage(user.getProfileImage())
-                    .build());
-        });
-
-        return publicUserList;
+        return randomPublicUsers.stream().map(user ->
+                        PublicUserInfoResponse.builder()
+                                .userId(user.getId())
+                                .nickname(user.getNickname())
+                                .profileImage(user.getProfileImage())
+                                .build())
+                .toList();
     }
 
     // ------------------------------------------ 아래는 메서드 ------------------------------------------ //

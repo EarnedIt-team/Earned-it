@@ -4,6 +4,7 @@ import _team.earnedit.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -36,5 +37,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("update User u set u.isCheckedIn = false where u.isCheckedIn = true")
     int resetAllCheckedIn();
 
-    List<User> findByIsPublic(Boolean isPublic);
+    @Query(value = "SELECT * FROM users WHERE is_public = true ORDER BY RANDOM() LIMIT :count", nativeQuery = true)
+    List<User> findRandomPublicUsers(@Param("count") long count);
 }
