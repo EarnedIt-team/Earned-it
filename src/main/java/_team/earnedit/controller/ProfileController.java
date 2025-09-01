@@ -131,4 +131,20 @@ public class ProfileController {
                 .body(ApiResponse.success("프로필 이미지가 삭제되었습니다."));
     }
 
+    @GetMapping("/random-users")
+    @Operation(
+            summary = "공개 유저 조회",
+            description = "is_public이 공개인 유저를 랜덤 조회한다.",
+            security = {@SecurityRequirement(name = "bearer-key")}
+    )
+    public ResponseEntity<ApiResponse<List<PublicUserInfoResponse>>> randomUsers(
+            @AuthenticationPrincipal JwtUserInfoDto userInfo,
+            @RequestParam(defaultValue = "5") long count
+    ) {
+        List<PublicUserInfoResponse> userInfos = profileService.randomUsers(userInfo.getUserId(), count);
+
+        return ResponseEntity.ok(ApiResponse.success("공개 프로필 유저를 조회했습니다.", userInfos));
+
+    }
+
 }

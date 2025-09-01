@@ -1,9 +1,6 @@
 package _team.earnedit.service;
 
-import _team.earnedit.dto.profile.NicknameRequestDto;
-import _team.earnedit.dto.profile.ProfileInfoResponseDto;
-import _team.earnedit.dto.profile.SalaryRequestDto;
-import _team.earnedit.dto.profile.SalaryResponseDto;
+import _team.earnedit.dto.profile.*;
 import _team.earnedit.entity.Salary;
 import _team.earnedit.entity.User;
 import _team.earnedit.global.ErrorCode;
@@ -19,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -123,6 +121,22 @@ public class ProfileService {
         User user = entityFinder.getUserOrThrow(userId);
 
         user.updateProfileImage(null);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PublicUserInfoResponse> randomUsers(Long userId, long count) {
+        entityFinder.getUserOrThrow(userId);
+
+        // 프로필 공개 상태인 유저 count 명 조회
+        List<User> randomPublicUsers = userRepository.findRandomPublicUsers(count);
+
+        return randomPublicUsers.stream().map(user ->
+                        PublicUserInfoResponse.builder()
+                                .userId(user.getId())
+                                .nickname(user.getNickname())
+                                .profileImage(user.getProfileImage())
+                                .build())
+                .toList();
     }
 
 }

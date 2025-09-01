@@ -206,21 +206,7 @@ public class WishService {
         return getPagedResponse(page);
     }
 
-    @Transactional(readOnly = true)
-    public List<PublicUserInfoResponse> randomUsers(Long userId, long count) {
-        entityFinder.getUserOrThrow(userId);
 
-        // 프로필 공개 상태인 유저 count 명 조회
-        List<User> randomPublicUsers = userRepository.findRandomPublicUsers(count);
-
-        return randomPublicUsers.stream().map(user ->
-                        PublicUserInfoResponse.builder()
-                                .userId(user.getId())
-                                .nickname(user.getNickname())
-                                .profileImage(user.getProfileImage())
-                                .build())
-                .toList();
-    }
 
     // ------------------------------------------ 아래는 메서드 ------------------------------------------ //
     // 페이지 결과 조회
