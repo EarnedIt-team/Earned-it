@@ -10,7 +10,7 @@ import lombok.Getter;
 public class ProfileInfoResponseDto {
 
     @Schema(description = "유저 id", example = "1")
-    long userId;
+    private long userId;
 
     @Schema(description = "프로필 이미지 URL", example = "https://s3.../profile.png")
     private String profileImage;
