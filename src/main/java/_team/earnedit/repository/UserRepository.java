@@ -39,4 +39,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(value = "SELECT * FROM users WHERE is_public = true ORDER BY RANDOM() LIMIT :count", nativeQuery = true)
     List<User> findRandomPublicUsers(@Param("count") long count);
+
+    // 로그인한 유저 id를 제외한 유저 리스트를 반환
+    @Query(value = "SELECT * FROM users " +
+            "WHERE is_public = true AND id <> :userId " +
+            "ORDER BY RANDOM() LIMIT :count", nativeQuery = true)
+    List<User> findRandomPublicUsersExcept(@Param("userId") Long userId,
+                                           @Param("count") long count);
 }
