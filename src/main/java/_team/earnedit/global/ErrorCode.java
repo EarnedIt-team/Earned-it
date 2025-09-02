@@ -83,6 +83,12 @@ public enum ErrorCode {
     PASSWORD_SAME_AS_BEFORE(HttpStatus.BAD_REQUEST, "이전 비밀번호와 동일합니다."),
     INVALID_LOGIN_PROVIDER(HttpStatus.BAD_REQUEST, "이메일 로그인 계정이 아닙니다."),
 
+    // 신고 Report
+    REASON_NOT_FOUND(HttpStatus.NOT_FOUND, "유효한 신고 사유가 아닙니다."),
+    REASON_TEXT_REQUIRED(HttpStatus.BAD_REQUEST, "기타 사유는 상세 사유를 입력해야 합니다."),
+    CANNOT_REPORT_SELF(HttpStatus.CONFLICT, "자기 자신을 신고할 수 없습니다."),
+    REPORT_DUPLICATE(HttpStatus.CONFLICT, "동일 대상에 대한 신고가 이미 접수되었습니다."),
+
     // 파일 업로드
     FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패하였습니다."),
 
