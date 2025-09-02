@@ -78,6 +78,9 @@ public class User {
     @Column(nullable = false)
     private Boolean isCheckedIn = false;
 
+    @Column(nullable = false)
+    private long score = 0L;
+
     public void softDeleted() {
         this.status = Status.DELETED;
         this.deletedAt = LocalDateTime.now();

@@ -4,23 +4,23 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
-
 @Builder
 @Getter
-@Schema(description = "Star 아이템 응답 DTO")
-public class StarListResponse {
+public class StarSummaryResponse {
     @Schema(description = "Star ID", example = "1")
     private Long starId;
-
-    @Schema(description = "Wish ID", example = "1")
-    private Long wishId;
 
     @Schema(description = "사용자 ID", example = "100")
     private Long userId;
 
+    @Schema(description = "Wish ID", example = "1")
+    private Long wishId;
+
     @Schema(description = "아이템 이름", example = "새콤달콤")
     private String name;
+
+    @Schema(description = "판매자/브랜드명", example = "ABC")
+    private String vendor;
 
     @Schema(description = "가격", example = "85000")
     private long price;
@@ -34,16 +34,6 @@ public class StarListResponse {
     @Schema(description = "Star 여부", example = "false")
     private boolean starred;
 
-    @Schema(description = "판매자/브랜드명", example = "ABC")
-    private String vendor;
-
     @Schema(description = "순서", example = "1~5")
     private int rank;
-
-    @Schema(description = "구매 링크", example = "https://cdn.example.com/buyitem")
-    private String url;
-
-    @Schema(description = "생성 시각", example = "2025-07-28T14:30:00")
-    private LocalDateTime createdAt;
-
 }

@@ -2,6 +2,7 @@ package _team.earnedit.controller;
 
 import _team.earnedit.dto.PagedResponse;
 import _team.earnedit.dto.jwt.JwtUserInfoDto;
+import _team.earnedit.dto.profile.PublicUserInfoResponse;
 import _team.earnedit.dto.wish.*;
 import _team.earnedit.global.ApiResponse;
 import _team.earnedit.service.WishService;
@@ -180,5 +181,30 @@ public class WishController {
 
         return ResponseEntity.ok(ApiResponse.success("검색 결과입니다.", result));
     }
+
+    @GetMapping("/main")
+    @Operation(
+            summary = "위시 통합조회",
+            description = "위시 페이지 렌더링 시, 유저 목록, star리스트, \n" +
+                    "위시리스트(3개)\n" +
+                    "내 정보를 모두 조회합니다",
+            security = {@SecurityRequirement(name = "bearer-key")}
+    )
+    public ResponseEntity<ApiResponse<FetchWishPageResponse>> fetchWishPage(
+            @AuthenticationPrincipal JwtUserInfoDto userInfo,
+            @RequestParam long userCount
+    ) {
+        FetchWishPageResponse response = wishService.fetchWishPage(userInfo.getUserId(), userCount);
+
+        return ResponseEntity.ok(ApiResponse.success("위시 페이지 통합 조회 성공.", response));
+
+    }
+
+
+
+
+
+
+
 
 }
