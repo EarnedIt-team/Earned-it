@@ -2,6 +2,7 @@ package _team.earnedit.controller;
 
 import _team.earnedit.dto.PagedResponse;
 import _team.earnedit.dto.jwt.JwtUserInfoDto;
+import _team.earnedit.dto.profile.PublicUserInfoResponse;
 import _team.earnedit.dto.wish.*;
 import _team.earnedit.global.ApiResponse;
 import _team.earnedit.service.WishService;
@@ -180,5 +181,11 @@ public class WishController {
 
         return ResponseEntity.ok(ApiResponse.success("검색 결과입니다.", result));
     }
+
+
+
+
+
+
 
 }
