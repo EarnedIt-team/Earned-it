@@ -19,5 +19,6 @@ public interface StarMapper {
     @Mapping(target = "isBought", source = "wish.bought")
     @Mapping(target = "starred", source = "wish.starred")
     @Mapping(target = "url", source = "wish.url")
+    @Mapping(target = "createdAt", source = "wish.createdAt")
     StarListResponse toStarListResponse(Star star, Wish wish);
 }

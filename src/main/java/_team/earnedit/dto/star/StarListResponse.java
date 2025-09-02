@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Builder
 @Getter
 @Schema(description = "Star 아이템 응답 DTO")
@@ -40,4 +42,8 @@ public class StarListResponse {
 
     @Schema(description = "구매 링크", example = "https://cdn.example.com/buyitem")
     private String url;
+
+    @Schema(description = "생성 시각", example = "2025-07-28T14:30:00")
+    private LocalDateTime createdAt;
+
 }
