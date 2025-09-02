@@ -95,6 +95,8 @@ public class User {
         this.profileImage = imageUrl;
     }
 
+    public void updateVisibility(boolean isPublic) { this.isPublic = isPublic; }
+
     public void checkIn() { ////////////// 동훈님 코드에서 사용하십시오 ~
         this.isCheckedIn = true;
     }
