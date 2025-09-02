@@ -31,9 +31,7 @@ public class RankController {
             @AuthenticationPrincipal JwtUserInfoDto userInfoDto) {
 
         long userId = userInfoDto.getUserId();
-
-        RankPageResponse rankPage = (RankPageResponse) rankService.getRankPage(userId);
-
+        RankPageResponse rankPage = rankService.getRankPage(userId);
 
         return ResponseEntity.ok(ApiResponse.success("랭킹 정보를 조회했습니다.", rankPage));
     }
