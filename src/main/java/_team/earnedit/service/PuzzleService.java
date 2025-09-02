@@ -80,6 +80,7 @@ public class PuzzleService {
                 .completedPieceCount(summary.completedPieceCount)
                 .totalAccumulatedValue(summary.totalAccumulatedValue)
                 .rank(summary.rank)
+                .userCount(summary.userCount)
                 .build();
     }
 
@@ -150,6 +151,7 @@ public class PuzzleService {
                 }).count();
 
         long rank = userRepository.findUserRanking(userId);
+        long userCount = userRepository.count(); // 전체 유저 수를 집계
 
         return new Summary(
                 (int) themeCount,
@@ -157,7 +159,8 @@ public class PuzzleService {
                 totalPieceCount,
                 completedPieceCount,
                 totalAccumulatedValue,
-                rank
+                rank,
+                userCount
         );
     }
 
@@ -204,7 +207,8 @@ public class PuzzleService {
             int totalPieceCount,
             int completedPieceCount,
             long totalAccumulatedValue,
-            long rank
+            long rank,
+            long userCount
     ) {}
 
 }

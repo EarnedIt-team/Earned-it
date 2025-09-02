@@ -96,5 +96,8 @@ public class PuzzleResponse {
         @Schema(description = "유저의 랭킹", example = "1")
         private long rank;
 
+        @Schema(description = "전체 유저 수", example = "100")
+        private long userCount;
+
     }
 }
