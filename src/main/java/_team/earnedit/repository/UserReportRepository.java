@@ -10,4 +10,8 @@ public interface UserReportRepository extends JpaRepository<UserReport, Long> {
     boolean existsByReportingUser_IdAndReportedUser_IdAndCreatedAtAfter(
             Long reportingUserId, Long reportedUserId, LocalDateTime createdAfter
     );
+
+    long countByReportingUser_IdAndCreatedAtAfter(
+            Long reportingUserId, LocalDateTime createdAfter
+    );
 }

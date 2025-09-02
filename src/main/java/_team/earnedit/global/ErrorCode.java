@@ -88,6 +88,7 @@ public enum ErrorCode {
     REASON_TEXT_REQUIRED(HttpStatus.BAD_REQUEST, "기타 사유는 상세 사유를 입력해야 합니다."),
     CANNOT_REPORT_SELF(HttpStatus.CONFLICT, "자기 자신을 신고할 수 없습니다."),
     REPORT_DUPLICATE(HttpStatus.CONFLICT, "동일 대상에 대한 신고가 이미 접수되었습니다."),
+    REPORT_RATE_LIMITED(HttpStatus.TOO_MANY_REQUESTS, "잠시 후 다시 시도해주세요."),
 
     // 파일 업로드
     FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패하였습니다."),

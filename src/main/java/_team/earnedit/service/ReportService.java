@@ -44,13 +44,21 @@ public class ReportService {
             }
         }
 
-        // 중복 신고 남용 방지
+        // 신고 남용 방지 : 동일유저가 동일대상 24시간 내 중복 신고
         LocalDateTime cutoff = LocalDateTime.now().minusHours(24);
         boolean dup = userReportRepository
                 .existsByReportingUser_IdAndReportedUser_IdAndCreatedAtAfter(
                         reportingUser.getId(), reportedUser.getId(), cutoff);
         if (dup) {
             throw new ReportException(ErrorCode.REPORT_DUPLICATE);
+        }
+
+        // 신고 남용 방지 : 10분 내 최대 총 신고 횟수 5회 제한
+        LocalDateTime abuseCutoff = LocalDateTime.now().minusMinutes(10);
+        long recentCount = userReportRepository
+                .countByReportingUser_IdAndCreatedAtAfter(reportingUser.getId(), abuseCutoff);
+        if (recentCount >= 5) {
+            throw new ReportException(ErrorCode.REPORT_RATE_LIMITED);
         }
 
         UserReport report = UserReport.builder()
