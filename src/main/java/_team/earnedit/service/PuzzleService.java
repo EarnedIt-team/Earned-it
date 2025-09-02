@@ -10,6 +10,7 @@ import _team.earnedit.mapper.PieceMapper;
 import _team.earnedit.mapper.PuzzleMapper;
 import _team.earnedit.repository.PieceRepository;
 import _team.earnedit.repository.PuzzleSlotRepository;
+import _team.earnedit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ public class PuzzleService {
     private final EntityFinder entityFinder;
     private final PieceMapper pieceMapper;
     private final PuzzleMapper puzzleMapper;
+    private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
     public PuzzleResponse getPuzzle(Long userId) {
@@ -55,7 +57,7 @@ public class PuzzleService {
         }
 
         // 2. 요약값 계산
-        Summary summary = computeSummary(slots, pieces, themeSlotMap, collectedCountMap, totalValueMap);
+        Summary summary = computeSummary(slots, pieces, themeSlotMap, collectedCountMap, totalValueMap, userId);
 
         // 3. 퍼즐 요약 정보
         PuzzleResponse.PuzzleInfo puzzleInfo = getPuzzleInfo(summary);
@@ -77,6 +79,7 @@ public class PuzzleService {
                 .totalPieceCount(summary.totalPieceCount)
                 .completedPieceCount(summary.completedPieceCount)
                 .totalAccumulatedValue(summary.totalAccumulatedValue)
+                .rank(summary.rank)
                 .build();
     }
 
@@ -124,7 +127,8 @@ public class PuzzleService {
             List<Piece> pieces,
             Map<Theme, List<PuzzleResponse.SlotInfo>> themeSlotMap,
             Map<Theme, Integer> collectedCountMap,
-            Map<Theme, Long> totalValueMap
+            Map<Theme, Long> totalValueMap,
+            long userId
     ) {
         int totalPieceCount = slots.size();
         int completedPieceCount = (int) pieces.stream().filter(Piece::isCollected).count();
@@ -145,12 +149,15 @@ public class PuzzleService {
                     return total > 0 && collected == total;
                 }).count();
 
+        long rank = userRepository.findUserRanking(userId);
+
         return new Summary(
                 (int) themeCount,
                 completedThemeCount,
                 totalPieceCount,
                 completedPieceCount,
-                totalAccumulatedValue
+                totalAccumulatedValue,
+                rank
         );
     }
 
@@ -196,7 +203,8 @@ public class PuzzleService {
             int completedThemeCount,
             int totalPieceCount,
             int completedPieceCount,
-            long totalAccumulatedValue
+            long totalAccumulatedValue,
+            long rank
     ) {}
 
 }

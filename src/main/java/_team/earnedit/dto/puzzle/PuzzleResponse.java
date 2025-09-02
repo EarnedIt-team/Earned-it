@@ -93,5 +93,8 @@ public class PuzzleResponse {
         @Schema(description = "전체 누적 금액(원)", example = "33330")
         private long totalAccumulatedValue;
 
+        @Schema(description = "유저의 랭킹", example = "1")
+        private long rank;
+
     }
 }
