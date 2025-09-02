@@ -196,7 +196,7 @@ public class WishController {
     ) {
         FetchWishPageResponse response = wishService.fetchWishPage(userInfo.getUserId(), userCount);
 
-        return ResponseEntity.ok(ApiResponse.success("위시 하이라이트를 조회하였습니다.", response));
+        return ResponseEntity.ok(ApiResponse.success("위시 페이지 통합 조회 성공.", response));
 
     }
 
