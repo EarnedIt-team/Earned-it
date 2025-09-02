@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -40,6 +42,15 @@ public class ReportService {
             if (dto.getReasonText() == null || dto.getReasonText().isBlank()) {
                 throw new ReportException(ErrorCode.REASON_TEXT_REQUIRED);
             }
+        }
+
+        // 중복 신고 남용 방지
+        LocalDateTime cutoff = LocalDateTime.now().minusHours(24);
+        boolean dup = userReportRepository
+                .existsByReportingUser_IdAndReportedUser_IdAndCreatedAtAfter(
+                        reportingUser.getId(), reportedUser.getId(), cutoff);
+        if (dup) {
+            throw new ReportException(ErrorCode.REPORT_DUPLICATE);
         }
 
         UserReport report = UserReport.builder()
