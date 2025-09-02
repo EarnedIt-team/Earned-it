@@ -1,17 +1,18 @@
 package _team.earnedit.service;
 
 import _team.earnedit.dto.PagedResponse;
+import _team.earnedit.dto.profile.ProfileInfoResponseDto;
 import _team.earnedit.dto.profile.PublicUserInfoResponse;
+import _team.earnedit.dto.star.StarListResponse;
+import _team.earnedit.dto.star.StarSummaryResponse;
 import _team.earnedit.dto.wish.*;
-import _team.earnedit.entity.QWish;
-import _team.earnedit.entity.Star;
-import _team.earnedit.entity.User;
-import _team.earnedit.entity.Wish;
+import _team.earnedit.entity.*;
 import _team.earnedit.global.ErrorCode;
 import _team.earnedit.global.exception.star.StarException;
 import _team.earnedit.global.exception.wish.WishException;
 import _team.earnedit.global.util.EntityFinder;
 import _team.earnedit.mapper.WishMapper;
+import _team.earnedit.repository.SalaryRepository;
 import _team.earnedit.repository.StarRepository;
 import _team.earnedit.repository.UserRepository;
 import _team.earnedit.repository.WishRepository;
@@ -44,6 +45,7 @@ public class WishService {
     private final EntityFinder entityFinder;
     private final WishMapper wishMapper;
     private final UserRepository userRepository;
+    private final SalaryRepository salaryRepository;
 
     @Transactional
     public WishAddResponse addWish(WishAddRequest wishAddRequest, Long userId, MultipartFile itemImage) {
@@ -204,6 +206,58 @@ public class WishService {
 
         // 커스텀 페이징 응답 생성
         return getPagedResponse(page);
+    }
+
+    @Transactional(readOnly = true)
+    public FetchWishPageResponse fetchWishPage(Long userId, long userCount) {
+        User user = entityFinder.getUserOrThrow(userId);
+
+        // userInfo 조회 및 생성
+        Salary salary = entityFinder.getSalaryOrThrow(userId);
+        ProfileInfoResponseDto userInfo = ProfileInfoResponseDto.builder()
+                .userId(user.getId())
+                .nickname(user.getNickname())
+                .profileImage(user.getProfileImage())
+                .monthlySalary(salary.getAmount())
+                .build();
+
+        // userList 조회 및 생성
+        List<User> randomPublicUsers = userRepository.findRandomPublicUsersExcept(userId, userCount);
+        List<PublicUserInfoResponse> userList = randomPublicUsers.stream()
+                .map(selectUser -> PublicUserInfoResponse.builder()
+                        .userId(selectUser.getId())
+                        .nickname(selectUser.getNickname())
+                        .profileImage(selectUser.getProfileImage())
+                        .build())
+                .toList();
+
+        // starList 조회 및 생성
+        List<Star> starList = starRepository.findByUserId(userId);
+        List<StarSummaryResponse> mappedStarList = starList.stream()
+                .map(star -> StarSummaryResponse.builder()
+                        .starId(star.getId())
+                        .wishId(star.getWish().getId())
+                        .userId(star.getUser().getId())
+                        .name(star.getWish().getName())
+                        .price(star.getWish().getPrice())
+                        .itemImage(star.getWish().getItemImage())
+                        .vendor(star.getWish().getVendor())
+                        .starred(star.getWish().isStarred())
+                        .isBought(star.getWish().isBought())
+                        .rank(star.getRank())
+                        .build())
+                .toList();
+
+        // wishList 3개 조회 및 생성
+        List<Wish> wishList = wishRepository.findByUserIdOrderByNameAsc(userId);
+        List<WishDetailResponse> wishDetailResponses = getWishDetailResponses(wishList);
+
+        return FetchWishPageResponse.builder()
+                .userInfo(userInfo)
+                .userList(userList)
+                .starList(mappedStarList)
+                .wishList(wishDetailResponses)
+                .build();
     }
 
 
