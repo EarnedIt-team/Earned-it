@@ -126,6 +126,16 @@ public class ProfileService {
         user.updateProfileImage(null);
     }
 
+
+    // 프로필 공개범위 설정
+    @Transactional
+    public void updateVisibility(Long userId, UpdateVisibilityRequestDto requestDto) {
+        User user = entityFinder.getUserOrThrow(userId);
+
+        user.updateVisibility(requestDto.getIsPublic());
+    }
+
+
     @Transactional(readOnly = true)
     public List<PublicUserInfoResponse> randomUsers(Long userId, long count) {
         entityFinder.getUserOrThrow(userId);
@@ -174,4 +184,5 @@ public class ProfileService {
                 .starList(starSummaryList)
                 .build();
     }
+
 }

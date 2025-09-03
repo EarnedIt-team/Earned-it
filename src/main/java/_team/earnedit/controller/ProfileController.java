@@ -9,6 +9,7 @@ import _team.earnedit.service.TermService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -131,6 +132,23 @@ public class ProfileController {
                 .body(ApiResponse.success("프로필 이미지가 삭제되었습니다."));
     }
 
+    @Operation(
+            summary = "프로필 공개범위 변경",
+            description = "사용자의 프로필 공개범위를 변경합니다.",
+            security = {@SecurityRequirement(name = "bearer-key")}
+    )
+    @PatchMapping("/visibility")
+    public ResponseEntity<ApiResponse<Void>> updateVisibility(
+            @Valid @RequestBody UpdateVisibilityRequestDto request,
+            @AuthenticationPrincipal JwtUserInfoDto userInfoDto)
+    {
+        profileService.updateVisibility(userInfoDto.getUserId(), request);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("프로필 공개 범위를 변경했습니다."));
+    }
+
+  
+  
     @GetMapping("/random-users")
     @Operation(
             summary = "공개 유저 조회",
