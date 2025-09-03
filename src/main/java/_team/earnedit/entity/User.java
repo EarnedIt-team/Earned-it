@@ -78,6 +78,9 @@ public class User {
     @Column(nullable = false)
     private Boolean isCheckedIn = false;
 
+    @Column(nullable = false)
+    private long score = 0L;
+
     public void softDeleted() {
         this.status = Status.DELETED;
         this.deletedAt = LocalDateTime.now();
@@ -94,6 +97,8 @@ public class User {
     public void updateProfileImage(String imageUrl) {
         this.profileImage = imageUrl;
     }
+
+    public void updateVisibility(boolean isPublic) { this.isPublic = isPublic; }
 
     public void checkIn() { ////////////// 동훈님 코드에서 사용하십시오 ~
         this.isCheckedIn = true;

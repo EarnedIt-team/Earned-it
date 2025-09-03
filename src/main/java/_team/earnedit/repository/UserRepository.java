@@ -1,9 +1,11 @@
 package _team.earnedit.repository;
 
+import _team.earnedit.dto.rank.UserRankInfo;
 import _team.earnedit.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -35,4 +37,46 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Transactional
     @Query("update User u set u.isCheckedIn = false where u.isCheckedIn = true")
     int resetAllCheckedIn();
+
+    @Query(value = "SELECT * FROM users WHERE is_public = true ORDER BY RANDOM() LIMIT :count", nativeQuery = true)
+    List<User> findRandomPublicUsers(@Param("count") long count);
+
+    // 로그인한 유저 id를 제외한 유저 리스트를 반환
+    @Query(value = "SELECT * FROM users " +
+            "WHERE is_public = true AND id <> :userId " +
+            "ORDER BY RANDOM() LIMIT :count", nativeQuery = true)
+    List<User> findRandomPublicUsersExcept(@Param("userId") Long userId,
+                                           @Param("count") long count);
+
+
+    /***
+     * Rank() : 같은 점수면 같은 순위, 다음 순위는 건너뜀(1, 2, 2, 4 ...)
+     * DENSE_RANK() : 같은 점수면 같은 순위, 순위 건너뛰지 않음(1, 2, 2, 3 ...)
+     * ROW_NUMBER() : 무조건 고유 순위(1, 2, 3, 4 ...)
+     */
+    @Query(value = """
+            SELECT u.id AS userId,
+                   ROW_NUMBER() OVER (ORDER BY u.score DESC) AS rank,
+                   u.nickname AS nickname,
+                   u.score AS score,
+                   u.profile_image AS profileImage
+            FROM users u
+            WHERE u.status = 'ACTIVE'
+            LIMIT 10
+            """, nativeQuery = true)
+    List<UserRankInfo> findTop10UsersWithRanking();
+
+
+    @Query(value = """
+            SELECT ranked.ranking
+            FROM (
+                SELECT u.id,
+                       ROW_NUMBER() OVER (ORDER BY u.score DESC) AS ranking
+                FROM users u
+                WHERE u.status = 'ACTIVE'
+            ) ranked
+            WHERE ranked.id = :userId
+            """, nativeQuery = true)
+    int findUserRanking(@Param("userId") Long userId);
+
 }
