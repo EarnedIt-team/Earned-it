@@ -151,11 +151,13 @@ public class ProfileService {
 
         Salary salary = entityFinder.getSalaryOrThrow(userId);
 
-        ProfileInfoResponseDto userInfo = ProfileInfoResponseDto.builder()
+        OtherUserProfileResponse userInfo = OtherUserProfileResponse.builder()
                 .userId(findUser.getId())
                 .nickname(findUser.getNickname())
                 .profileImage(findUser.getProfileImage())
                 .monthlySalary(salary.getAmount())
+                .amountPerSec(salary.getAmountPerSec())
+                .payday(salary.getPayday())
                 .build();
 
         List<StarSummaryResponse> starSummaryList = starList.stream()
