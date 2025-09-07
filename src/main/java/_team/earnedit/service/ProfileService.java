@@ -149,10 +149,13 @@ public class ProfileService {
         List<Star> starList = starRepository.findByUserId(userId);
         User findUser = entityFinder.getUserOrThrow(userId);
 
+        Salary salary = entityFinder.getSalaryOrThrow(userId);
+
         ProfileInfoResponseDto userInfo = ProfileInfoResponseDto.builder()
                 .userId(findUser.getId())
                 .nickname(findUser.getNickname())
                 .profileImage(findUser.getProfileImage())
+                .monthlySalary(salary.getAmount())
                 .build();
 
         List<StarSummaryResponse> starSummaryList = starList.stream()
