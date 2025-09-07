@@ -80,6 +80,8 @@ public enum ErrorCode {
     EMAIL_TOKEN_EXPIRED(HttpStatus.BAD_REQUEST, "인증 유효시간이 만료되었습니다."),
     EMAIL_TOKEN_ALREADY_VERIFIED(HttpStatus.BAD_REQUEST, "이미 인증이 완료된 요청입니다."),
 
+    EMAIL_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "이메일 전송에 실패했습니다."),
+
     // 비밀번호 재설정
     PASSWORD_SAME_AS_BEFORE(HttpStatus.BAD_REQUEST, "이전 비밀번호와 동일합니다."),
     INVALID_LOGIN_PROVIDER(HttpStatus.BAD_REQUEST, "이메일 로그인 계정이 아닙니다."),
