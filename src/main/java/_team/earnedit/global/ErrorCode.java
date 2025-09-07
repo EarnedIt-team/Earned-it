@@ -47,7 +47,7 @@ public enum ErrorCode {
 
     // Item
     ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 아이템은 존재하지 않습니다."),
-
+    VISIBILITY_LOCKED(HttpStatus.FORBIDDEN, "받은 신고가 누적 5회 이상으로, 프로필 비공개로 임시조치 되어있습니다."),
 
 
     // Salary
@@ -55,6 +55,7 @@ public enum ErrorCode {
 
     // profile
     NICKNAME_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 사용 중인 닉네임입니다."),
+
 
     // 약관 Term
     TERM_MUST_BE_CHECKED(HttpStatus.BAD_REQUEST, "필수 약관 동의 여부는 true여야 합니다."),
