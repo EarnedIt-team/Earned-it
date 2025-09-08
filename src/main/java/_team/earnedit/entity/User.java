@@ -111,4 +111,15 @@ public class User {
     public void checkedInReward() {
         this.score += 10;
     }
+
+    public void reward_S () {
+        this.score += 10;
+    }
+
+    public void reward_A () {
+        this.score += 7;
+    }
+    public void reward_B () {
+        this.score += 5;
+    }
 }
