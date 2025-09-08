@@ -87,6 +87,9 @@ public class DailyCheckService {
         // 출석 상태 즉시 업데이트 & 저장 & 트랜잭션 보장
         updateUserCheckedIn(userId);
 
+        // 출석 시 점수 제공
+        user.checkedInReward();
+
         // 이미 해당 아이템이 퍼즐에 추가되어있는지 검증
         checkAlreadyAddedToPuzzle(user, item);
 
@@ -96,9 +99,6 @@ public class DailyCheckService {
         // 레어도에 따라 점수 차등 지급
         Rarity rarity = item.getRarity();
         rewardScoreToUser(user, rarity);
-
-        // 출석 시 점수 제공
-        user.checkedInReward();
 
         log.info("[DailyCheckService] 출석 보상 정상 지급  - userId = {}", userId);
         redisTemplate.delete(key);
