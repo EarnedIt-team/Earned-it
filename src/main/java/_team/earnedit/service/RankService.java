@@ -43,6 +43,7 @@ public class RankService {
                         .score(sel_user.getScore())
                         .profileImage(sel_user.getProfileImage())
                         .rank(sel_user.getRank())
+                        .isPublic(sel_user.isPublic())
                         .build())
                 .toList();
 
