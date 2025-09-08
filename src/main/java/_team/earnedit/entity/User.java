@@ -108,4 +108,7 @@ public class User {
         this.isCheckedIn = false;
     }
 
+    public void checkedInReward() {
+        this.score += 10;
+    }
 }
