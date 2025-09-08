@@ -6,6 +6,7 @@ import _team.earnedit.dto.dailyCheck.RewardSelectionRequest;
 import _team.earnedit.dto.puzzle.PieceResponse;
 import _team.earnedit.entity.Item;
 import _team.earnedit.entity.Piece;
+import _team.earnedit.entity.Rarity;
 import _team.earnedit.entity.User;
 import _team.earnedit.global.ErrorCode;
 import _team.earnedit.global.exception.item.ItemException;
@@ -80,7 +81,7 @@ public class DailyCheckService {
         // redis로부터 보상후보 조회
         List<Long> candidateIds = getCandidateIdsFromRedis(key);
 
-        // 선택한 아이템이 보상 후보에 선택됐는지 검증
+        // 선택한 아이템이 보상 후보에서 선택됐는지 검증
         validateSelectedItemInCandidates(userId, request, candidateIds);
 
         // 출석 상태 즉시 업데이트 & 저장 & 트랜잭션 보장
@@ -92,11 +93,31 @@ public class DailyCheckService {
         // piece 저장
         savePiece(user, item);
 
+        // 레어도에 따라 점수 차등 지급
+        Rarity rarity = item.getRarity();
+        rewardScoreToUser(user, rarity);
+
+        // 출석 시 점수 제공
+        user.checkedInReward();
+
         log.info("[DailyCheckService] 출석 보상 정상 지급  - userId = {}", userId);
         redisTemplate.delete(key);
     }
 
+
+
     // ------------------------------------------ 아래는 메서드 ------------------------------------------ //
+
+    // 아이템 등급에 따른 보상 지급
+    private void rewardScoreToUser(User user, Rarity rarity) {
+        // 출석 보상으로 점수 제공
+        switch(rarity) {
+            case S: user.reward_S(); break;
+            case A: user.reward_A(); break;
+            case B: user.reward_B(); break;
+            default: break;
+        }
+    }
 
     // redis로부터 보상후보 조회
     private List<Long> getCandidateIdsFromRedis(String key) {
