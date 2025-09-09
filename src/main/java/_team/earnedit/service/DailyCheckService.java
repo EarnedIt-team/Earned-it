@@ -63,7 +63,10 @@ public class DailyCheckService {
     @Transactional
     public RewardCandidate generateRewardCandidates(Long userId) {
         log.info("[DailyCheckService] 출석 보상 목록 생성 요청 - userId = {}", userId);
-        entityFinder.getUserOrThrow(userId);
+        User user = entityFinder.getUserOrThrow(userId);
+
+        // 이미 출석 했다면 보상 선택 불가
+        if(user.getIsCheckedIn()) throw new UserException(ErrorCode.ALREADY_REWARDED);
 
         return randomRewardPickAndGenerateToken(userId);
     }
