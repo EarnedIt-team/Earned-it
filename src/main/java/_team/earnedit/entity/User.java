@@ -122,4 +122,9 @@ public class User {
     public void reward_B () {
         this.score += 5;
     }
+
+    // 퍼즐 테마 완성 시 100 지급
+    public void reward_CompleteTheme() {
+        this.score+=100;
+    }
 }
