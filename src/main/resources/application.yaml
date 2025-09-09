@@ -24,6 +24,12 @@ spring:
   config:
     import: optional:file:.env[.properties]
 
+  datasource:
+    url: jdbc:postgresql://${LOCAL_DB_URL}:5432/${LOCAL_DB_NAME}
+    username: ${LOCAL_DB_USER}
+    password: ${LOCAL_DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -92,6 +98,12 @@ springdoc:
     path: /api-docs  # OpenAPI JSON 경로 설정 (/v3/api-docs → /api-docs)
   swagger-ui:
     path: /swagger-ui.html  # Swagger UI 접속 경로
+
+# 네이버 API 설정
+naver:
+  api:
+    client-id: ${NAVER_CLIENT_ID}
+    client-secret: ${NAVER_CLIENT_SECRET}
 
 # 스웨거 https 인식
 server:

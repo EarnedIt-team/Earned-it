@@ -69,7 +69,8 @@ public class SecurityConfig {
                                 "/api/auth/email/**",
                                 "/api/auth/password/**",
 
-                                "/api/upload"
+                                "/api/upload",
+                                "/api/v1/products/search" // 상품 검색 API 인증 불필요
                         ).permitAll()
 
                         // 그 외 인증 필요
