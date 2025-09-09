@@ -108,6 +108,8 @@ public class DailyCheckService {
         redisTemplate.delete(key);
     }
 
+    // ------------------------------------------ 아래는 메서드 ------------------------------------------ //
+
     // 해당 조각으로 완성된 테마가 있다면 100pt 지급
     private void rewardIfThemeCompleted(User user, Item item) {
 
@@ -136,9 +138,6 @@ public class DailyCheckService {
             user.reward_CompleteTheme();
         }
     }
-
-
-    // ------------------------------------------ 아래는 메서드 ------------------------------------------ //
 
     // 아이템 등급에 따른 보상 지급
     private void rewardScoreToUser(User user, Rarity rarity) {
