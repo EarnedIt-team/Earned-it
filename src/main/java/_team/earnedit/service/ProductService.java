@@ -50,11 +50,14 @@ public class ProductService {
                 .collect(Collectors.toList());
 
         return ProductSearchResponse.builder()
+                .searchInfo(ProductSearchResponse.SearchInfo.builder()
+                        .totalCount(naverResponse.getTotal())
+                        .query(request.getQuery())
+                        .useCache(request.getUseCache())
+                        .removeBackground(request.getRemoveBackground())
+                        .display(request.getDisplay())
+                        .build())
                 .products(products)
-                .totalCount(naverResponse.getTotal())
-                .query(request.getQuery())
-                .useCache(request.getUseCache())
-                .removeBackground(request.getRemoveBackground())
                 .build();
     }
 
@@ -63,9 +66,8 @@ public class ProductService {
             String s3ImageUrl = fileUploadService.uploadImageFromUrl(item.getImage());
             ProductSearchResponse.ProductItem productItem = ProductSearchResponse.ProductItem.from(item, s3ImageUrl);
             
-            if (useCache) {
-                saveOrUpdateCache(productItem);
-            }
+            // useCache 여부와 관계없이 항상 캐시 업데이트 (최신 데이터 유지)
+            saveOrUpdateCache(item, s3ImageUrl);
             
             return productItem;
         } catch (Exception e) {
@@ -75,7 +77,7 @@ public class ProductService {
     }
 
     @Cacheable(value = "productSearch", key = "#query")
-    private ProductSearchResponse getCachedResult(String query) {
+    public ProductSearchResponse getCachedResult(String query) {
         try {
             List<SearchItem> items = searchItemRepository.findByNameContainingIgnoreCase(query)
                     .stream().limit(20).collect(Collectors.toList());
@@ -87,11 +89,14 @@ public class ProductService {
                     .collect(Collectors.toList());
             
             return ProductSearchResponse.builder()
+                    .searchInfo(ProductSearchResponse.SearchInfo.builder()
+                            .totalCount(products.size())
+                            .query(query)
+                            .useCache(true)
+                            .removeBackground(false)
+                            .display(20) // 캐시 조회시 기본값
+                            .build())
                     .products(products)
-                    .totalCount(products.size())
-                    .query(query)
-                    .useCache(true)
-                    .removeBackground(false)
                     .build();
         } catch (Exception e) {
             log.error("캐시 조회 실패 - query: {}", query, e);
@@ -99,82 +104,74 @@ public class ProductService {
         }
     }
 
-    private void saveOrUpdateCache(ProductSearchResponse.ProductItem productItem) {
+    private void saveOrUpdateCache(NaverProductResponse.NaverProductItem naverItem, String s3ImageUrl) {
         try {
-            SearchItem existing = searchItemRepository.findByProductId(productItem.getId());
+            SearchItem existing = searchItemRepository.findByProductId(naverItem.getProductId());
             if (existing != null) {
-                updateSearchItem(existing, productItem);
+                updateSearchItem(existing, naverItem, s3ImageUrl);
             } else {
-                searchItemRepository.save(createSearchItem(productItem));
+                searchItemRepository.save(createSearchItem(naverItem, s3ImageUrl));
             }
         } catch (Exception e) {
-            log.warn("캐시 저장 실패 - productId: {}", productItem.getId(), e);
+            log.warn("캐시 저장 실패 - productId: {}", naverItem.getProductId(), e);
         }
     }
 
-    private SearchItem createSearchItem(ProductSearchResponse.ProductItem item) {
+    private SearchItem createSearchItem(NaverProductResponse.NaverProductItem item, String s3ImageUrl) {
         return SearchItem.builder()
-                .productId(item.getId())
-                .name(item.getName())
-                .vendor(item.getMallName())
-                .price(item.getPrice().longValue())
-                .imageUrl(item.getImageUrl())
-                .productUrl(item.getUrl())
-                .maker(item.getMaker())
-                .productType(item.getProductType())
-                .category1(getCategory(item, 0))
-                .category2(getCategory(item, 1))
-                .category3(getCategory(item, 2))
-                .category4(getCategory(item, 3))
-                .description(item.getName())
+                .productId(item.getProductId())
+                .name(removeHtmlTags(item.getTitle()))
+                .maker(item.getMaker() != null ? item.getMaker() : "")
+                .price(parsePrice(item.getLprice()))
+                .imageUrl(s3ImageUrl)
+                .productUrl(item.getLink())
                 .build();
     }
 
-    private void updateSearchItem(SearchItem item, ProductSearchResponse.ProductItem productItem) {
-        item.setName(productItem.getName());
-        item.setVendor(productItem.getMallName());
-        item.setPrice(productItem.getPrice().longValue());
-        item.setImageUrl(productItem.getImageUrl());
-        item.setProductUrl(productItem.getUrl());
-        item.setMaker(productItem.getMaker());
-        item.setProductType(productItem.getProductType());
-        item.setCategory1(getCategory(productItem, 0));
-        item.setCategory2(getCategory(productItem, 1));
-        item.setCategory3(getCategory(productItem, 2));
-        item.setCategory4(getCategory(productItem, 3));
-        searchItemRepository.save(item);
+    private void updateSearchItem(SearchItem searchItem, NaverProductResponse.NaverProductItem naverItem, String s3ImageUrl) {
+        searchItem.setName(removeHtmlTags(naverItem.getTitle()));
+        searchItem.setMaker(naverItem.getMaker() != null ? naverItem.getMaker() : "");
+        searchItem.setPrice(parsePrice(naverItem.getLprice()));
+        searchItem.setImageUrl(s3ImageUrl);
+        searchItem.setProductUrl(naverItem.getLink());
+        searchItemRepository.save(searchItem);
     }
 
     private ProductSearchResponse.ProductItem toProductItem(SearchItem item) {
-        List<String> categories = List.of(item.getCategory1(), item.getCategory2(), 
-                item.getCategory3(), item.getCategory4())
-                .stream().filter(cat -> cat != null && !cat.isEmpty())
-                .collect(Collectors.toList());
-        
         return ProductSearchResponse.ProductItem.builder()
                 .id(item.getProductId())
                 .name(item.getName())
                 .price(Double.valueOf(item.getPrice()))
                 .imageUrl(item.getImageUrl())
                 .url(item.getProductUrl())
-                .mallName(item.getVendor())
-                .productType(item.getProductType())
-                .maker(item.getMaker())
-                .categories(categories)
+                .maker(item.getMaker()) // SearchItem의 maker 필드 사용
                 .build();
+    }
+
+    private String removeHtmlTags(String text) {
+        if (text == null) return null;
+        return text.replaceAll("<[^>]*>", "");
+    }
+
+    private Long parsePrice(String priceStr) {
+        if (priceStr == null || priceStr.isEmpty()) return 0L;
+        try {
+            return Long.parseLong(priceStr);
+        } catch (NumberFormatException e) {
+            return 0L;
+        }
     }
 
     private ProductSearchResponse createEmptyResponse(NaverProductSearchRequest request) {
         return ProductSearchResponse.builder()
+                .searchInfo(ProductSearchResponse.SearchInfo.builder()
+                        .totalCount(0)
+                        .query(request.getQuery())
+                        .useCache(request.getUseCache())
+                        .removeBackground(request.getRemoveBackground())
+                        .display(request.getDisplay())
+                        .build())
                 .products(List.of())
-                .totalCount(0)
-                .query(request.getQuery())
-                .useCache(request.getUseCache())
-                .removeBackground(request.getRemoveBackground())
                 .build();
-    }
-
-    private String getCategory(ProductSearchResponse.ProductItem item, int index) {
-        return item.getCategories().size() > index ? item.getCategories().get(index) : "";
     }
 } 

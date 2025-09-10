@@ -67,12 +67,12 @@ public class NaverShoppingService {
                 return response.getBody();
             } else {
                 log.error("네이버 API 응답 오류 - status: {}", response.getStatusCode());
-                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR);
+                throw new CustomException(ErrorCode.NAVER_API_ERROR);
             }
 
         } catch (Exception e) {
             log.error("네이버 API 호출 실패 - query: {}", request.getQuery(), e);
-            throw new CustomException(ErrorCode.EXTERNAL_API_ERROR);
+            throw new CustomException(ErrorCode.NAVER_API_ERROR);
         }
     }
 } 

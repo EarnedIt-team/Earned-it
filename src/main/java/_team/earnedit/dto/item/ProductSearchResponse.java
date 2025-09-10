@@ -16,20 +16,33 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class ProductSearchResponse {
     
+    @Schema(description = "검색 정보")
+    private SearchInfo searchInfo;
+    
     @Schema(description = "상품 목록")
     private List<ProductItem> products;
     
-    @Schema(description = "전체 검색 결과 수")
-    private Integer totalCount;
-    
-    @Schema(description = "검색어")
-    private String query;
-    
-    @Schema(description = "캐시 사용 여부")
-    private Boolean useCache;
-    
-    @Schema(description = "배경 제거 여부")
-    private Boolean removeBackground;
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SearchInfo {
+        
+        @Schema(description = "전체 검색 결과 수")
+        private Integer totalCount;
+        
+        @Schema(description = "검색어")
+        private String query;
+        
+        @Schema(description = "캐시 사용 여부")
+        private Boolean useCache;
+        
+        @Schema(description = "배경 제거 여부")
+        private Boolean removeBackground;
+        
+        @Schema(description = "검색 아이템 개수")
+        private Integer display;
+    }
     
     @Getter
     @Builder
@@ -52,17 +65,8 @@ public class ProductSearchResponse {
         @Schema(description = "상품 링크")
         private String url;
         
-        @Schema(description = "쇼핑몰명")
-        private String mallName;
-        
-        @Schema(description = "상품 타입")
-        private String productType;
-        
         @Schema(description = "제조사")
         private String maker;
-        
-        @Schema(description = "카테고리")
-        private List<String> categories;
         
         public static ProductItem from(NaverProductItem item, String processedImageUrl) {
             return ProductItem.builder()
@@ -71,10 +75,7 @@ public class ProductSearchResponse {
                     .price(parsePrice(item.getLprice()))
                     .imageUrl(processedImageUrl)
                     .url(item.getLink())
-                    .mallName(item.getMallName())
-                    .productType(item.getProductType())
-                    .maker(item.getMaker())
-                    .categories(extractCategories(item))
+                    .maker(item.getMaker()) // 네이버 API의 maker 필드 사용
                     .build();
         }
         
@@ -90,13 +91,6 @@ public class ProductSearchResponse {
             } catch (NumberFormatException e) {
                 return 0.0;
             }
-        }
-        
-        private static List<String> extractCategories(NaverProductItem item) {
-            return List.of(item.getCategory1(), item.getCategory2(), item.getCategory3(), item.getCategory4())
-                    .stream()
-                    .filter(category -> category != null && !category.isEmpty())
-                    .collect(Collectors.toList());
         }
     }
 } 

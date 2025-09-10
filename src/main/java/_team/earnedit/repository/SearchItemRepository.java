@@ -16,6 +16,6 @@ public interface SearchItemRepository extends JpaRepository<SearchItem, Long> {
     boolean existsByProductId(String productId);
     
     // 이름으로 검색 (캐시 조회용)
-    @Query("SELECT s FROM SearchItem s WHERE LOWER(s.name) LIKE LOWER(CONCAT('%', :query, '%')) ORDER BY s.updatedAt DESC")
+    @Query("SELECT s FROM SearchItem s WHERE LOWER(s.name) LIKE LOWER(CONCAT('%', :query, '%')) ORDER BY s.id DESC")
     List<SearchItem> findByNameContainingIgnoreCase(@Param("query") String query);
 } 
