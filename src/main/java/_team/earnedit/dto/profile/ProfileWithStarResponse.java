@@ -11,6 +11,6 @@ import java.util.List;
 @Getter
 public class ProfileWithStarResponse {
 
-    ProfileInfoResponseDto userInfo;
+    OtherUserProfileResponse userInfo;
     List<StarSummaryResponse> starList;
 }
