@@ -37,14 +37,42 @@ public class RankService {
 
         // top10 유저들의 랭킹 정보
         List<UserRankInfo> top10 = userRepository.findTop10UsersWithRanking().stream()
-                .map(sel_user -> UserRankInfo.builder()
-                        .userId(sel_user.getUserId())
-                        .nickname(sel_user.getNickname())
-                        .score(sel_user.getScore())
-                        .profileImage(sel_user.getProfileImage())
-                        .rank(sel_user.getRank())
-                        .build())
-                .toList();
+                .map(sel_user -> {
+
+                    // 비공개 유저
+                    if(!sel_user.isPublic()) {
+                        String nickname = sel_user.getNickname();
+
+                        // 앞 2글자만 남기고 나머지는 * 처리
+                        String maskedNickname;
+                        if (nickname.length() > 2) {
+                            maskedNickname = nickname.substring(0, 2)
+                                    + "*".repeat(nickname.length() - 2);
+                        } else {
+                            // 닉네임이 2글자 이하인 경우 전부 * 처리
+                            maskedNickname = "*".repeat(nickname.length());
+                        }
+
+                        return UserRankInfo.builder()
+                                .userId(sel_user.getUserId())
+                                .nickname(maskedNickname)
+                                .score(sel_user.getScore())
+                                .profileImage(null) // 비공개 유저는 프로필 이미지 제공 x
+                                .rank(sel_user.getRank())
+                                .isPublic(sel_user.isPublic())
+                                .build();
+                    }
+
+                    // 공개 유저
+                    return UserRankInfo.builder()
+                            .userId(sel_user.getUserId())
+                            .nickname(sel_user.getNickname())
+                            .score(sel_user.getScore())
+                            .profileImage(sel_user.getProfileImage())
+                            .rank(sel_user.getRank())
+                            .isPublic(sel_user.isPublic())
+                            .build();
+                }).toList();
 
         return RankPageResponse.builder()
                 .myRank(myRankInfo)
