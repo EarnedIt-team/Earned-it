@@ -91,8 +91,8 @@ public class DailyCheckService {
         // 출석 상태 즉시 업데이트 & 저장 & 트랜잭션 보장
         updateUserCheckedIn(userId);
 
-        // 출석 시 점수 제공
-        user.checkedInReward();
+        // 출석 시 점수 제공 (+10pt)
+        user.addScore(10);
 
         // 이미 해당 아이템이 퍼즐에 추가되어있는지 검증
         checkAlreadyAddedToPuzzle(user, item);
@@ -138,7 +138,7 @@ public class DailyCheckService {
 
         // 만약 테마 완성이 됐다면 100 지급
         if(completed) {
-            user.reward_CompleteTheme();
+            user.addScore(100);
         }
     }
 
@@ -147,13 +147,13 @@ public class DailyCheckService {
         // 출석 보상으로 점수 제공
         switch (rarity) {
             case S:
-                user.reward_S();
+                user.addScore(10);
                 break;
             case A:
-                user.reward_A();
+                user.addScore(7);
                 break;
             case B:
-                user.reward_B();
+                user.addScore(5);
                 break;
             default:
                 break;

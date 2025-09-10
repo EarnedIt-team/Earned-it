@@ -108,23 +108,23 @@ public class User {
         this.isCheckedIn = false;
     }
 
-    public void checkedInReward() {
-        this.score += 10;
+    public void addScore(long score) {
+        this.score += score;
     }
-
-    public void reward_S () {
-        this.score += 10;
-    }
-
-    public void reward_A () {
-        this.score += 7;
-    }
-    public void reward_B () {
-        this.score += 5;
-    }
-
-    // 퍼즐 테마 완성 시 100 지급
-    public void reward_CompleteTheme() {
-        this.score+=100;
-    }
+//    public void checkedInReward() {
+//        this.score += 10;
+//    }
+//    public void reward_S () {
+//        this.score += 10;
+//    }
+//    public void reward_A () {
+//        this.score += 7;
+//    }
+//    public void reward_B () {
+//        this.score += 5;
+//    }
+//    // 퍼즐 테마 완성 시 100 지급
+//    public void reward_CompleteTheme() {
+//        this.score+=100;
+//    }
 }
