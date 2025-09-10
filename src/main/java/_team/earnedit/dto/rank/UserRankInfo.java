@@ -11,15 +11,13 @@ public class UserRankInfo {
     private String nickname;
     private long score;
     private String profileImage;
-    private boolean isPublic;
 
     // JPA 네이티브 쿼리 매핑용 생성자
-    public UserRankInfo(long userId, long rank, String nickname, long score, String profileImage, boolean isPublic) {
+    public UserRankInfo(long userId, long rank, String nickname, long score, String profileImage) {
         this.userId = userId;
         this.rank = rank;
         this.nickname = nickname;
         this.score = score;
         this.profileImage = profileImage;
-        this.isPublic = isPublic;
     }
 }
