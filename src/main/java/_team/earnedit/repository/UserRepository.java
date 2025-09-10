@@ -54,8 +54,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * DENSE_RANK() : 같은 점수면 같은 순위, 순위 건너뛰지 않음(1, 2, 2, 3 ...)
      * ROW_NUMBER() : 무조건 고유 순위(1, 2, 3, 4 ...)
      */
-
-    /*
     @Query(value = """
             SELECT u.id AS userId,
                    ROW_NUMBER() OVER (ORDER BY u.score DESC) AS rank,
@@ -67,21 +65,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             LIMIT 10
             """, nativeQuery = true)
     List<UserRankInfo> findTop10UsersWithRanking();
-     */ // 기존 ver !!!!!!
 
-    // 컬럼 alias 추가 ver
-    @Query(value = """
-        SELECT u.id            AS userId,
-               ROW_NUMBER() OVER (ORDER BY u.score DESC) AS rank,
-               u.nickname      AS nickname,
-               u.score         AS score,
-               u.profile_image AS profileImage,
-               u.is_public     AS isPublic
-        FROM users u
-        WHERE u.status = 'ACTIVE'
-        LIMIT 10
-        """, nativeQuery = true)
-    List<_team.earnedit.dto.rank.UserRankRow> findTop10UsersWithRanking();
 
     @Query(value = """
             SELECT ranked.ranking
