@@ -110,7 +110,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
                    ROW_NUMBER() OVER (ORDER BY u.score DESC) AS rank,
                    u.nickname AS nickname,
                    u.score AS score,
-                   u.profile_image AS profileImage
+                   u.profile_image AS profileImage,
+                   u.is_public AS isPublic
             FROM users u
             WHERE u.status = 'ACTIVE'
             LIMIT 10
