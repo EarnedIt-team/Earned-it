@@ -1,5 +1,6 @@
 package _team.earnedit.repository;
 
+import _team.earnedit.entity.Item;
 import _team.earnedit.entity.PuzzleSlot;
 import _team.earnedit.entity.Theme;
 import io.lettuce.core.dynamic.annotation.Param;
@@ -20,4 +21,6 @@ public interface PuzzleSlotRepository extends JpaRepository<PuzzleSlot, Long> {
     void deleteByItemId(@Param("itemId") Long itemId);
 
     List<PuzzleSlot> findByTheme(Theme theme);
+
+    PuzzleSlot findByItem(Item item);
 }
