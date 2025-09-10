@@ -39,6 +39,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
     int resetAllCheckedIn();
 
 
+    // 내가 신고한 대상 유저 ID들
+    @Query(value = """
+        SELECT DISTINCT r.reported_user_id
+        FROM user_report r
+        WHERE r.reporting_user_id = :userId
+        """, nativeQuery = true)
+    List<Long> findReportedUserIdsByReporter(@Param("userId") Long userId);
+
 
     /* =======================
        랜덤 공개 유저 찾기 (기존 ver.)
