@@ -151,7 +151,7 @@ public class ProfileService {
         entityFinder.getUserOrThrow(userId);
 
         // 프로필 공개 상태인 유저 count 명 조회
-        List<User> randomPublicUsers = userRepository.findRandomPublicUsers(count);
+        List<User> randomPublicUsers = userRepository.findRandomPublicUsersForMe(userId,count);
 
         return randomPublicUsers.stream().map(user ->
                         PublicUserInfoResponse.builder()
