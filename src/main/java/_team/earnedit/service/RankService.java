@@ -33,6 +33,7 @@ public class RankService {
                 .score(user.getScore())
                 .profileImage(user.getProfileImage())
                 .rank(myRank)
+                .isPublic(user.getIsPublic())
                 .build();
 
         // 내가 신고한 대상들 : 마스킹 판정용
