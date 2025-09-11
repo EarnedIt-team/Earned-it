@@ -82,6 +82,7 @@ public class RankService {
                             .build();
                 }).toList();
 
+
         return RankPageResponse.builder()
                 .myRank(myRankInfo)
                 .top10(top10)

@@ -16,5 +16,4 @@ public class UserRankInfo {
     private long score;
     private String profileImage;
     private boolean isPublic;
-
 }
