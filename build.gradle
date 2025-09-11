@@ -45,6 +45,10 @@ dependencies {
 
 	// S3
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+	
+	// JAXB (Java 9+ 환경에서 AWS SDK Base64 경고 해결)
+	implementation 'javax.xml.bind:jaxb-api:2.3.1'
+	implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.9'
 
 	// jjwt
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
