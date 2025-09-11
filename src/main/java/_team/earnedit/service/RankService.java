@@ -35,12 +35,19 @@ public class RankService {
                 .rank(myRank)
                 .build();
 
+        // 내가 신고한 대상들 : 마스킹 판정용
+        var reportedIds = new java.util.HashSet<>(
+                userRepository.findReportedUserIdsByReporter(user.getId())
+        );
+
         // top10 유저들의 랭킹 정보
         List<UserRankInfo> top10 = userRepository.findTop10UsersWithRanking().stream()
                 .map(sel_user -> {
 
-                    // 비공개 유저
-                    if(!sel_user.isPublic()) {
+                    // 비공개 유저 or 내가 신고한 유저
+                    boolean treatedPrivate = !sel_user.isPublic() || reportedIds.contains(sel_user.getUserId());
+
+                    if (treatedPrivate) {
                         String nickname = sel_user.getNickname();
 
                         // 앞 2글자만 남기고 나머지는 * 처리
@@ -57,9 +64,9 @@ public class RankService {
                                 .userId(sel_user.getUserId())
                                 .nickname(maskedNickname)
                                 .score(sel_user.getScore())
-                                .profileImage(null) // 비공개 유저는 프로필 이미지 제공 x
+                                .profileImage(null) // 비공개 유저 or 취급이면 프로필 이미지 제공 X
                                 .rank(sel_user.getRank())
-                                .isPublic(sel_user.isPublic())
+                                .isPublic(false)    // 화면 표현용: 비공개 취급
                                 .build();
                     }
 
