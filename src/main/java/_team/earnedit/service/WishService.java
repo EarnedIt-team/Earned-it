@@ -222,7 +222,7 @@ public class WishService {
                 .build();
 
         // userList 조회 및 생성
-        List<User> randomPublicUsers = userRepository.findRandomPublicUsersExceptForMe(userId, userCount);
+        List<User> randomPublicUsers = userRepository.findRandomPublicUsersExcept(userId, userCount);
         List<PublicUserInfoResponse> userList = randomPublicUsers.stream()
                 .map(selectUser -> PublicUserInfoResponse.builder()
                         .userId(selectUser.getId())

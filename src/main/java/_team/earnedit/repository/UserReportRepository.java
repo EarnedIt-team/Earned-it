@@ -14,6 +14,4 @@ public interface UserReportRepository extends JpaRepository<UserReport, Long> {
     long countByReportingUser_IdAndCreatedAtAfter(
             Long reportingUserId, LocalDateTime createdAfter
     );
-
-    long countByReportedUser_Id(Long reportedUserId);
 }

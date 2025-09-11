@@ -25,7 +25,6 @@ public class ReportService {
     private final ReportReasonRepository reportReasonRepository;
     private final UserReportRepository userReportRepository;
     private final EntityFinder entityFinder;
-    private final EmailService emailService;
 
     public void reportUser(Long reportingUserId, ReportUserRequestDto dto) {
         User reportingUser = entityFinder.getUserOrThrow(reportingUserId);
@@ -68,17 +67,8 @@ public class ReportService {
                 .reason(reason)
                 .reasonText(dto.getReasonText())
                 .build();
+
         userReportRepository.save(report);
-
-        // 신고대상자 누적신고수 검사 -> 임계치:5 이상은 강제 비공개 + 고지 메일 전송
-        long total = userReportRepository.countByReportedUser_Id(reportedUser.getId());
-        if (total >= 5) {
-            if (Boolean.TRUE.equals(reportedUser.getIsPublic())) {
-                reportedUser.updateVisibility(false);
-                emailService.sendReportLimitNotice(reportedUser.getEmail(), total);
-            }
-        }
-
     }
 }
 
