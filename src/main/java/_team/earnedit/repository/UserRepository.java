@@ -71,18 +71,18 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     // 랜덤 public 유저 찾기 - 신고미만자 제외
     @Query(value = """
-        SELECT * FROM users u
-        WHERE u.is_public = true
-          AND u.status = 'ACTIVE'
-          AND NOT EXISTS (
-                SELECT 1 FROM user_report r
-                WHERE r.reporting_user_id = :userId
-                  AND r.reported_user_id  = u.id
-          )
-        ORDER BY RANDOM()
-        LIMIT :count
-        """, nativeQuery = true)
-    List<User> findRandomPublicUsersForMe(@Param("meId") Long userId,
+    SELECT * FROM users u
+    WHERE u.is_public = true
+      AND u.status = 'ACTIVE'
+      AND NOT EXISTS (
+            SELECT 1 FROM user_report r
+            WHERE r.reporting_user_id = :userId
+              AND r.reported_user_id  = u.id
+      )
+    ORDER BY RANDOM()
+    LIMIT :count
+    """, nativeQuery = true)
+    List<User> findRandomPublicUsersForMe(@Param("userId") Long userId,
                                           @Param("count") long count);
 
     // 로그인한 유저 id를 제외한 유저 리스트를 반환 - 신고미만자 제외
