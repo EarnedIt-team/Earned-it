@@ -93,12 +93,6 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html  # Swagger UI 접속 경로
 
-# 네이버 API 설정
-naver:
-  api:
-    client-id: ${NAVER_CLIENT_ID}
-    client-secret: ${NAVER_CLIENT_SECRET}
-
 # 스웨거 https 인식
 server:
   forward-headers-strategy: framework
