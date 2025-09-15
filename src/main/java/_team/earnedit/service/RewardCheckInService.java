@@ -20,4 +20,13 @@ public class RewardCheckInService {
         user.checkIn();
         userRepository.save(user);
     }
+
+    // 출석 시 점수 제공 (+10pt) & 트랜잭션 분리
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void giveAttendanceScore(Long userId) {
+        User user = entityFinder.getUserOrThrow(userId);
+
+        user.addScore(10);
+        userRepository.save(user);
+    }
 }

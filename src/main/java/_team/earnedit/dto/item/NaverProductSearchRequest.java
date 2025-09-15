@@ -24,18 +24,15 @@ public class NaverProductSearchRequest {
     private String query;
     
     @Schema(description = "캐시 사용 여부", example = "true")
-    @Builder.Default
-    private Boolean useCache = true;
+    private Boolean useCache;
     
     @Schema(description = "이미지 배경 제거 여부 (향후 구현 예정)", example = "false")
-    @Builder.Default
-    private Boolean removeBackground = false;
+    private Boolean removeBackground;
     
     @Schema(description = "검색 결과 개수 (1-100)", example = "20")
     @Min(value = 1, message = "검색 결과 개수는 1 이상이어야 합니다.")
     @Max(value = 100, message = "검색 결과 개수는 100 이하여야 합니다.")
-    @Builder.Default
-    private Integer display = 20;
+    private Integer display;
     
     @JsonIgnore
     public Integer getStart() {
