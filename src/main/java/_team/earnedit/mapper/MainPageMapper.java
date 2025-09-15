@@ -32,6 +32,7 @@ public interface MainPageMapper {
     @Mapping(target = "payday", source = "salary.payday", defaultValue = "0")
     @Mapping(target = "hasSalary", expression = "java(salary != null)")
     @Mapping(target = "isCheckedIn", source = "user.isCheckedIn")
+    @Mapping(target = "isPublic", source = "user.isPublic")
     MainPageResponse.UserInfo toUserInfo(User user, Salary salary);
 
     // Wish → WishListResponse

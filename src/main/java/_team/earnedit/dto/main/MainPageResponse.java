@@ -41,5 +41,8 @@ public class MainPageResponse {
 
         @Schema(description = "출석체크 여부")
         private boolean isCheckedIn;
+
+        @Schema(description = "프로필 공개 여부")
+        private boolean isPublic;
     }
 }
