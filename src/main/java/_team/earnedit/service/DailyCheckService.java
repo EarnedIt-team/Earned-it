@@ -4,9 +4,7 @@ import _team.earnedit.dto.dailyCheck.RewardCandidate;
 import _team.earnedit.dto.dailyCheck.RewardItem;
 import _team.earnedit.dto.dailyCheck.RewardSelectionRequest;
 import _team.earnedit.dto.puzzle.PieceResponse;
-import _team.earnedit.entity.Item;
-import _team.earnedit.entity.Piece;
-import _team.earnedit.entity.User;
+import _team.earnedit.entity.*;
 import _team.earnedit.global.ErrorCode;
 import _team.earnedit.global.exception.item.ItemException;
 import _team.earnedit.global.exception.user.UserException;
@@ -14,17 +12,22 @@ import _team.earnedit.global.util.EntityFinder;
 import _team.earnedit.mapper.PieceMapper;
 import _team.earnedit.repository.ItemRepository;
 import _team.earnedit.repository.PieceRepository;
+import _team.earnedit.repository.PuzzleSlotRepository;
+import _team.earnedit.repository.UserRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -41,6 +44,7 @@ public class DailyCheckService {
     private final PieceMapper pieceMapper;
 
     private static final Duration REWARD_TTL = Duration.ofMinutes(10); // 10분만 유효
+    private final PuzzleSlotRepository puzzleSlotRepository;
 
     @Transactional
     public PieceResponse addPieceToPuzzle(Long userId, long itemId) {
@@ -61,7 +65,10 @@ public class DailyCheckService {
     @Transactional
     public RewardCandidate generateRewardCandidates(Long userId) {
         log.info("[DailyCheckService] 출석 보상 목록 생성 요청 - userId = {}", userId);
-        entityFinder.getUserOrThrow(userId);
+        User user = entityFinder.getUserOrThrow(userId);
+
+        // 이미 출석 했다면 보상 선택 불가
+        if(user.getIsCheckedIn()) throw new UserException(ErrorCode.ALREADY_REWARDED);
 
         return randomRewardPickAndGenerateToken(userId);
     }
@@ -80,11 +87,14 @@ public class DailyCheckService {
         // redis로부터 보상후보 조회
         List<Long> candidateIds = getCandidateIdsFromRedis(key);
 
-        // 선택한 아이템이 보상 후보에 선택됐는지 검증
+        // 선택한 아이템이 보상 후보에서 선택됐는지 검증
         validateSelectedItemInCandidates(userId, request, candidateIds);
 
         // 출석 상태 즉시 업데이트 & 저장 & 트랜잭션 보장
         updateUserCheckedIn(userId);
+
+        // 출석 시 점수 제공 (+10pt) & 트랜잭션 분리
+        giveAttendanceScore(userId);
 
         // 이미 해당 아이템이 퍼즐에 추가되어있는지 검증
         checkAlreadyAddedToPuzzle(user, item);
@@ -92,11 +102,64 @@ public class DailyCheckService {
         // piece 저장
         savePiece(user, item);
 
+        // 여기서 퍼즐 테마 완성 여부 체크
+        rewardIfThemeCompleted(user, item);
+
+        // 레어도에 따라 점수 차등 지급
+        Rarity rarity = item.getRarity();
+        rewardScoreToUser(user, rarity);
+
         log.info("[DailyCheckService] 출석 보상 정상 지급  - userId = {}", userId);
         redisTemplate.delete(key);
     }
-
     // ------------------------------------------ 아래는 메서드 ------------------------------------------ //
+
+    // 해당 조각으로 완성된 테마가 있다면 100pt 지급
+    private void rewardIfThemeCompleted(User user, Item item) {
+
+        // 해당 아이템의 테마 확인
+        Theme theme = puzzleSlotRepository.findByItem(item).getTheme();
+
+        // 테마들을 순회
+        List<PuzzleSlot> themeSlots = puzzleSlotRepository.findByTheme(theme);
+
+        // 해당 테마에 속한 아이템들의 id 리스트
+        List<Long> itemIdList = themeSlots.stream()
+                .map(PuzzleSlot::getItem)
+                .map(Item::getId)
+                .toList();
+
+        // 해당 유저가 그 아이디의 아이템들을 전부 가지고 있는지 확인
+        Set<Long> userItemIds = pieceRepository.findByUserId(user.getId()).stream()
+                .map(piece -> piece.getItem().getId())
+                .collect(Collectors.toSet());
+
+        // 유저가 가진 아이템 집합에 테망의 아이템 집합이 속하는지 확인
+        boolean completed = userItemIds.containsAll(itemIdList);
+
+        // 만약 테마 완성이 됐다면 100 지급
+        if(completed) {
+            user.addScore(100);
+        }
+    }
+
+    // 아이템 등급에 따른 보상 지급
+    private void rewardScoreToUser(User user, Rarity rarity) {
+        // 출석 보상으로 점수 제공
+        switch (rarity) {
+            case S:
+                user.addScore(10);
+                break;
+            case A:
+                user.addScore(7);
+                break;
+            case B:
+                user.addScore(5);
+                break;
+            default:
+                break;
+        }
+    }
 
     // redis로부터 보상후보 조회
     private List<Long> getCandidateIdsFromRedis(String key) {
@@ -182,6 +245,12 @@ public class DailyCheckService {
     private void updateUserCheckedIn(Long userId) {
         rewardCheckInService.checkInUser(userId);
         log.info("[DailyCheckService] 출석 상태 업데이트 - userId = {}", userId);
+    }
+
+    // 해당 유저의 출석 점수를 지급합니다. (트랜 잭션 보장)
+    private void giveAttendanceScore(Long userId) {
+        rewardCheckInService.giveAttendanceScore(userId);
+        log.info("[DailyCheckService] 출석 점수 지급 +10pt - userId = {}", userId);
     }
 
     // 선택한 아이템이 보상 후보에 선택됐는지 검증
