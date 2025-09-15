@@ -13,12 +13,14 @@ import _team.earnedit.mapper.PieceMapper;
 import _team.earnedit.repository.ItemRepository;
 import _team.earnedit.repository.PieceRepository;
 import _team.earnedit.repository.PuzzleSlotRepository;
+import _team.earnedit.repository.UserRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
@@ -91,8 +93,8 @@ public class DailyCheckService {
         // 출석 상태 즉시 업데이트 & 저장 & 트랜잭션 보장
         updateUserCheckedIn(userId);
 
-        // 출석 시 점수 제공 (+10pt)
-        user.addScore(10);
+        // 출석 시 점수 제공 (+10pt) & 트랜잭션 분리
+        giveAttendanceScore(userId);
 
         // 이미 해당 아이템이 퍼즐에 추가되어있는지 검증
         checkAlreadyAddedToPuzzle(user, item);
@@ -110,7 +112,6 @@ public class DailyCheckService {
         log.info("[DailyCheckService] 출석 보상 정상 지급  - userId = {}", userId);
         redisTemplate.delete(key);
     }
-
     // ------------------------------------------ 아래는 메서드 ------------------------------------------ //
 
     // 해당 조각으로 완성된 테마가 있다면 100pt 지급
@@ -244,6 +245,12 @@ public class DailyCheckService {
     private void updateUserCheckedIn(Long userId) {
         rewardCheckInService.checkInUser(userId);
         log.info("[DailyCheckService] 출석 상태 업데이트 - userId = {}", userId);
+    }
+
+    // 해당 유저의 출석 점수를 지급합니다. (트랜 잭션 보장)
+    private void giveAttendanceScore(Long userId) {
+        rewardCheckInService.giveAttendanceScore(userId);
+        log.info("[DailyCheckService] 출석 점수 지급 +10pt - userId = {}", userId);
     }
 
     // 선택한 아이템이 보상 후보에 선택됐는지 검증
