@@ -47,7 +47,7 @@ public enum ErrorCode {
 
     // Item
     ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 아이템은 존재하지 않습니다."),
-
+    VISIBILITY_LOCKED(HttpStatus.FORBIDDEN, "받은 신고가 누적 5회 이상으로, 프로필 비공개로 임시조치 되어있습니다."),
 
 
     // Salary
@@ -55,6 +55,7 @@ public enum ErrorCode {
 
     // profile
     NICKNAME_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 사용 중인 닉네임입니다."),
+
 
     // 약관 Term
     TERM_MUST_BE_CHECKED(HttpStatus.BAD_REQUEST, "필수 약관 동의 여부는 true여야 합니다."),
@@ -78,6 +79,8 @@ public enum ErrorCode {
     EMAIL_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "유효하지 않은 인증 요청입니다."),
     EMAIL_TOKEN_EXPIRED(HttpStatus.BAD_REQUEST, "인증 유효시간이 만료되었습니다."),
     EMAIL_TOKEN_ALREADY_VERIFIED(HttpStatus.BAD_REQUEST, "이미 인증이 완료된 요청입니다."),
+
+    EMAIL_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "이메일 전송에 실패했습니다."),
 
     // 비밀번호 재설정
     PASSWORD_SAME_AS_BEFORE(HttpStatus.BAD_REQUEST, "이전 비밀번호와 동일합니다."),
@@ -103,7 +106,10 @@ public enum ErrorCode {
     DB_ACCESS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "데이터베이스 접근 오류입니다."),
     NO_RESULT(HttpStatus.NOT_FOUND, "데이터를 찾을 수 없습니다."),
     EMPTY_RESULT(HttpStatus.NOT_FOUND, "결과가 존재하지 않습니다."),
-    VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "유효성 검증 실패");
+    VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "유효성 검증 실패"),
+
+    // 외부 API 오류
+    NAVER_API_ERROR(HttpStatus.BAD_GATEWAY, "네이버 쇼핑 API 호출에 실패했습니다.");
 
     private final HttpStatus httpStatus;
     private final String defaultMessage;

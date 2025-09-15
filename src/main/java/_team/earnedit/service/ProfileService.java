@@ -11,6 +11,7 @@ import _team.earnedit.global.util.EntityFinder;
 import _team.earnedit.global.util.SalaryCalculator;
 import _team.earnedit.repository.SalaryRepository;
 import _team.earnedit.repository.StarRepository;
+import _team.earnedit.repository.UserReportRepository;
 import _team.earnedit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ public class ProfileService {
     private final FileUploadService fileUploadService;
     private final EntityFinder entityFinder;
     private final StarRepository starRepository;
+    private final UserReportRepository userReportRepository;
 
     /*
      ******** 수익 관련 ********
@@ -132,6 +134,14 @@ public class ProfileService {
     public void updateVisibility(Long userId, UpdateVisibilityRequestDto requestDto) {
         User user = entityFinder.getUserOrThrow(userId);
 
+        // 공개로 전환하려는 경우, 차단 검사 (임계치:5회 이상이면 공개전환 불가)
+        if (Boolean.TRUE.equals(requestDto.getIsPublic())) {
+            long totalReports = userReportRepository.countByReportedUser_Id(user.getId());
+            if (totalReports >= 5) {
+                throw new ProfileException(ErrorCode.VISIBILITY_LOCKED);
+            }
+        }
+
         user.updateVisibility(requestDto.getIsPublic());
     }
 
@@ -141,7 +151,7 @@ public class ProfileService {
         entityFinder.getUserOrThrow(userId);
 
         // 프로필 공개 상태인 유저 count 명 조회
-        List<User> randomPublicUsers = userRepository.findRandomPublicUsers(count);
+        List<User> randomPublicUsers = userRepository.findRandomPublicUsersForMe(userId,count);
 
         return randomPublicUsers.stream().map(user ->
                         PublicUserInfoResponse.builder()
