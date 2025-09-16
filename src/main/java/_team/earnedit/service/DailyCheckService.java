@@ -13,14 +13,12 @@ import _team.earnedit.mapper.PieceMapper;
 import _team.earnedit.repository.ItemRepository;
 import _team.earnedit.repository.PieceRepository;
 import _team.earnedit.repository.PuzzleSlotRepository;
-import _team.earnedit.repository.UserRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
@@ -68,7 +66,7 @@ public class DailyCheckService {
         User user = entityFinder.getUserOrThrow(userId);
 
         // 이미 출석 했다면 보상 선택 불가
-        if(user.getIsCheckedIn()) throw new UserException(ErrorCode.ALREADY_REWARDED);
+        if (user.getIsCheckedIn()) throw new UserException(ErrorCode.ALREADY_REWARDED);
 
         return randomRewardPickAndGenerateToken(userId);
     }
@@ -79,38 +77,33 @@ public class DailyCheckService {
         User user = entityFinder.getUserOrThrow(userId);
         Item item = entityFinder.getItemOrThrow(request.getSelectedItemId());
 
-        // 이미 보상이 지급된 회원 예외
-        validateRewardNotAlreadyClaimed(user);
+        // 1. 이미 보상이 지급된 회원 예외
+        validateRewardNotAlreadyClaimed(userId);
 
         String key = "reward:" + request.getRewardToken();
 
-        // redis로부터 보상후보 조회
+        // 2. redis로부터 보상후보 검증
         List<Long> candidateIds = getCandidateIdsFromRedis(key);
-
-        // 선택한 아이템이 보상 후보에서 선택됐는지 검증
         validateSelectedItemInCandidates(userId, request, candidateIds);
 
-        // 출석 상태 즉시 업데이트 & 저장 & 트랜잭션 보장
+        // 3. 출석 상태 & 점수 지급 → 반드시 보장
         updateUserCheckedIn(userId);
-
-        // 출석 시 점수 제공 (+10pt) & 트랜잭션 분리
         giveAttendanceScore(userId);
 
-        // 이미 해당 아이템이 퍼즐에 추가되어있는지 검증
+        // 4. 퍼즐 조각 처리 (중복이면 로그만 남기고 무시)
         checkAlreadyAddedToPuzzle(user, item);
-
-        // piece 저장
         savePiece(user, item);
+        log.warn("[DailyCheckService] 중복 아이템으로 조각 추가 실패 - userId = {}, itemId = {}", userId, item.getId());
 
-        // 여기서 퍼즐 테마 완성 여부 체크
+        // 5. 여기서 퍼즐 테마 완성 여부 체크
         rewardIfThemeCompleted(user, item);
 
-        // 레어도에 따라 점수 차등 지급
-        Rarity rarity = item.getRarity();
-        rewardScoreToUser(user, rarity);
+        // 6. 레어도에 따라 점수 차등 지급
+        rewardScoreToUser(user, item.getRarity());
 
-        log.info("[DailyCheckService] 출석 보상 정상 지급  - userId = {}", userId);
+        // 7. Redis에서 후보 삭제
         redisTemplate.delete(key);
+        log.info("[DailyCheckService] 출석 보상 정상 지급  - userId = {}", userId);
     }
     // ------------------------------------------ 아래는 메서드 ------------------------------------------ //
 
@@ -138,7 +131,7 @@ public class DailyCheckService {
         boolean completed = userItemIds.containsAll(itemIdList);
 
         // 만약 테마 완성이 됐다면 100 지급
-        if(completed) {
+        if (completed) {
             user.addScore(100);
         }
     }
@@ -262,8 +255,10 @@ public class DailyCheckService {
     }
 
     // 이미 보상이 지급된 회원 예외
-    private void validateRewardNotAlreadyClaimed(User user) {
-        if (user.getIsCheckedIn()) {
+    private void validateRewardNotAlreadyClaimed(Long userId) {
+        User freshUser = entityFinder.getUserOrThrow(userId);
+
+        if (freshUser.getIsCheckedIn()) {
             throw new UserException(ErrorCode.ALREADY_REWARDED);
         }
     }
