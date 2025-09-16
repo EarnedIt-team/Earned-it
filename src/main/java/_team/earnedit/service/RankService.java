@@ -56,6 +56,8 @@ public class RankService {
                         if (nickname.length() > 2) {
                             maskedNickname = nickname.substring(0, 2)
                                     + "*".repeat(nickname.length() - 2);
+                        } else if (nickname.length() == 2) { // 2글자 닉네임의 경우 앞의 1글자만 표시 ex) 동훈 -> 동*
+                            maskedNickname = nickname.charAt(0) + "*";
                         } else {
                             // 닉네임이 2글자 이하인 경우 전부 * 처리
                             maskedNickname = "*".repeat(nickname.length());
