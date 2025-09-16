@@ -15,6 +15,7 @@ import _team.earnedit.repository.PieceRepository;
 import _team.earnedit.repository.PuzzleSlotRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -43,6 +44,7 @@ public class DailyCheckService {
 
     private static final Duration REWARD_TTL = Duration.ofMinutes(10); // 10분만 유효
     private final PuzzleSlotRepository puzzleSlotRepository;
+    private final EntityManager entityManager;
 
     @Transactional
     public PieceResponse addPieceToPuzzle(Long userId, long itemId) {
@@ -74,7 +76,6 @@ public class DailyCheckService {
     @Transactional
     public void selectReward(Long userId, RewardSelectionRequest request) {
         log.info("[DailyCheckService] 출석 보상 요청  - userId = {}", userId);
-        User user = entityFinder.getUserOrThrow(userId);
         Item item = entityFinder.getItemOrThrow(request.getSelectedItemId());
 
         // 1. 이미 보상이 지급된 회원 예외
@@ -90,10 +91,12 @@ public class DailyCheckService {
         updateUserCheckedIn(userId);
         giveAttendanceScore(userId);
 
+        User user = entityFinder.getUserOrThrow(userId);
+        entityManager.refresh(user); // 최신 DB 값 강제로 가져오기 ************ 이걸로 해결 ..
+
         // 4. 퍼즐 조각 처리 (중복이면 로그만 남기고 무시)
         checkAlreadyAddedToPuzzle(user, item);
         savePiece(user, item);
-        log.warn("[DailyCheckService] 중복 아이템으로 조각 추가 실패 - userId = {}, itemId = {}", userId, item.getId());
 
         // 5. 여기서 퍼즐 테마 완성 여부 체크
         rewardIfThemeCompleted(user, item);
