@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Builder
 @Getter
 public class StarSummaryResponse {
@@ -36,4 +38,10 @@ public class StarSummaryResponse {
 
     @Schema(description = "순서", example = "1~5")
     private int rank;
+
+    @Schema(description = "생성 시각", example = "2025-07-27T13:45:00")
+    private LocalDateTime createdAt;
+
+    @Schema(description = "수정 시각", example = "2025-07-28T08:15:00")
+    private LocalDateTime updatedAt;
 }
