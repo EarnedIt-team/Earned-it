@@ -244,8 +244,8 @@ public class WishService {
                         .starred(star.getWish().isStarred())
                         .isBought(star.getWish().isBought())
                         .rank(star.getRank())
-                        .createdAt(star.getUser().getCreatedAt())
-                        .updatedAt(star.getUser().getUpdatedAt())
+                        .createdAt(star.getWish().getCreatedAt())
+                        .updatedAt(star.getWish().getUpdatedAt())
                         .build())
                 .toList();
 
