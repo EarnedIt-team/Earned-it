@@ -231,7 +231,7 @@ public class WishService {
                 .toList();
 
         // starList 조회 및 생성
-        List<Star> starList = starRepository.findByUserId(userId);
+        List<Star> starList = starRepository.findByUserIdOrderByRankAsc(userId);
         List<StarSummaryResponse> mappedStarList = starList.stream()
                 .map(star -> StarSummaryResponse.builder()
                         .starId(star.getId())
