@@ -3,7 +3,6 @@ package _team.earnedit.service;
 import _team.earnedit.dto.PagedResponse;
 import _team.earnedit.dto.profile.ProfileInfoResponseDto;
 import _team.earnedit.dto.profile.PublicUserInfoResponse;
-import _team.earnedit.dto.star.StarListResponse;
 import _team.earnedit.dto.star.StarSummaryResponse;
 import _team.earnedit.dto.wish.*;
 import _team.earnedit.entity.*;
@@ -232,7 +231,7 @@ public class WishService {
                 .toList();
 
         // starList 조회 및 생성
-        List<Star> starList = starRepository.findByUserId(userId);
+        List<Star> starList = starRepository.findByUserIdOrderByRankAsc(userId);
         List<StarSummaryResponse> mappedStarList = starList.stream()
                 .map(star -> StarSummaryResponse.builder()
                         .starId(star.getId())
@@ -245,6 +244,8 @@ public class WishService {
                         .starred(star.getWish().isStarred())
                         .isBought(star.getWish().isBought())
                         .rank(star.getRank())
+                        .createdAt(star.getWish().getCreatedAt())
+                        .updatedAt(star.getWish().getUpdatedAt())
                         .build())
                 .toList();
 

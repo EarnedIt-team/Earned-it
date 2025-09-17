@@ -191,6 +191,8 @@ public class ProfileService {
                         .starred(star.getWish().isStarred())
                         .isBought(star.getWish().isBought())
                         .rank(star.getRank())
+                        .createdAt(star.getWish().getCreatedAt())
+                        .updatedAt(star.getWish().getUpdatedAt())
                         .build())
                 .toList();
 
