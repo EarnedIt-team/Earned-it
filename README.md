@@ -169,6 +169,42 @@ java -jar build/libs/earnedit-0.0.1-SNAPSHOT.jar
 - **PostgreSQL**: 15.x
 - **Redis**: 7.2
 
+### 📅 일정
+<img width="5000" height="1542" alt="Frame 427318228" src="https://github.com/user-attachments/assets/c918740d-c92b-411a-bffa-4d923fa1bbb4" />
+
+<br>
+<br>
+
+### 🙋‍♂️ 맴버
+<div align="center">
+  <table>
+    <tr>
+      <td align="center"><strong><a href="https://github.com/PlayTheApp"><button>박준영</button></a></strong></td>
+      <td align="center"><strong><a href="https://github.com/yoorym-kim"><button>김유림</button></a></strong></td>
+      <td align="center"><strong><a href="https://github.com/Saaad9"><button>심동훈</button></a></strong></td>
+      <td align="center"><strong><a href="https://github.com/youngchannelforyou"><button>유찬영</button></a></strong></td>
+    </tr>
+    <tr>
+      <td align="center"><img src="https://avatars.githubusercontent.com/u/92419169?v=4" width="100"></td>
+      <td align="center"><img src="https://avatars.githubusercontent.com/u/187170198?v=4" width="100"></td>
+      <td align="center"><img src="https://avatars.githubusercontent.com/u/110652278?v=4" width="100"></td>
+      <td align="center"><img src="https://avatars.githubusercontent.com/u/122330470?v=4" width="100"></td>
+    </tr>
+    <tr>
+      <td align="center">Front-End</td>
+      <td align="center">Back-End</td>
+      <td align="center">PM & Back-End</td>
+      <td align="center">Back-End</td>
+    </tr>
+    <tr>
+      <td align="center">프론트, 기획, 디자인</a></td>
+      <td align="center">유저 및 신고 API, FCM, 디자인</a></td>
+      <td align="center">위시 및 퍼즐&랭킹 API, CI/CD</a></td>
+      <td align="center">상품 검색 API</a></td>
+    </tr>
+  </table>
+</div>
+
 ## 📝 라이선스
 
 이 프로젝트는 MIT 라이선스 하에 배포됩니다.
