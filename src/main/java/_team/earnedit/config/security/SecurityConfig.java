@@ -60,6 +60,7 @@ public class SecurityConfig {
                                 "/webjars/**",
                                 "/images/**",
                                 "/admin/**",// 관리자페이지 오픈
+                                "/removebg-server/**", // 배경 제거 Fast API 권한 해제
 
                                 "/api/auth/signup",
                                 "/api/auth/signin",
