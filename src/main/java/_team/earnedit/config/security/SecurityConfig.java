@@ -61,6 +61,8 @@ public class SecurityConfig {
                                 "/images/**",
                                 "/admin/**",// 관리자페이지 오픈
                                 "/removebg-server/**", // 배경 제거 Fast API 권한 해제
+                                "/openapi.json", // Fast API 관련
+                                "/docs",
 
                                 "/api/auth/signup",
                                 "/api/auth/signin",
