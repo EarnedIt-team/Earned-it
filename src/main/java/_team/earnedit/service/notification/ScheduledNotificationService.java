@@ -1,4 +1,4 @@
-package _team.earnedit.service.fcm;
+package _team.earnedit.service.notification;
 
 import _team.earnedit.entity.MessageTemplate;
 import _team.earnedit.entity.MessageTemplate.Category;
