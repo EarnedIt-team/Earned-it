@@ -1,11 +1,26 @@
 package _team.earnedit.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import org.hibernate.annotations.CreationTimestamp;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "message_templates")
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class MessageTemplate {
+
+    public enum Category {
+        QUOTE, LUNCH, ENCOURAGE
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -16,17 +31,14 @@ public class MessageTemplate {
     @Column(nullable=false, length = 1000)
     private String body;  // 서브타이틀(멘트)
 
-    @Column(length = 64)
-    private String category; // "quote", "lunch", "encourage" 등
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 64)
+    private Category category;
 
+    @Column(nullable = false)
+    @Builder.Default
     private boolean active = true;
 
-    private LocalDateTime createdAt = LocalDateTime.now();
-
-    public MessageTemplate() {}
-    public MessageTemplate(String title, String body, String category) {
-        this.title = title;
-        this.body = body;
-        this.category = category;
-    }
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 }
