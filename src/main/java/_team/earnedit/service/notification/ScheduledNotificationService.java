@@ -32,8 +32,8 @@ public class ScheduledNotificationService {
         sendRandom(Category.LUNCH);
     }
 
-    // 퇴근시간 (18:00 KST)
-    @Scheduled(cron = "0 0 18 * * *")
+    // 퇴근시간 (19:00 KST)
+    @Scheduled(cron = "0 0 19 * * *")
     public void sendEveningQuote() {
         sendRandom(Category.QUOTE);
     }
