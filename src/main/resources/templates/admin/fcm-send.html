@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title>FCM 전송 - 관리자</title>
+  <style>
+    body { font-family: 'Arial', sans-serif; margin: 2rem; background:#f6f7fb; color:#222; }
+    .card { background:white; padding:1rem; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.06); margin-bottom:1rem; }
+    label { display:block; font-weight:600; margin-top:0.5rem; }
+    input[type=text], textarea, select { width:100%; padding:8px; margin-top:6px; border-radius:6px; border:1px solid #ddd; }
+    button { margin-top:12px; padding:8px 14px; border-radius:8px; border:0; cursor:pointer; background:#007bff; color:white; }
+    .success { color:green; }
+    .error { color:#b00020; }
+    .templates { display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:12px; }
+    .tpl { padding:10px; border-radius:6px; background:#fff; border:1px solid #eee; }
+    .small-btn { padding:6px 8px; font-size:0.9rem; background:#28a745; color:white; border-radius:6px; border:0; cursor:pointer; }
+  </style>
+</head>
+<body>
+<h1>📣 FCM 전송 (관리자)</h1>
+
+<div th:if="${success}" class="card success" th:text="${success}"></div>
+<div th:if="${error}" class="card error" th:text="${error}"></div>
+
+<div class="card">
+  <h3>즉시 전송 (직접 입력)</h3>
+  <form th:action="@{/admin/fcm/send}" method="post">
+    <label>Topic</label>
+    <input type="text" name="topic" th:value="${defaultTopic}" placeholder="global_notifications" />
+
+    <label>Title</label>
+    <input type="text" name="title" placeholder="제목을 입력하세요" required />
+
+    <label>Body</label>
+    <textarea name="body" rows="3" placeholder="본문을 입력하세요" required></textarea>
+
+    <label>데이터 (옵션, key=value 형태로 쉼표로 구분)</label>
+    <input type="text" name="data" placeholder="exampleKey=exampleValue,foo=bar" />
+
+    <button type="submit">지금 전송</button>
+  </form>
+  <p style="margin-top:8px; color:#666; font-size:0.9rem;">Tip: 글로벌 전송을 원하면 topic을 <code>global_notifications</code> 로 사용하세요.</p>
+</div>
+
+<div class="card">
+  <h3>템플릿 목록 (DB)</h3>
+  <div class="templates">
+    <div class="tpl" th:each="tpl : ${templates}">
+      <div><strong th:text="${tpl.title}">제목</strong> <small style="color:#888" th:text="${tpl.category}">카테고리</small></div>
+      <div th:text="${tpl.body}" style="margin:8px 0; color:#333;">본문</div>
+      <form th:action="@{|/admin/fcm/send/template/${tpl.id}|}" method="post">
+        <button type="submit" class="small-btn">글로벌로 전송</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 폼에서 data 입력을 key=value,comma 형식을 서버로 보내는 간단 처리 (서버에서는 Map으로 받을 수 있도록)
+  document.querySelector('form[th\\:action="@{/admin/fcm/send}"]')?.addEventListener('submit', function (ev) {
+    // 폼 submit 전 data 필드가 있으면 key=value 쌍으로 input을 여러개 만들어서 전송
+    const dataStr = this.querySelector('input[name="data"]').value.trim();
+    if (!dataStr) return; // 없음
+    // parse into hidden inputs
+    const pairs = dataStr.split(',').map(s => s.trim()).filter(Boolean);
+    pairs.forEach(pair => {
+      const [k, v] = pair.split('=').map(s => s?.trim());
+      if (k && v !== undefined) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        // spring will interpret repeated params as map? safe approach: name="data[key]"
+        input.name = 'data[' + k + ']';
+        input.value = v;
+        this.appendChild(input);
+      }
+    });
+  });
+</script>
+</body>
+</html>

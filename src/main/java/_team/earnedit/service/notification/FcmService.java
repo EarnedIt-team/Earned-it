@@ -5,6 +5,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,7 @@ import java.util.Map;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class FcmService {
 
     private static final String GLOBAL_TOPIC = "global_notifications";
@@ -43,5 +45,36 @@ public class FcmService {
     // 전체 사용자에게 전송
     public void sendGlobal(MessageTemplate template) {
         sendToTopic(GLOBAL_TOPIC, template, null);
+    }
+
+    // ----------------------------------------------------------
+    // 관리자 페이지용 API : 직접 제목/본문 입력해서 토픽에 전송 (no 템플릿)
+    // ----------------------------------------------------------
+    public void sendToTopic(String topic, String title, String body, Map<String,String> data) {
+        Notification notification = Notification.builder()
+                .setTitle(title)
+                .setBody(body)
+                .build();
+
+        Message.Builder mb = Message.builder()
+                .setTopic(topic)
+                .setNotification(notification);
+
+        if (data != null) {
+            mb.putAllData(data);
+        }
+
+        try {
+            String resp = FirebaseMessaging.getInstance().send(mb.build());
+            log.info("FCM topic sent. topic={}, title={}, resp={}", topic, title, resp);
+        } catch (FirebaseMessagingException e) {
+            log.error("FCM topic send failed. topic={}, title={}", topic, title, e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    // 전체 사용자(글로벌 토픽)에 직접 제목/본문으로 전송
+    public void sendGlobal(String title, String body, Map<String,String> data) {
+        sendToTopic(GLOBAL_TOPIC, title, body, data);
     }
 }
