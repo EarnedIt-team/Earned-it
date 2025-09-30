@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface MessageTemplateRepository extends JpaRepository<MessageTemplate, Long> {
     List<MessageTemplate> findByCategoryAndActiveTrue(MessageTemplate.Category category);
+
+    Object findByActiveTrue();
 }
