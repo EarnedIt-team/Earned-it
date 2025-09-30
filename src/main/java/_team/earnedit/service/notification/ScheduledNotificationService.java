@@ -35,7 +35,7 @@ public class ScheduledNotificationService {
     // 퇴근시간 (19:00 KST)
     @Scheduled(cron = "0 0 19 * * *")
     public void sendEveningQuote() {
-        sendRandom(Category.QUOTE);
+        sendRandom(Category.ENCOURAGE);
     }
 
     // db에 저장된 카테고리별 메시지 중 랜덤 발송
